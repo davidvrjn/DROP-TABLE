@@ -1,0 +1,25 @@
+// 1. Optional: You can override Bootstrap's default variables here
+//    For example, to change the primary color to a purple:
+// $primary: #6f42c1; // Example purple color
+// $body-bg: #1a0d33; // Example background color
+// $body-color: white; // Example text color
+
+// Check Bootstrap documentation for available variables:
+// https://getbootstrap.com/docs/5.3/customize/sass/#variable-defaults
+
+// 2. Import Bootstrap and its default variables
+//    The "~" symbol helps Sass find the package in node_modules
+@import "~bootstrap/scss/bootstrap";
+
+// 3. Add your custom styles below the import
+//    These styles will override or extend Bootstrap's defaults if needed.
+// body {
+//    font-family: sans-serif; // Example: Set a default font
+// }
+
+// Example: Custom card background
+// .card {
+//   background-color: #331a66; //dark purple card background
+//   border-color: #6f42c1; //border color
+//   color: white; //Ensure text inside card is readable
+// }
