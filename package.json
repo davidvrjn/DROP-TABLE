@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "COS221 Assignment 5 Repo",
   "scripts": {
-    "dev": "parcel src/index.html",
-    "build": "parcel build src/index.html --dist-dir dist",
+    "dev": "parcel src/index.ejs",
+    "build": "parcel build src/index.ejs --dist-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,7 +22,9 @@
     "@parcel/transformer-sass": "^2.15.0",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.6",
+    "ejs": "^3.1.10",
     "parcel": "^2.15.0",
+    "parcel-transformer-ejs": "^1.0.1",
     "sass": "^1.88.0"
   }
 }
