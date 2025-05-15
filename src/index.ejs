@@ -5,32 +5,23 @@
 </head>
 <body>
   
-    <!-- # HEADER SEGMENT # -->
-<%- include('./partials/_header.ejs', { currentPage: 'products' }) %>
+        <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'products' }) %>
      
     <div class="container mt-4">
-        <h1>Product Listing Example</h1>
-        <p>This content is styled with Bootstrap.</p>
-
-        <button class="btn btn-primary">Example Button</button>
-
-        <div class="alert alert-success mt-3" role="alert">
-          Frontend environment is working!
-        </div>
-
-        <div class="row mt-4">
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="https://m.media-amazon.com/images/I/71-4taykpML._AC_UY218_.jpg" class="card-img-top" alt="alttext">
-                    <div class="card-body">
-                        <h5 class="card-title">Sample Product Card</h5>
-                        <p class="card-text">Quick example text for the product card title.</p>
-                        <a href="#" class="btn btn-primary">View Product</a>
-                    </div>
+        <h1>Product Listing</h1>
+        
+        <div id="product-list" class="row mt-4">
+            <div class="col-12 text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
         </div>
     </div>
+        <!-- # FOOTER SEGMENT # -->
+    <%- include('partials/_footer.ejs') %>
 
+    <script type="module" src="./js/static_product_test.js"></script>
 </body>
 </html>
