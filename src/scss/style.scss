@@ -23,3 +23,227 @@ $primary: #6f42c1; // Example purple color
 //   border-color: #6f42c1; //border color
 //   color: white; //Ensure text inside card is readable
 // }
+
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//* PRODUCT CARD STYLING //*//*//*//*//*//*//*//*//*//*//*//*//*//*
+
+// Product image styling
+.card-img-top.product-thumbnail {
+  height: 150px; // Fixed height for all product images
+  object-fit: contain; // Maintain aspect ratio without cropping
+  padding: 10px; // Add some padding around the image
+  border: 0.5px solid #ddcff7;
+}
+
+.card-title {
+  // Ensure space for 2 lines to make cards slightly taller consistently
+  min-height: 2.7em; // Adjust this value based on your font size and line-height (e.g., 2 * 1.2em line-height)
+  line-height: 1.2em; // Standard line height
+  max-height: 2.4em; // Limits to 2 lines (2 * 1.2em)
+  
+  // CSS for multi-line ellipsis
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; // Limit to 2 lines
+  -webkit-box-orient: vertical;
+}
+
+// Styling for the product title link
+.product-title-link {
+  color: inherit; // Inherit text color from parent (card-body)
+  text-decoration: none; // Ensure no underline by default
+
+  &:hover {
+    color: $primary; // Change to primary color on hover 
+    text-decoration: none; // Ensure no underline on hover
+  }
+}
+
+// Styling for the product price container and retailer text
+.product-price-container {
+  display: flex;          // Use flexbox to manage children alignment and sizing
+  align-items: baseline;  // Align children along their text baseline
+  overflow: hidden;       // Hide overflow from the container itself
+
+  // Target direct children spans that are prices
+  > .h5, // Main price
+  > .text-decoration-line-through { // Strikethrough price
+    flex-shrink: 0;       // Prevent these price elements from shrinking
+    white-space: nowrap;  // Prevent prices from wrapping to new lines
+  }
+}
+
+.retailertext {
+  white-space: nowrap;     // Prevent the retailer name from wrapping
+  overflow: hidden;          // Hide any part of the text that overflows
+  text-overflow: ellipsis;   // Display an ellipsis (...) for overflowed text
+  flex-shrink: 1;          // Allow this element to shrink if space is limited
+  min-width: 0;            // Crucial for allowing flex items to shrink below their intrinsic content size and show ellipsis
+  // The existing 'small' and 'ms-1' classes from the JS will handle font size and left margin.
+}
+
+// Watchlist Heart Icon Styling
+.watchlist-icon {
+  position: absolute;
+  bottom: 1.1rem; // Adjust as needed for vertical spacing from the bottom edge
+  right: 0.75rem;  // Adjust as needed for horizontal spacing from the right edge
+  font-size: 1.9rem; // Size of the heart icon
+  line-height: 1;    // Ensures consistent vertical alignment of the character
+  color: #6c757d; // A muted gray color (Bootstrap's $gray-600)
+  text-decoration: none;
+  z-index: 5;      // Ensures it's above most card content if overlap occurs
+
+  // Reset button styles
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer; // Ensure it still looks clickable
+
+  &:hover {
+    color: $danger; // Changes color to red (Bootstrap's $danger variable) on hover
+    text-decoration: none;
+  }
+
+  &:focus, &:focus-visible { // Optional: remove focus outline if desired, or style it
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+// Product Rating Styling
+.product-rating {
+  display: flex;
+  align-items: center;
+  
+  .star {
+    color: #ffc107; // Bootstrap's warning color (gold/yellow)
+    font-size: 1.2rem;
+    margin-right: 0.25rem;
+    margin-left: 1rem;
+  }
+  
+  .rating-value {
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-right: 2rem;
+  }
+}
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//* FILTER BAR STYLING //*//*//*//*//*//*//*//*//*//*//*//*//*//*
+// Filter Sidebar Styles
+.filters-container {
+    background-color: #fff;
+    border-radius: 0.25rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  .filter-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+  
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+  
+  .filter-heading {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  
+  .filter-options {
+    max-height: 200px;
+    overflow-y: auto;
+    
+    .form-check {
+      margin-bottom: 0.5rem;
+    }
+  }
+  
+  .stars {
+    color: #ffc107; // Bootstrap's warning color (gold)
+    letter-spacing: -2px;
+  }
+  
+  .rating-count {
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+  
+  .price-slider {
+    padding: 0.5rem 0;
+    
+    .range-slider {
+      position: relative;
+      height: 2rem;
+    }
+    
+    .form-range {
+      position: absolute;
+      width: 100%;
+      pointer-events: none;
+      
+      &::-webkit-slider-thumb {
+        pointer-events: auto;
+      }
+      
+      &::-moz-range-thumb {
+        pointer-events: auto;
+      }
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 767.98px) {
+    .filters-container {
+      display: block; // Changed from 'none' to 'block'
+    }
+    
+    // Hide only the sidebar version, not the offcanvas version
+    .col-md-3 .filters-container {
+      display: none;
+    }
+  }
+
+  // Brand filter specific styles
+.brand-options {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  
+  // Styling for when no brands are loaded yet
+  &:empty::before {
+    content: "Loading brands...";
+    color: #6c757d;
+    font-style: italic;
+    display: block;
+    text-align: center;
+  }
+}
+
+// Category filter specific styles
+.category-options {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid rgba(0,0,0,.125);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  
+  // Styling for when no categories are loaded yet
+  &:empty::before {
+    content: "Loading categories...";
+    color: #6c757d;
+    font-style: italic;
+    display: block;
+    text-align: center;
+  }
+}

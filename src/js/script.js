@@ -1,6 +1,6 @@
 // This is mainly used for page rendering
 // Import Bootstrap's bundled JavaScript (includes Popper.js)
-import 'bootstrap';
+import * as bootstrap from 'bootstrap';
 
 console.log('Frontend development script loaded!');
 
@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function changeTheme(isDarkMode) {
         changeNavbarTheme(isDarkMode);
         changeFooterTheme(isDarkMode);
+        changeFilterBarTheme(isDarkMode); // Add filter bar theme change
         // Add more component theme changes here as needed
     }
 
@@ -72,4 +73,240 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // New function to handle filter bar theme changes
+    function changeFilterBarTheme(isDarkMode) {
+        const filtersContainer = document.querySelector('.filters-container');
+        const offcanvasFilters = document.querySelector('.offcanvas-body .filters-container');
+        const filterSections = document.querySelectorAll('.filter-section');
+        
+        // Apply theme to main filter container
+        if (filtersContainer) {
+            if (isDarkMode) {
+                filtersContainer.classList.remove('bg-light');
+                filtersContainer.classList.add('bg-dark', 'text-light');
+            } else {
+                filtersContainer.classList.remove('bg-dark', 'text-light');
+                filtersContainer.classList.add('bg-light');
+            }
+        }
+        
+        // Apply theme to offcanvas filter container (mobile view)
+        if (offcanvasFilters) {
+            if (isDarkMode) {
+                offcanvasFilters.classList.remove('bg-light');
+                offcanvasFilters.classList.add('bg-dark', 'text-light');
+            } else {
+                offcanvasFilters.classList.remove('bg-dark', 'text-light');
+                offcanvasFilters.classList.add('bg-light');
+            }
+        }
+        
+        // Apply theme to filter section borders
+        filterSections.forEach(section => {
+            if (isDarkMode) {
+                section.style.borderBottomColor = '#495057'; // Darker border for dark mode
+            } else {
+                section.style.borderBottomColor = '#e9ecef'; // Light border for light mode
+            }
+        });
+        
+        // Apply theme to stars in rating filter
+        const stars = document.querySelectorAll('.stars');
+        stars.forEach(star => {
+            // Stars remain gold in both themes, no changes needed
+        });
+        
+        // Apply theme to form controls in filter
+        const formControls = document.querySelectorAll('.filters-container .form-control');
+        formControls.forEach(control => {
+            if (isDarkMode) {
+                control.classList.add('bg-dark', 'text-light', 'border-secondary');
+            } else {
+                control.classList.remove('bg-dark', 'text-light', 'border-secondary');
+            }
+        });
+        
+        // Apply theme to checkboxes and their labels
+        const checkLabels = document.querySelectorAll('.filters-container .form-check-label');
+        checkLabels.forEach(label => {
+            if (isDarkMode) {
+                label.classList.add('text-light');
+            } else {
+                label.classList.remove('text-light');
+            }
+        });
+        
+        // Apply theme to filter headings
+        const filterHeadings = document.querySelectorAll('.filter-heading');
+        filterHeadings.forEach(heading => {
+            if (isDarkMode) {
+                heading.classList.add('text-light');
+            } else {
+                heading.classList.remove('text-light');
+            }
+        });
+        
+        // Apply theme to rating counts
+        const ratingCounts = document.querySelectorAll('.rating-count');
+        ratingCounts.forEach(count => {
+            if (isDarkMode) {
+                count.classList.remove('text-muted');
+                count.classList.add('text-light', 'opacity-75');
+            } else {
+                count.classList.remove('text-light', 'opacity-75');
+                count.classList.add('text-muted');
+            }
+        });
+    }
+
+    // Initialize filter functionality
+    initializeFilters();
 });
+
+// Function to initialize filter functionality
+function initializeFilters() {
+    
+    // Price range slider functionality
+    const minSlider = document.getElementById('priceRangeMin');
+    const maxSlider = document.getElementById('priceRangeMax');
+    const minInput = document.getElementById('minPrice');
+    const maxInput = document.getElementById('maxPrice');
+    
+    if (minSlider && maxSlider && minInput && maxInput) {
+        // Update input when sliders change
+        minSlider.addEventListener('input', function() {
+            minInput.value = this.value;
+            // Ensure min doesn't exceed max
+            if (parseInt(minSlider.value) >= (parseInt(maxSlider.value))) {
+                minSlider.value = maxSlider.value - 1000;
+                minInput.value = maxSlider.value - 1000;
+            }
+        });
+        
+        maxSlider.addEventListener('input', function() {
+            maxInput.value = this.value;
+            // Ensure max doesn't go below min
+            if (parseInt(maxSlider.value) <= (parseInt(minSlider.value)) ) {
+                maxSlider.value = (minSlider.value);
+                maxInput.value = (minSlider.value);
+            }
+        });
+        
+        // Update sliders when inputs change
+        minInput.addEventListener('change', function() {
+            minSlider.value = this.value;
+        });
+        
+        maxInput.addEventListener('change', function() {
+            maxSlider.value = this.value;
+        });
+    }
+    
+    // Ensure offcanvas filters are properly initialized
+    const offcanvasElement = document.getElementById('filtersOffcanvas');
+    if (offcanvasElement) {
+        // Make sure Bootstrap initializes the offcanvas component
+        new bootstrap.Offcanvas(offcanvasElement);
+        
+        // Apply current theme to offcanvas filters if needed
+        const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        const offcanvasFilters = offcanvasElement.querySelector('.filters-container');
+        if (offcanvasFilters && isDarkMode) {
+            offcanvasFilters.classList.remove('bg-light');
+            offcanvasFilters.classList.add('bg-dark', 'text-light');
+        }
+        
+        // Initialize mobile sliders when offcanvas is shown
+        offcanvasElement.addEventListener('shown.bs.offcanvas', function() {
+            // Get the mobile view sliders and inputs
+            const mobileMinSlider = offcanvasElement.querySelector('#priceRangeMin');
+            const mobileMaxSlider = offcanvasElement.querySelector('#priceRangeMax');
+            const mobileMinInput = offcanvasElement.querySelector('#minPrice');
+            const mobileMaxInput = offcanvasElement.querySelector('#maxPrice');
+            
+            if (mobileMinSlider && mobileMaxSlider && mobileMinInput && mobileMaxInput) {
+                // Sync values with desktop view if it exists
+                if (minSlider && maxSlider) {
+                    mobileMinSlider.value = minSlider.value;
+                    mobileMaxSlider.value = maxSlider.value;
+                    mobileMinInput.value = minInput.value;
+                    mobileMaxInput.value = maxInput.value;
+                }
+                
+                // Add event listeners for mobile sliders
+                mobileMinSlider.addEventListener('input', function() {
+                    mobileMinInput.value = this.value;
+                    // Ensure min doesn't exceed max
+                    if (parseInt(mobileMinSlider.value) > parseInt(mobileMaxSlider.value)) {
+                        mobileMinSlider.value = mobileMaxSlider.value - 1000;
+                        mobileMinInput.value = mobileMaxSlider.value - 1000;
+                    }
+                    // Sync with desktop view if it exists
+                    if (minSlider && minInput) {
+                        minSlider.value = this.value;
+                        minInput.value = this.value;
+                    }
+                });
+                
+                mobileMaxSlider.addEventListener('input', function() {
+                    mobileMaxInput.value = this.value;
+                    // Ensure max doesn't go below min
+                    if (parseInt(mobileMaxSlider.value) < parseInt(mobileMinSlider.value)) {
+                        mobileMaxSlider.value = mobileMinSlider.value;
+                        mobileMaxInput.value = mobileMinSlider.value;
+                    }
+                    // Sync with desktop view if it exists
+                    if (maxSlider && maxInput) {
+                        maxSlider.value = this.value;
+                        maxInput.value = this.value;
+                    }
+                });
+                
+                // Update sliders when inputs change
+                mobileMinInput.addEventListener('change', function() {
+                    mobileMinSlider.value = this.value;
+                    // Sync with desktop view if it exists
+                    if (minSlider && minInput) {
+                        minSlider.value = this.value;
+                        minInput.value = this.value;
+                    }
+                });
+                
+                mobileMaxInput.addEventListener('change', function() {
+                    mobileMaxSlider.value = this.value;
+                    // Sync with desktop view if it exists
+                    if (maxSlider && maxInput) {
+                        maxSlider.value = this.value;
+                        maxInput.value = this.value;
+                    }
+                });
+            }
+        });
+        
+        // Add event listener to handle backdrop removal when offcanvas is hidden
+        offcanvasElement.addEventListener('hidden.bs.offcanvas', function() {
+            // Remove any lingering backdrop
+            const backdrop = document.querySelector('.offcanvas-backdrop');
+            if (backdrop) {
+                backdrop.remove();
+            }
+            // Ensure body doesn't have the modal-open class which can prevent scrolling
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
+        });
+    }
+    
+    const filterToggleButtons = document.querySelectorAll('[data-bs-toggle="offcanvas"]');
+    filterToggleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetId = this.getAttribute('data-bs-target');
+            const offcanvasElement = document.querySelector(targetId);
+            if (offcanvasElement) {
+                const offcanvasInstance = new bootstrap.Offcanvas(offcanvasElement);
+                offcanvasInstance.show();
+            }
+        });
+    });
+}

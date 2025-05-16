@@ -5,25 +5,40 @@
  * @param {string} product.image_url - The URL of the product image.
  * @param {string} product.title - The product title.
  * @param {number} product.final_price - The product final price.
+ * @param {string} product.retailer_name - The product retailer name.
+ * @param {number} [product.rating] - The product average rating (optional).
  * @param {number} [product.initial_price] - The initial product price (optional).
  * @param {number} [product.discount] - The product discount percentage (optional).
  * @returns {string} The HTML string for the product card.
  */
 export function createProductCardHTML(product) {
     return `
-      <div class="col-md-4 mb-4">
+      <div class="col-md-4 mb-3">
           <div class="card h-100">
-              <img src="${product.image_url}" class="card-img-top" alt="${product.title}">
-              <div class="card-body">
-                  <h5 class="card-title">${product.title}</h5>
-                  <div class="d-flex justify-content-between align-items-center">
-                      <span class="h5 mb-0">
-                          R${product.final_price.toFixed(2)}
+              <a href="view.html?id=${product.id}" class="text-decoration-none">
+                  <img src="${product.image_url}" class="card-img-top product-thumbnail" alt="${product.title}">
+              </a>
+              <div class="card-body d-flex flex-column"> 
+                  <a href="view.html?id=${product.id}" class="text-decoration-none product-title-link">
+                      <h5 class="card-title">${product.title}</h5>  
+                  </a>
+                  <div class="mt-auto"> 
+                      <div class="product-price-container">
+                          <span class="h5 mb-0">R${product.final_price.toFixed(2)}</span>
                           ${product.discount && product.discount > 0 && product.initial_price ?
-                              `<span class="text-decoration-line-through me-2 text-muted">R${product.initial_price.toFixed(2)}</span>`
+                              `<span class="text-decoration-line-through ms-1 text-muted small">R${product.initial_price.toFixed(2)}</span>`
                               : ''}
-                      </span>
-                      <a href="view.html?id=${product.id}" class="btn btn-primary">View Product</a>
+                          <span class="text-muted small ms-1 retailertext">From ${product.retailer_name}</span>  
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mt-2">
+                          <a href="view.html?id=${product.id}" class="btn btn-primary btn-sm text-nowrap">View Product</a>
+                          ${product.rating ? `
+                          <div class="product-rating mx-2">
+                            <span class="star">★</span>
+                            <span class="rating-value">${product.rating.toFixed(1)}</span>
+                          </div>
+                          ` : ''}
+                      </div>
                   </div>
               </div>
               ${product.discount && product.discount > 0 ? `
@@ -31,6 +46,9 @@ export function createProductCardHTML(product) {
                   ${product.discount}% OFF
               </div>
               ` : ''}
+              <button type="button" class="watchlist-icon" title="Add to Watchlist" data-product-id="${product.id}">
+                &hearts; 
+              </button>
           </div>
       </div>
     `;
