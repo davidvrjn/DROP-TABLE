@@ -5,9 +5,56 @@
 </head>
 <body>
   
-        <!-- # HEADER SEGMENT # -->
+    <!-- # HEADER SEGMENT # -->
     <%- include('./partials/_header.ejs', { currentPage: 'watchlist' }) %>
 
-        <!-- # FOOTER SEGMENT # -->
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="watchlist-header mb-4">
+                    <h1>Your Watchlist</h1>
+                    <p class="text-muted">Keep track of products you're interested to see when prices drop.</p>
+                </div>
+                
+                <!-- Empty state for when no items are in watchlist -->
+                <div id="empty-watchlist" class="text-center py-5">
+                    <div class="empty-watchlist-icon mb-3">
+                        <i class="bi bi-heart fs-1"></i>
+                    </div>
+                    <h3>Your watchlist is empty</h3>
+                    <p class="text-muted">Add items to your watchlist to track price changes over time.</p>
+                    <a href="index.ejs" class="btn btn-primary mt-3">Browse Products</a>
+                </div>
+                
+                <!-- Watchlist items will be loaded here -->
+                <div id="watchlist-items" class="row g-4" style="display: none;">
+                    <!-- Items will be dynamically added here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Price history modal -->
+    <div class="modal fade" id="priceHistoryModal" tabindex="-1" aria-labelledby="priceHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="priceHistoryModalLabel">Price History</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="priceHistoryChart" style="height: 300px;"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- # FOOTER SEGMENT # -->
     <%- include('partials/_footer.ejs') %>
+
+    <!-- Add JavaScript for watchlist functionality -->
+    <script type="module" src="js/static_watchlist_test.js"></script>
 </body>
