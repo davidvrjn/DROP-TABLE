@@ -336,3 +336,89 @@ $primary: #6f42c1; // Example purple color
     background-color: #b366d9; // Even lighter purple on hover
   }
 }
+
+//*//*//*//*//*//*//*//*//*//*//*//*//*//* NAVBAR STYLING //*//*//*//*//*//*//*//*//*//*//*
+
+// Navbar styling
+.navbar {
+  background-color: rgba(123, 31, 162, 0.25) !important; // More moderate purple with transparency
+  padding: 0.5rem 1.25rem; // Slightly reduced padding
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); // Subtler shadow
+}
+
+// Light mode navbar styling
+html[data-bs-theme="light"] .navbar {
+  background-color: rgba(171, 71, 188, 0.25) !important;
+}
+
+// Light mode navbar text styling
+html[data-bs-theme="light"] .navbar-brand {
+  color: #4a148c !important; // Dark purple for better visibility in light mode
+}
+
+html[data-bs-theme="light"] .navbar .nav-link {
+  color: #4a148c !important; // Dark purple for better visibility in light mode
+  
+  &:hover, &:focus {
+    color: #6a1b9a !important;
+    background-color: rgba(74, 20, 140, 0.08);
+  }
+  
+  &.active {
+    color: #6a1b9a !important;
+    background-color: rgba(74, 20, 140, 0.12);
+  }
+}
+
+// Light mode dark mode icon styling
+html[data-bs-theme="light"] .dark-mode-icon {
+  color: #4a148c;
+}
+
+// Brand/logo styling
+.navbar-brand {
+  font-weight: 600; // Slightly reduced weight
+  font-size: 1.4rem; // Slightly smaller font
+  color: white !important;
+  letter-spacing: 0.3px; // Reduced letter spacing
+  
+  &:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+}
+
+// Nav links styling
+.navbar .nav-link {
+  color: rgba(255, 255, 255, 0.9) !important; // Increased opacity for better visibility
+  font-weight: 500;
+  padding: 0.4rem 0.8rem; // Reduced padding
+  margin: 0 0.2rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  
+  &:hover, &:focus {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.08); // Subtler hover effect
+  }
+  
+  &.active {
+    color: white !important;
+    background-color: rgba(255, 255, 255, 0.12); // Subtler active state
+  }
+}
+
+// Dark mode toggle button styling
+.form-check-input[type="checkbox"] {
+  cursor: pointer;
+  
+  &:checked {
+    background-color: #ce93d8; // Lighter purple when checked
+    border-color: #ce93d8;
+  }
+}
+
+// Dark mode icon styling
+.dark-mode-icon {
+  color: rgba(255, 255, 255, 0.9);
+  margin-left: 0.5rem;
+}
