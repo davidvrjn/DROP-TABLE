@@ -113,8 +113,6 @@ function setupRemoveButtons() {
  * @param {string} productId - The ID of the product to remove
  */
 function removeFromWatchlist(productId) {
-  // In a real application, this would make an API call
-  // For this static example, we'll just filter the array
   const index = staticWatchlistData.findIndex(item => item.id === productId);
   
   if (index !== -1) {
@@ -157,8 +155,7 @@ function showPriceHistory(productId) {
     modalTitle.textContent = `Price History: ${product.title}`;
   }
   
-  // In a real application, you would render a chart here
-  // For this static example, we'll just show the data as text
+
   const chartContainer = document.getElementById('priceHistoryChart');
   
   if (chartContainer) {
