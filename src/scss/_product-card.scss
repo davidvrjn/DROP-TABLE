@@ -2,14 +2,13 @@
 
 // Product image styling
 .card-img-top.product-thumbnail {
-  height: 150px; // Fixed height for all product images
-  object-fit: contain; // Maintain aspect ratio without cropping
-  padding: 10px; // Add some padding around the image
+  height: 150px;
+  object-fit: contain;
+  padding: 10px;
   border: 0.5px solid $card-border-color;
 }
 
 .card-title {
-  // Ensure space for 2 lines to make cards slightly taller consistently
   min-height: 2.7em;
   line-height: 1.2em;
   max-height: 2.4em;

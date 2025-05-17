@@ -1,0 +1,240 @@
+/* Product view specific styles */
+.product-view {
+    padding: 20px 0;
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+    padding: 8px 15px;
+    border: 1px solid rgba(106, 27, 154, 0.5);
+    border-radius: 20px;
+    color: rgba(106, 27, 154, 0.9);
+    background-color: transparent;
+
+    &:hover {
+        color: #fff;
+        background-color: rgba(106, 27, 154, 0.9);
+        border-color: rgba(106, 27, 154, 0.9);
+    }
+}
+
+.product-view-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-slide.active {
+    opacity: 1;
+}
+
+.carousel-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+}
+
+.product-specs, .product-features {
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(106, 27, 154, 0.05);
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.spec-item {
+    background-color: rgba(106, 27, 154, 0.1);
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid rgba(106, 27, 154, 0.15);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    strong {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: rgba(106, 27, 154, 0.9);
+    }
+
+    span {
+        color: rgba(0, 0, 0, 0.8);
+    }
+}
+
+.product-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+@media (max-width: 992px) {
+    .product-view-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .specs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-actions {
+        flex-direction: column;
+    }
+}
+
+
+.carousel-control-prev,
+.carousel-control-next {
+  width: 10%;
+  opacity: 0.8;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(106, 27, 154, 0.7);
+  border-radius: 50%;
+  padding: 15px;
+  background-size: 50%;
+}
+
+
+.carousel-indicators {
+  position: absolute;
+  bottom: 10px;
+  margin-bottom: 0;
+  justify-content: center;
+  padding: 0;
+  margin-right: 0;
+  margin-left: 0;
+  z-index: 5;
+  background-color: transparent;
+  border-radius: 0;
+  width: 100%;
+  left: 0;
+  transform: none;
+}
+
+.carousel-indicators [data-bs-target] {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: rgba(187, 103, 239, 0.7);
+  border: none;
+  margin: 0 4px;
+  opacity: 1;
+  transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+}
+
+.carousel-indicators .active {
+  background-color: rgb(178, 76, 241);
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+[data-bs-theme="dark"] {
+  .carousel-indicators [data-bs-target] {
+    background-color: rgba(206, 147, 216, 0.7);
+  }
+
+  .carousel-indicators .active {
+    background-color: rgba(206, 147, 216, 1);
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    background-color: rgba(206, 147, 216, 0.8);
+  }
+
+  .back-button {
+    border-color: rgba(206, 147, 216, 0.5);
+    color: rgba(206, 147, 216, 0.9);
+
+    &:hover {
+      color: #212529;
+      background-color: rgba(206, 147, 216, 0.9);
+      border-color: rgba(206, 147, 216, 0.9);
+    }
+  }
+
+  .product-specs, .product-features {
+    background-color: rgba(206, 147, 216, 0.05);
+  }
+
+  .spec-item {
+    background-color: rgba(206, 147, 216, 0.1);
+    border-color: rgba(206, 147, 216, 0.15); /* Dark mode border color */
+
+    strong {
+        color: rgba(206, 147, 216, 0.9); /* Adjust key color for dark mode */
+    }
+
+    span {
+        color: rgba(255, 255, 255, 0.8); /* Adjust value color for dark mode */
+    }
+  }
+}
+
+.carousel-indicator-label {
+  display: none;
+}
+
+.product-specs {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+
+// Product Description Styling
+.product-description {
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: rgba(106, 27, 154, 0.05); 
+    line-height: 1.6;
+    color: rgba(0, 0, 0, 0.8); 
+}
+
+[data-bs-theme="dark"] {
+  .product-description {
+    background-color: rgba(206, 147, 216, 0.05); 
+    color: rgba(255, 255, 255, 0.8); 
+  }
+}
