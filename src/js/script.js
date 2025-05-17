@@ -195,11 +195,31 @@ function initializeFilters() {
         
         // Update sliders when inputs change
         minInput.addEventListener('change', function() {
-            minSlider.value = this.value;
+            // Prevent negative values
+            if (this.value < 0) {
+                this.value = 0;
+            }
+            
+            // If input is blank, set slider to minimum (0)
+            if (this.value === '') {
+                minSlider.value = 0;
+            } else {
+                minSlider.value = this.value;
+            }
         });
         
         maxInput.addEventListener('change', function() {
-            maxSlider.value = this.value;
+            // Prevent negative values
+            if (this.value < 0) {
+                this.value = 0;
+            }
+            
+            // If input is blank, set slider to maximum (10000)
+            if (this.value === '') {
+                maxSlider.value = 10000;
+            } else {
+                maxSlider.value = this.value;
+            }
         });
     }
     
@@ -265,19 +285,41 @@ function initializeFilters() {
                 
                 // Update sliders when inputs change
                 mobileMinInput.addEventListener('change', function() {
-                    mobileMinSlider.value = this.value;
+                    // Prevent negative values
+                    if (this.value < 0) {
+                        this.value = 0;
+                    }
+                    
+                    // If input is blank, set slider to minimum (0)
+                    if (this.value === '') {
+                        mobileMinSlider.value = 0;
+                    } else {
+                        mobileMinSlider.value = this.value;
+                    }
+                    
                     // Sync with desktop view if it exists
                     if (minSlider && minInput) {
-                        minSlider.value = this.value;
+                        minSlider.value = mobileMinSlider.value;
                         minInput.value = this.value;
                     }
                 });
                 
                 mobileMaxInput.addEventListener('change', function() {
-                    mobileMaxSlider.value = this.value;
+                    // Prevent negative values
+                    if (this.value < 0) {
+                        this.value = 0;
+                    }
+                    
+                    // If input is blank, set slider to maximum (10000)
+                    if (this.value === '') {
+                        mobileMaxSlider.value = 10000;
+                    } else {
+                        mobileMaxSlider.value = this.value;
+                    }
+                    
                     // Sync with desktop view if it exists
                     if (maxSlider && maxInput) {
-                        maxSlider.value = this.value;
+                        maxSlider.value = mobileMaxSlider.value;
                         maxInput.value = this.value;
                     }
                 });
