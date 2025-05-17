@@ -20,12 +20,34 @@
                        <li class="nav-item">
                           <a class="nav-link <% if (currentPage === 'about') { %>active<% } %>" <% if (currentPage === 'about') { %>aria-current="page"<% } %> href="about.ejs">About</a>
                       </li>
+                      <!-- Add auth links as nav items for mobile view -->
+                      <li class="nav-item d-lg-none">
+                          <a class="nav-link" href="login.ejs">Login</a>
+                      </li>
+                      <li class="nav-item d-lg-none">
+                          <a class="nav-link" href="register.ejs">Register</a>
+                      </li>
+                      <!-- Add theme toggle for mobile view -->
+                      <li class="nav-item d-lg-none mt-2 ms-3">
+                          <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" id="themeToggleMobile">
+                              <label class="form-check-label" for="themeToggleMobile">
+                                  <i class="bi bi-moon-stars dark-mode-icon"></i>
+                              </label>
+                          </div>
+                      </li>
                   </ul>
                    <div class="d-flex align-items-center">
-                      <div class="form-check form-switch me-2">
+                      <!-- Auth links for desktop view only -->
+                      <div class="auth-links d-none d-lg-flex me-3">
+                        <a href="login.ejs" class="text-decoration-none me-3">Login</a>
+                        <a href="register.ejs" class="text-decoration-none">Register</a>
+                      </div>
+                      <!-- Theme toggle for desktop view only -->
+                      <div class="form-check form-switch me-2 d-none d-lg-block">
                           <input class="form-check-input" type="checkbox" id="themeToggle">
                           <label class="form-check-label" for="themeToggle">
-                              <i class="bi bi-moon-stars"></i>
+                              <i class="bi bi-moon-stars dark-mode-icon"></i>
                           </label>
                       </div>
                   </div>

@@ -352,3 +352,28 @@ function initializeFilters() {
         });
     });
 }
+
+// Make sure both theme toggles stay in sync
+document.addEventListener('DOMContentLoaded', function() {
+    const themeToggle = document.getElementById('themeToggle');
+    const themeToggleMobile = document.getElementById('themeToggleMobile');
+    
+    if (themeToggle && themeToggleMobile) {
+        // Sync initial state
+        const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        themeToggle.checked = isDarkMode;
+        themeToggleMobile.checked = isDarkMode;
+        
+        // Sync desktop to mobile
+        themeToggle.addEventListener('change', function() {
+            themeToggleMobile.checked = this.checked;
+        });
+        
+        // Sync mobile to desktop
+        themeToggleMobile.addEventListener('change', function() {
+            themeToggle.checked = this.checked;
+            // Trigger the theme change
+            themeToggle.dispatchEvent(new Event('change'));
+        });
+    }
+});
