@@ -2,7 +2,6 @@
 <html lang="en" data-bs-theme="light">
 <head>
     <%- include('./partials/_head.ejs') %>
-
 </head>
 <body>
     <!-- # HEADER SEGMENT # -->
@@ -10,13 +9,15 @@
 
     <div class="container mt-4">
         <div class="product-view">
-            <a href="index.ejs" class="back-button btn btn-outline-secondary">
+            <a href="index.ejs" class="back-button">
                 <i class="bi bi-arrow-left"></i> Back to Products
             </a>
             
             <div class="product-view-container card">
-                <div class="product-left-column">
-                    <div class="product-carousel card mb-4">  <!-- Added mb-4 class for margin-bottom -->
+                <!-- Top Section: Image and Product Info -->
+                <div class="product-top-section">
+                    <!-- Left Column: Product Image -->
+                    <div class="product-image-column">
                         <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
                             <div class="carousel-indicators" id="carousel-indicators">
                                 <!-- Indicators will be added dynamically -->
@@ -43,6 +44,48 @@
                         </div>
                     </div>
                     
+                    <!-- Right Column: Product Details -->
+                    <div class="product-info-column">
+                        <h1 class="product-title" id="product-title">Loading product...</h1>
+                        <div class="product-price mb-3" id="product-price">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div id= "retailer-name" class="text-muted mt-1">
+                            Loading...
+                        </div>
+                        
+                        <div class="product-rating mb-3" id="product-rating">
+                            <div class="rating-stars">
+                                <i class="bi bi-star-fill"></i>
+                                <span class="rating-value"></span>
+                                <span class="rating-count">()</span>
+                            </div>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button class="btn btn-outline-danger wishlist-btn">
+                                <i class="bi bi-heart"></i> Add to Watchlist
+                            </button>
+                            <button class="btn btn-primary view-retailers-btn">
+                                View all retailer prices <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description Section -->
+                <div class="product-description-section card">
+                    <div class="card-body">
+                        <h3 class="card-title">Description</h3>
+                        <p id="product-description">Loading product description...</p>
+                    </div>
+                </div>
+                
+                <!-- Bottom Section: Specs and Features in a row -->
+                <div class="product-info-row">
+                    <!-- Specifications -->
                     <div class="product-specs card">
                         <div class="card-body">
                             <h3 class="card-title">Specifications</h3>
@@ -56,32 +99,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="product-details">
-                    <h1 class="product-title" id="product-title">Loading product...</h1>
-                    <div class="product-price mb-3" id="product-price">
-                        <div class="spinner-border spinner-border-sm" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                    </div>
                     
-                    <div class="product-actions">
-                        <button class="btn btn-outline-danger wishlist-btn">
-                            <i class="bi bi-heart"></i> Add to Watchlist
-                        </button>
-                        <button class="btn btn-primary view-retailers-btn">
-                            View all retailer prices <i class="bi bi-search"></i>
-                        </button>
-                    </div>
-                    
-                    <div class="product-description card mb-4">
-                        <div class="card-body">
-                            <h3 class="card-title">Description</h3>
-                            <p id="product-description">Loading product description...</p>
-                        </div>
-                    </div>
-                    
+                    <!-- Key Features -->
                     <div class="product-features card">
                         <div class="card-body">
                             <h3 class="card-title">Key Features</h3>

@@ -89,12 +89,26 @@ function renderProductData(product) {
   } else {
     priceElement.innerHTML = `<span class="h3 mb-0">R${product.price.toFixed(2)}</span>`;
   }
-
-  // Add retailer info
-  priceElement.innerHTML += `<div class="text-muted mt-1">From ${product.retailer}</div>`;
-
+  
+  // Update retailer name in the dedicated element
+  const retailerElement = document.getElementById('retailer-name');
+  retailerElement.innerHTML = `From <span class="retailer-name">${product.retailer}</span>`;
+  
   // Set product description
   document.getElementById('product-description').textContent = product.description;
+
+  // Set product rating
+  const ratingElement = document.getElementById('product-rating');
+  if (product.rating) {
+    const ratingStars = ratingElement.querySelector('.rating-stars');
+    const ratingValue = ratingStars.querySelector('.rating-value');
+    const ratingCount = ratingStars.querySelector('.rating-count');
+    
+    ratingValue.textContent = product.rating.toFixed(1);
+    ratingCount.textContent = `(${product.reviewCount})`;
+  } else {
+    ratingElement.style.display = 'none';
+  }
 
   // Set product features
   const featuresElement = document.getElementById('product-features');
