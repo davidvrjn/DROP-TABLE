@@ -27,13 +27,42 @@
   margin-bottom: 0.75rem;
 }
 
+// Common styles for scrollable option containers
+.filter-options,
+.brand-options,
+.category-options {
+  overflow-y: auto;
+  border-radius: 0.25rem;
+}
+
 .filter-options {
   max-height: 200px;
-  overflow-y: auto;
   
   .form-check {
     margin-bottom: 0.5rem;
   }
+}
+
+.brand-options,
+.category-options {
+  max-height: 150px;
+  border: 1px solid rgba(0,0,0,.125);
+  padding: 0.5rem;
+  
+  &:empty::before {
+    color: #6c757d;
+    font-style: italic;
+    display: block;
+    text-align: center;
+  }
+}
+
+.brand-options:empty::before {
+  content: "Loading brands...";
+}
+
+.category-options:empty::before {
+  content: "Loading categories...";
 }
 
 .stars {
@@ -59,10 +88,7 @@
     width: 100%;
     pointer-events: none;
     
-    &::-webkit-slider-thumb {
-      pointer-events: auto;
-    }
-    
+    &::-webkit-slider-thumb,
     &::-moz-range-thumb {
       pointer-events: auto;
     }
@@ -78,39 +104,5 @@
   // Hide only the sidebar version, not the offcanvas version
   .col-md-3 .filters-container {
     display: none;
-  }
-}
-
-// Brand filter specific styles
-.brand-options {
-  max-height: 150px;
-  overflow-y: auto;
-  border: 1px solid rgba(0,0,0,.125);
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-  
-  &:empty::before {
-    content: "Loading brands...";
-    color: #6c757d;
-    font-style: italic;
-    display: block;
-    text-align: center;
-  }
-}
-
-// Category filter specific styles
-.category-options {
-  max-height: 150px;
-  overflow-y: auto;
-  border: 1px solid rgba(0,0,0,.125);
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-  
-  &:empty::before {
-    content: "Loading categories...";
-    color: #6c757d;
-    font-style: italic;
-    display: block;
-    text-align: center;
   }
 }
