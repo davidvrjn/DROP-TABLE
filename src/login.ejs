@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+    <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'login' }) %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h1 class="display-6 fw-bold text-center mb-4">Login</h1>
+                        
+                        <form id="loginForm">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" required>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">Remember me</label>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                            
+                            <div class="text-center mt-3">
+                                <button type="button" id="forgotPasswordBtn" class="btn btn-link text-decoration-none p-0">Forgot password?</button>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p>Don't have an account? <a href="register.ejs" class="text-decoration-none">Register</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+    <!-- # FOOTER SEGMENT # -->
+    <%- include('partials/_footer.ejs') %>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('loginForm');
+            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+            
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const rememberMe = document.getElementById('rememberMe').checked;
+                    
+                    console.log('Login attempt:', { email, password, rememberMe });
+                    
+                    alert('Login');
+                    // Redirect to home page
+                    // window.location.href = 'index.ejs';
+                });
+            }
+            
+            if (forgotPasswordBtn) {
+                forgotPasswordBtn.addEventListener('click', function() {
+                    // Handle forgot password functionality
+                    console.log('Forgot password clicked');
+                    alert('Forgot password functionality will be implemented by the JS team');
+                });
+            }
+        });
+    </script>
+</body>
+</html>
