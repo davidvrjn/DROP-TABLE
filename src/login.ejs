@@ -54,8 +54,13 @@
     <!-- # FOOTER SEGMENT # -->
     <%- include('partials/_footer.ejs') %>
     
-    <script>
+    <script type="module">
+        import { initPasswordEye } from './partials/_passwordeye.js';
+        
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize password eye toggle
+            initPasswordEye();
+            
             const loginForm = document.getElementById('loginForm');
             const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
             
