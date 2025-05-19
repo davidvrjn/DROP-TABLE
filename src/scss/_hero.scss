@@ -11,37 +11,6 @@
   width: 90%;
 }
 
-// Light mode hero section styling
-[data-bs-theme="light"] .hero-section {
-  background-color: $hero-bg-light;
-  color: #4a148c;
-}
-
-// Light mode search input
-[data-bs-theme="light"] .search-input {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #4a148c;
-  
-  &::placeholder {
-    color: rgba(74, 20, 140, 0.6);
-  }
-  
-  &:focus {
-    background-color: rgba(255, 255, 255, 0.5);
-    color: #4a148c;
-  }
-}
-
-// Update the search button for light mode
-[data-bs-theme="light"] .search-btn {
-  background-color: #8e24aa;
-  color: white;
-  
-  &:hover {
-    background-color: #9c27b0;
-  }
-}
-
 .hero-title {
   font-size: 2rem; 
   font-weight: 600;
@@ -57,6 +26,7 @@
   margin: 0 auto;
 }
 
+// Search input base styles (dark theme)
 .search-input {
   background-color: rgba(0, 0, 0, 0.2);
   border: none;
@@ -76,6 +46,7 @@
   }
 }
 
+// Search button base styles (dark theme)
 .search-btn {
   background-color: #9c4dcc;
   color: white;
@@ -84,5 +55,35 @@
   
   &:hover {
     background-color: #b366d9;
+  }
+}
+
+// Light theme overrides
+[data-bs-theme="light"] {
+  .hero-section {
+    background-color: $hero-bg-light;
+    color: #4a148c;
+  }
+  
+  .search-input {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #4a148c;
+    
+    &::placeholder {
+      color: rgba(74, 20, 140, 0.6);
+    }
+    
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.5);
+      color: #4a148c;
+    }
+  }
+  
+  .search-btn {
+    background-color: #8e24aa;
+    
+    &:hover {
+      background-color: #9c27b0;
+    }
   }
 }
