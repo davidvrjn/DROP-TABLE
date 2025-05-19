@@ -3,6 +3,11 @@
  * This script loads and displays sample review data for product pages
  */
 
+// Pagination state for reviews
+let currentReviewsPage = 1;
+const reviewsPerPage = 2; // Show 2 reviews per page
+let currentReviewsData = null; // Track the current reviews dataset
+
 document.addEventListener('DOMContentLoaded', function() {
     // Get the product ID from the URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -19,9 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
 function loadProductReviews(productId) {
     // this would be an API call
     const reviewsData = getSampleReviewsData(productId);
+    currentReviewsData = reviewsData; // Store for pagination
     
-    // Render reviews data
-    renderReviews(reviewsData);
+    // Render reviews with pagination
+    renderReviewsWithPagination(reviewsData);
+    setupLoadMoreReviewsButton(reviewsData);
 }
 
 /**
@@ -86,10 +93,10 @@ function getSampleReviewsData(productId) {
 }
 
 /**
- * Render reviews to the page
+ * Render reviews with pagination
  * @param {object} reviewsData - The reviews data to render
  */
-function renderReviews(reviewsData) {
+function renderReviewsWithPagination(reviewsData = currentReviewsData) {
     // Update overall rating
     const overallRatingValue = document.getElementById('overall-rating-value');
     const overallRatingCount = document.getElementById('overall-rating-count');
@@ -105,24 +112,66 @@ function renderReviews(reviewsData) {
     // Get reviews container
     const reviewsContainer = document.getElementById('reviews-container');
     const noReviewsMessage = document.getElementById('no-reviews-message');
+    if (!reviewsContainer) return;
+
+    // Clear existing reviews
+    const existingReviews = reviewsContainer.querySelectorAll('.review-item');
+    existingReviews.forEach(review => review.remove());
     
-    if (reviewsContainer) {
-        // Clear existing content except the no-reviews message
-        const existingReviews = reviewsContainer.querySelectorAll('.review-item');
-        existingReviews.forEach(review => review.remove());
-        
-        // Show or hide no reviews message
-        if (reviewsData.reviews.length === 0) {
-            if (noReviewsMessage) noReviewsMessage.style.display = 'block';
-        } else {
-            if (noReviewsMessage) noReviewsMessage.style.display = 'none';
-            
-            // Add reviews to container
-            reviewsData.reviews.forEach(review => {
+    // Show or hide no reviews message
+    if (reviewsData.reviews.length === 0) {
+        if (noReviewsMessage) noReviewsMessage.style.display = 'block';
+        const loadMoreButton = document.getElementById('load-more-reviews');
+        if (loadMoreButton) loadMoreButton.style.display = 'none';
+        return;
+    } else {
+        if (noReviewsMessage) noReviewsMessage.style.display = 'none';
+    }
+
+    // Calculate reviews to display
+    const start = (currentReviewsPage - 1) * reviewsPerPage;
+    const end = start + reviewsPerPage;
+    const reviewsToRender = reviewsData.reviews.slice(0, end);
+
+    // Add reviews to container
+    const reviewsHTML = reviewsToRender.map(review => {
+        const reviewElement = createReviewElement(review);
+        return reviewElement.outerHTML;
+    }).join('');
+    reviewsContainer.innerHTML += reviewsHTML;
+
+    // Hide "Load More" button if all reviews are displayed
+    const loadMoreButton = document.getElementById('load-more-reviews');
+    if (loadMoreButton) {
+        loadMoreButton.style.display = end >= reviewsData.reviews.length ? 'none' : 'block';
+    }
+
+    // Future API implementation:
+    /*
+    fetch(`/api/reviews/${reviewsData.productId}?page=${currentReviewsPage}&limit=${reviewsPerPage}`)
+        .then(response => response.json())
+        .then(data => {
+            data.reviews.forEach(review => {
                 const reviewElement = createReviewElement(review);
                 reviewsContainer.appendChild(reviewElement);
             });
-        }
+            loadMoreButton.style.display = data.hasMore ? 'block' : 'none';
+        })
+        .catch(error => console.error('Error loading reviews:', error));
+    */
+}
+
+/**
+ * Setup the "Load More" button for reviews
+ * @param {object} reviewsData - The reviews data
+ */
+function setupLoadMoreReviewsButton(reviewsData) {
+    const loadMoreButton = document.getElementById('load-more-reviews');
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', () => {
+            currentReviewsPage++;
+            renderReviewsWithPagination(reviewsData);
+        });
     }
 }
 

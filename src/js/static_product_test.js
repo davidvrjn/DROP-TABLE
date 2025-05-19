@@ -4,14 +4,11 @@
 // The rendered product cards are inserted into a container with the ID 'product-list'.
 // This file is not intended for production use and is meant for testing purposes only.
 
-
 // Import the function to generate product card HTML
 import { createProductCardHTML } from '../partials/_product-card.js';
 
-/**
- * Static data for testing product card rendering.
- * This array contains 5 product objects.
- */
+// Static data for testing product card rendering.
+// This array contains 5 product objects.
 const staticProductData = [
     {
         id: 'prod-001',
@@ -47,7 +44,7 @@ const staticProductData = [
         initial_price: 1000001.00,
         discount: 20,
     },
-     {
+    {
         id: 'prod-005',
         image_url: 'https://m.media-amazon.com/images/I/71geIOeuw-L._AC_SY450_.jpg',
         title: 'Monitor Stand',
@@ -56,25 +53,66 @@ const staticProductData = [
     },
 ];
 
-// Function to render products to the page
-function renderProducts(productsToRender) {
-    const productListContainer = document.getElementById('product-list'); 
+// Pagination state
+let currentPage = 1;
+const itemsPerPage = 3; // Show 3 products per page
+let currentProducts = staticProductData; // Track the current dataset (for search/filter)
 
+function renderProductsWithPagination(products = currentProducts) {
+    const productListContainer = document.getElementById('product-list');
     if (!productListContainer) {
         console.error("Product list container not found!");
         return;
     }
 
-    // Clear existing content
-    productListContainer.innerHTML = '';
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const productsToRender = products.slice(0, end);
 
-    // Loop through the products and generate/insert HTML
-    productsToRender.forEach(product => {
-        // Create the HTML string for a single product card using the imported function
-        const productCardHTML = createProductCardHTML(product);
+    if (productsToRender.length === 0) {
+        productListContainer.innerHTML = '<p class="text-center text-muted">No products found.</p>';
+        return;
+    }
 
-        productListContainer.innerHTML += productCardHTML; 
-    });
+    // Optimize rendering by building HTML string once
+    const productCardsHTML = productsToRender.map(product => createProductCardHTML(product)).join('');
+    productListContainer.innerHTML = productCardsHTML;
+
+    const loadMoreButton = document.getElementById('load-more-products');
+    if (loadMoreButton) {
+        loadMoreButton.style.display = end >= products.length ? 'none' : 'block';
+    }
+
+    // Future API implementation:
+    /*
+    fetch(`/api/products?page=${currentPage}&limit=${itemsPerPage}`)
+        .then(response => response.json())
+        .then(data => {
+            data.products.forEach(product => {
+                const productCardHTML = createProductCardHTML(product);
+                productListContainer.innerHTML += productCardHTML;
+            });
+            loadMoreButton.style.display = data.hasMore ? 'block' : 'none';
+        })
+        .catch(error => console.error('Error loading products:', error));
+    */
+}
+
+function setupLoadMoreButton() {
+    const loadMoreButton = document.getElementById('load-more-products');
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', () => {
+            currentPage++;
+            renderProductsWithPagination();
+        });
+    }
+}
+
+// Function to render products to the page (used for search/filter)
+function renderProducts(productsToRender) {
+    currentProducts = productsToRender; // Update the current dataset
+    currentPage = 1; // Reset pagination
+    renderProductsWithPagination(productsToRender);
 }
 
 // Function to populate brand checkboxes
@@ -288,23 +326,25 @@ function populateRetailerFilters(retailers) {
 
 // Example usage with sample categories
 const categories = ['Electronics', 'Computers', 'Smartphones', 'Audio', 'Gaming', 'Accessories', 'Home Appliances', 'Wearables'];
-populateCategoryFilters(categories);
 
 // Example usage with brands
 const brands = ['Apple', 'Samsung', 'Sony', 'LG', 'Huawei', 'Xiaomi', 'Google', 'OnePlus'];
-populateBrandFilters(brands);
 
 // Example usage with retailers
 const retailers = ['Amazon', 'Takealot', 'Checkers', 'Pick n Pay', 'Game', 'Makro', 'Incredible Connection'];
-populateRetailerFilters(retailers);
+
+function populateFilters() {
+    populateCategoryFilters(categories);
+    populateBrandFilters(brands);
+    populateRetailerFilters(retailers);
+}
 
 // Add search functionality for the hero search bar
-document.addEventListener('DOMContentLoaded', () => {
+function setupHeroSearch() {
     const searchInput = document.querySelector('.hero-section .search-input');
     const searchButton = document.querySelector('.hero-section .search-btn');
 
-    if(searchInput && searchButton)
-    {
+    if (searchInput && searchButton) {
         searchButton.addEventListener('click', () => {
             const query = searchInput.value.trim().toLowerCase();
             performSearch(query);
@@ -312,17 +352,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Allow search on Enter key press
         searchInput.addEventListener('keypress', (e) => {
-            if(e.key === 'Enter')
-            {
+            if (e.key === 'Enter') {
                 const query = searchInput.value.trim().toLowerCase();
                 performSearch(query);
             }
         });
     }
-});
+}
 
-function performSearch(query)
-{
+function performSearch(query) {
     // For now, filter static data; later, this will call an API
     const filteredProducts = staticProductData.filter(product => 
         product.title.toLowerCase().includes(query)
@@ -339,7 +377,10 @@ function performSearch(query)
     */
 }
 
-// Run the rendering function when the DOM is ready
+// Initialize everything when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    renderProducts(staticProductData);
+    renderProductsWithPagination();
+    setupLoadMoreButton();
+    populateFilters();
+    setupHeroSearch();
 });
