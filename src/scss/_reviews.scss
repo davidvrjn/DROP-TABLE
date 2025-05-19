@@ -25,6 +25,8 @@
     justify-content: space-between;
     padding-bottom: 15px;
     border-bottom: 1px solid rgba(106, 27, 154, 0.1);
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .overall-rating {
@@ -44,14 +46,22 @@
     gap: 2px;
 }
 
-.overall-rating .rating-stars .bi-star-fill {
+.overall-rating .rating-stars .bi-star-fill,
+.review-rating .bi-star-fill {
     color: #FFD700;
+}
+
+.overall-rating .rating-stars .bi-star-fill {
     font-size: 1.2rem;
 }
 
-.overall-rating .rating-count {
+.overall-rating .rating-count,
+.review-date {
     font-size: 0.9rem;
     color: rgba(0, 0, 0, 0.6);
+}
+
+.overall-rating .rating-count {
     margin-left: 5px;
 }
 
@@ -103,7 +113,6 @@
 
 .review-date {
     font-size: 0.85rem;
-    color: rgba(0, 0, 0, 0.5);
 }
 
 .review-rating {
@@ -113,7 +122,6 @@
 }
 
 .review-rating .bi-star-fill {
-    color: #FFD700;
     font-size: 0.9rem;
 }
 
@@ -133,6 +141,7 @@
     border-color: rgba(106, 27, 154, 0.5);
     color: rgba(106, 27, 154, 0.9);
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .leave-review-btn:hover {
@@ -158,7 +167,8 @@
         color: rgba(255, 255, 255, 0.9);
     }
     
-    .overall-rating .rating-count {
+    .overall-rating .rating-count,
+    .review-date {
         color: rgba(255, 255, 255, 0.6);
     }
     
@@ -182,10 +192,6 @@
         color: rgba(255, 255, 255, 0.8);
     }
     
-    .review-date {
-        color: rgba(255, 255, 255, 0.5);
-    }
-    
     .review-text {
         color: rgba(255, 255, 255, 0.7);
     }
@@ -202,5 +208,23 @@
     .leave-review-btn:hover {
         background-color: rgba(206, 147, 216, 0.9);
         color: #212529;
+    }
+}
+
+/* Responsive adjustments for reviews */
+@media (max-width: 576px) {
+    .reviews-summary {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .leave-review-btn {
+        align-self: flex-end;
+        margin-top: -30px; /* Pull the button up to align with rating */
+    }
+    
+    .overall-rating {
+        width: 100%;
+        margin-bottom: 10px;
     }
 }
