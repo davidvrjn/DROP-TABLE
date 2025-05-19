@@ -1,0 +1,46 @@
+// Sort dropdown styling
+.sort-container {
+  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+}
+
+.sort-label {
+  font-weight: 500;
+  color: #6c757d;
+}
+
+.sort-select {
+  width: auto;
+  min-width: 180px;
+  background-color: white;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  
+  &:focus {
+    border-color: #9c4dcc;
+    box-shadow: 0 0 0 0.25rem rgba(156, 77, 204, 0.25);
+  }
+}
+
+// Dark mode and responsive adjustments
+[data-bs-theme="dark"] {
+  .sort-select {
+    background-color: #343a40;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.125);
+  }
+  
+  @media (max-width: 767.98px) {
+    .sort-container {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767.98px) {
+  .sort-container {
+    padding: 0.5rem 1rem;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 0.25rem;
+  }
+}

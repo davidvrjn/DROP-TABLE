@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+    <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'register' }) %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h1 class="display-6 fw-bold text-center mb-4">Create Account</h1>
+                        
+                        <form id="registerForm">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="firstName" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="firstName" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="lastName" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="lastName" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email address</label>
+                                <input type="email" class="form-control" id="email" required>
+                                <div class="form-text">We'll never share your email with anyone else.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" required>
+                                <div class="form-text">
+                                    Password must be at least 8 characters and contain:
+                                    <ul class="mb-0 ps-3 mt-1">
+                                        <li>One uppercase letter</li>
+                                        <li>One lowercase letter</li>
+                                        <li>One number</li>
+                                        <li>One special character</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                <input type="password" class="form-control" id="confirmPassword" required>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p>Already have an account? <a href="login.ejs" class="text-decoration-none">Login</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+    <!-- # FOOTER SEGMENT # -->
+    <%- include('partials/_footer.ejs') %>
+    
+    <script type="module">
+        import { initPasswordEye } from './partials/_passwordeye.js';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize password eye toggle
+            initPasswordEye();
+            
+            const registerForm = document.getElementById('registerForm');
+            
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const firstName = document.getElementById('firstName').value;
+                    const lastName = document.getElementById('lastName').value;
+                    const email = document.getElementById('email').value;
+                    const password = document.getElementById('password').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    // Password validation regex
+                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                    
+                    // Basic validation
+                    if (password !== confirmPassword) {
+                        alert('Passwords do not match!');
+                        return;
+                    }
+                    
+                    if (!passwordRegex.test(password)) {
+                        alert('Password does not meet security requirements!');
+                        return;
+                    }
+                    
+                    console.log('Registration attempt:', { firstName, lastName, email, password });
+                    
+                    alert('Registration successful!');
+                    // Redirect to login page
+                    // window.location.href = 'login.ejs';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
