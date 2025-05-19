@@ -1,18 +1,23 @@
-// Watchlist specific styles
+// Variables for reuse
+$light-purple: #6a1b9a;
+$medium-purple: #9c4dcc;
+$dark-purple: #b856f6;
+$light-purple-dark: #ce93d8;
 
+// Watchlist specific styles
 .watchlist-header {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   padding-bottom: 1rem;
   
   h1 {
     font-weight: 600;
-    color: #b856f6;
+    color: $dark-purple;
   }
 }
 
 // Empty watchlist styling
 .empty-watchlist-icon {
-  color: #9c4dcc;
+  color: $medium-purple;
   opacity: 0.5;
   font-size: 3rem;
 }
@@ -45,46 +50,39 @@
 
 // Price history button
 .view-price-history {
-  border-color: #9c4dcc;
-  color: #6a1b9a;
+  border-color: $medium-purple;
+  color: $light-purple;
   
   &:hover {
-    background-color: #9c4dcc;
-    border-color: #9c4dcc;
+    background-color: $medium-purple;
+    border-color: $medium-purple;
     color: white;
   }
 }
 
-// Dark mode adjustments for price history button
-[data-bs-theme="dark"] .view-price-history {
-  border-color: #ce93d8;
-  color: #ce93d8;
-  
-  &:hover {
-    background-color: #ce93d8;
-    border-color: #ce93d8;
-    color: #212529;
-  }
-}
-
-// Light mode adjustments
+// Theme adjustments
 [data-bs-theme="light"] {
   .watchlist-header h1 {
-    color: #6a1b9a;
-  }
-  
-  .empty-watchlist-icon {
-    color: #9c4dcc;
+    color: $light-purple;
   }
 }
 
-// Dark mode adjustments
 [data-bs-theme="dark"] {
   .watchlist-header {
     border-bottom-color: rgba(255, 255, 255, 0.1);
   }
   
-  .empty-watchlist-icon {
-    color: #ce93d8;
+  .empty-watchlist-icon,
+  .view-price-history {
+    color: $light-purple-dark;
+  }
+  
+  .view-price-history {
+    border-color: $light-purple-dark;
+    
+    &:hover {
+      background-color: $light-purple-dark;
+      color: #212529;
+    }
   }
 }
