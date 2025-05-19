@@ -7,7 +7,12 @@ const mariadb = require('mariadb');
 const port = 3000;
 //Pooling database connection for quick connections
 const pool = mariadb.createPool({
-    
+    host: `${process.env.MARIADB_HOST}:${process.env.MARIADB_PORT}`,
+    user: process.env.MARIADB_USER,
+    password: process.env.MARIADB_PASSWORD,
+    database: process.env.MARIADB_DB,
+    connectionLimit: 5
+
 });
 
 //API CALLS
