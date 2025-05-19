@@ -21,11 +21,19 @@
   }
 }
 
-// Dark mode styling
-[data-bs-theme="dark"] .sort-select {
-  background-color: #343a40;
-  color: white;
-  border-color: rgba(255, 255, 255, 0.125);
+// Dark mode and responsive adjustments
+[data-bs-theme="dark"] {
+  .sort-select {
+    background-color: #343a40;
+    color: white;
+    border-color: rgba(255, 255, 255, 0.125);
+  }
+  
+  @media (max-width: 767.98px) {
+    .sort-container {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
 }
 
 // Responsive adjustments
@@ -34,9 +42,5 @@
     padding: 0.5rem 1rem;
     background-color: rgba(0, 0, 0, 0.03);
     border-radius: 0.25rem;
-  }
-  
-  [data-bs-theme="dark"] .sort-container {
-    background-color: rgba(255, 255, 255, 0.05);
   }
 }

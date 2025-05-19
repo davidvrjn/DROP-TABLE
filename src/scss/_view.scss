@@ -1,3 +1,18 @@
+/* Variables for reuse */
+$light-purple: rgba(106, 27, 154, 0.05);
+$medium-purple: rgba(106, 27, 154, 0.1);
+$dark-purple: rgba(106, 27, 154, 0.9);
+$border-purple: rgba(106, 27, 154, 0.15);
+$button-border: rgba(106, 27, 154, 0.5);
+$text-dark: rgba(0, 0, 0, 0.8);
+
+$light-purple-dark: rgba(206, 147, 216, 0.05);
+$medium-purple-dark: rgba(206, 147, 216, 0.1);
+$dark-purple-dark: rgba(206, 147, 216, 0.9);
+$border-purple-dark: rgba(206, 147, 216, 0.15);
+$button-border-dark: rgba(206, 147, 216, 0.5);
+$text-light: rgba(255, 255, 255, 0.8);
+
 /* Product view specific styles */
 .product-view {
     padding: 20px 0;
@@ -10,15 +25,15 @@
     font-weight: 500;
     transition: color 0.3s, background-color 0.3s, border-color 0.3s;
     padding: 8px 15px;
-    border: 1px solid rgba(106, 27, 154, 0.5);
+    border: 1px solid $button-border;
     border-radius: 20px;
-    color: rgba(106, 27, 154, 0.9);
+    color: $dark-purple;
     background-color: transparent;
 
     &:hover {
         color: #fff;
-        background-color: rgba(106, 27, 154, 0.9);
-        border-color: rgba(106, 27, 154, 0.9);
+        background-color: $dark-purple;
+        border-color: $dark-purple;
     }
 }
 
@@ -40,30 +55,43 @@
     margin-bottom: 20px;
 }
 
-/* Description section */
-.product-description-section {
+/* Common card section styles */
+%card-section {
     padding: 0;
     border-radius: 10px;
-    background-color: rgba(106, 27, 154, 0.05);
-    margin-bottom: 20px;
+    background-color: $light-purple;
+    overflow: hidden;
 }
 
-.product-description-section .card-body {
+%card-body {
     padding: 20px;
 }
 
-.product-description-section .card-title {
-    margin-bottom: 10px;
-    color: rgba(106, 27, 154, 0.9);
+%card-title {
+    color: $dark-purple;
     font-size: 1.5rem;
     font-weight: 600;
 }
 
-.product-description-section p {
-    line-height: 1.6;
-    color: rgba(0, 0, 0, 0.8);
-    margin-bottom: 0;
-    margin-top: 0;
+/* Description section */
+.product-description-section {
+    @extend %card-section;
+    margin-bottom: 20px;
+    
+    .card-body {
+        @extend %card-body;
+    }
+    
+    .card-title {
+        @extend %card-title;
+        margin-bottom: 10px;
+    }
+    
+    p {
+        line-height: 1.6;
+        color: $text-dark;
+        margin: 0;
+    }
 }
 
 /* Bottom row with specs and features */
@@ -73,24 +101,23 @@
     gap: 20px;
     width: 100%;
     align-items: start;
+    
+    > div {
+        margin: 0;
+        height: auto;
+    }
+    
+    .card-body {
+        @extend %card-body;
+    }
+    
+    .card-title {
+        @extend %card-title;
+        margin-bottom: 15px;
+    }
 }
 
-.product-info-row > div {
-    margin: 0;
-    height: auto;
-}
-
-.product-info-row .card-body {
-    padding: 20px;
-}
-
-.product-info-row .card-title {
-    margin-bottom: 15px;
-    color: rgba(106, 27, 154, 0.9);
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
+/* Carousel styles */
 .carousel-container {
     position: relative;
     width: 100%;
@@ -108,10 +135,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.carousel-slide.active {
-    opacity: 1;
+    
+    &.active {
+        opacity: 1;
+    }
 }
 
 .carousel-controls {
@@ -121,13 +148,59 @@
     padding: 10px 15px;
 }
 
+.carousel-control-prev,
+.carousel-control-next {
+    width: 10%;
+    opacity: 0.8;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(106, 27, 154, 0.7);
+    border-radius: 50%;
+    padding: 15px;
+    background-size: 50%;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: -20px;
+    margin: 0;
+    justify-content: center;
+    padding: 0;
+    z-index: 5;
+    background-color: transparent;
+    border-radius: 0;
+    width: 100%;
+    left: 0;
+    transform: none;
+    
+    [data-bs-target] {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: rgba(187, 103, 239, 0.7);
+        border: none;
+        margin: 0 4px;
+        opacity: 1;
+        transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    .active {
+        background-color: rgb(178, 76, 241);
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+.carousel-indicator-label {
+    display: none;
+}
+
+/* Product specs and features */
 .product-specs, 
 .product-features {
-    padding: 0;
-    border-radius: 10px;
-    background-color: rgba(106, 27, 154, 0.05);
-    height: auto;
-    overflow: hidden;
+    @extend %card-section;
 }
 
 .specs-grid {
@@ -138,10 +211,10 @@
 }
 
 .spec-item {
-    background-color: rgba(106, 27, 154, 0.1);
+    background-color: $medium-purple;
     padding: 12px 18px;
     border-radius: 8px;
-    border: 1px solid rgba(106, 27, 154, 0.15);
+    border: 1px solid $border-purple;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -149,11 +222,11 @@
     strong {
         font-weight: 600;
         margin-bottom: 4px;
-        color: rgba(106, 27, 154, 0.9);
+        color: $dark-purple;
     }
 
     span {
-        color: rgba(0, 0, 0, 0.8);
+        color: $text-dark;
     }
 }
 
@@ -163,22 +236,49 @@
     margin-bottom: 30px;
 }
 
-.product-features ul {
-    padding-left: 20px;
-    margin-bottom: 0;
+.product-features {
+    ul {
+        padding-left: 20px;
+        margin-bottom: 0;
+    }
+    
+    li {
+        margin-bottom: 8px;
+        color: $text-dark;
+    }
 }
 
-.product-features li {
-    margin-bottom: 8px;
-    color: rgba(0, 0, 0, 0.8);
+/* Rating styles */
+.product-rating {
+    display: flex;
+    align-items: center;
+}
+
+.rating-stars {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    
+    .bi-star-fill {
+        color: #FFD700;
+        font-size: 1.2rem;
+    }
+}
+
+.rating-value {
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.rating-count {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.6);
 }
 
 /* Responsive adjustments */
 @media (max-width: 992px) {
-    .product-top-section {
-        grid-template-columns: 1fr;
-    }
-    
+    .product-top-section,
     .product-info-row {
         grid-template-columns: 1fr;
     }
@@ -194,148 +294,57 @@
     }
 }
 
-.carousel-control-prev,
-.carousel-control-next {
-  width: 10%;
-  opacity: 0.8;
-}
-
-.carousel-control-prev-icon,
-.carousel-control-next-icon {
-  background-color: rgba(106, 27, 154, 0.7);
-  border-radius: 50%;
-  padding: 15px;
-  background-size: 50%;
-}
-
-.carousel-indicators {
-  position: absolute;
-  bottom: -20px;
-  margin-bottom: 0;
-  justify-content: center;
-  padding: 0;
-  margin-right: 0;
-  margin-left: 0;
-  z-index: 5;
-  background-color: transparent;
-  border-radius: 0;
-  width: 100%;
-  left: 0;
-  transform: none;
-}
-
-.carousel-indicators [data-bs-target] {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: rgba(187, 103, 239, 0.7);
-  border: none;
-  margin: 0 4px;
-  opacity: 1;
-  transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
-}
-
-.carousel-indicators .active {
-  background-color: rgb(178, 76, 241);
-  opacity: 1;
-  transform: scale(1.2);
-}
-
 /* Dark mode styles */
 [data-bs-theme="dark"] {
-  .carousel-indicators [data-bs-target] {
-    background-color: rgba(206, 147, 216, 0.7);
-  }
+    .carousel-indicators {
+        [data-bs-target] {
+            background-color: rgba(206, 147, 216, 0.7);
+        }
 
-  .carousel-indicators .active {
-    background-color: rgba(206, 147, 216, 1);
-  }
-
-  .carousel-control-prev-icon,
-  .carousel-control-next-icon {
-    background-color: rgba(206, 147, 216, 0.8);
-  }
-
-  .back-button {
-    border-color: rgba(206, 147, 216, 0.5);
-    color: rgba(206, 147, 216, 0.9);
-
-    &:hover {
-      color: #212529;
-      background-color: rgba(206, 147, 216, 0.9);
-      border-color: rgba(206, 147, 216, 0.9);
-    }
-  }
-
-  .product-specs, 
-  .product-features {
-    background-color: rgba(206, 147, 216, 0.05);
-  }
-  
-  .product-description-section {
-    background-color: rgba(206, 147, 216, 0.05);
-  }
-  
-  .product-description-section p {
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  .product-info-row .card-title,
-  .product-description-section .card-title {
-    color: rgba(206, 147, 216, 0.9);
-    margin-bottom: 10px;
-  }
-
-  .spec-item {
-    background-color: rgba(206, 147, 216, 0.1);
-    border-color: rgba(206, 147, 216, 0.15);
-
-    strong {
-        color: rgba(206, 147, 216, 0.9);
+        .active {
+            background-color: rgba(206, 147, 216, 1);
+        }
     }
 
-    span {
-        color: rgba(255, 255, 255, 0.8);
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(206, 147, 216, 0.8);
     }
-  }
-  
-  .product-features li {
-    color: rgba(255, 255, 255, 0.8);
-  }
-}
 
-.carousel-indicator-label {
-  display: none;
-}
+    .back-button {
+        border-color: $button-border-dark;
+        color: $dark-purple-dark;
 
-.product-rating {
-    display: flex;
-    align-items: center;
-}
+        &:hover {
+            color: #212529;
+            background-color: $dark-purple-dark;
+            border-color: $dark-purple-dark;
+        }
+    }
 
-.rating-stars {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+    .product-specs, 
+    .product-features,
+    .product-description-section {
+        background-color: $light-purple-dark;
+    }
+    
+    .product-description-section p,
+    .product-features li,
+    .spec-item span {
+        color: $text-light;
+    }
+    
+    .product-info-row .card-title,
+    .product-description-section .card-title,
+    .spec-item strong {
+        color: $dark-purple-dark;
+    }
 
-.rating-stars .bi-star-fill {
-    color: #FFD700;
-    font-size: 1.2rem;
-}
-
-.rating-value {
-    font-weight: 600;
-    font-size: 1rem;
-    color: rgba(0, 0, 0, 0.9);
-}
-
-.rating-count {
-    font-size: 0.9rem;
-    color: rgba(0, 0, 0, 0.6);
-}
-
-[data-bs-theme="dark"] {
+    .spec-item {
+        background-color: $medium-purple-dark;
+        border-color: $border-purple-dark;
+    }
+    
     .product-retailer {
         color: rgba(255, 255, 255, 0.7);
     }
