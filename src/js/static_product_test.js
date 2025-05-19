@@ -298,6 +298,47 @@ populateBrandFilters(brands);
 const retailers = ['Amazon', 'Takealot', 'Checkers', 'Pick n Pay', 'Game', 'Makro', 'Incredible Connection'];
 populateRetailerFilters(retailers);
 
+// Add search functionality for the hero search bar
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.querySelector('.hero-section .search-input');
+    const searchButton = document.querySelector('.hero-section .search-btn');
+
+    if(searchInput && searchButton)
+    {
+        searchButton.addEventListener('click', () => {
+            const query = searchInput.value.trim().toLowerCase();
+            performSearch(query);
+        });
+
+        // Allow search on Enter key press
+        searchInput.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter')
+            {
+                const query = searchInput.value.trim().toLowerCase();
+                performSearch(query);
+            }
+        });
+    }
+});
+
+function performSearch(query)
+{
+    // For now, filter static data; later, this will call an API
+    const filteredProducts = staticProductData.filter(product => 
+        product.title.toLowerCase().includes(query)
+    );
+    
+    renderProducts(filteredProducts);
+
+    // Future API implementation:
+    /*
+    fetch(`/api/products?search=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(products => renderProducts(products))
+        .catch(error => console.error('Search error:', error));
+    */
+}
+
 // Run the rendering function when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     renderProducts(staticProductData);
