@@ -28,7 +28,6 @@
 
   &:hover {
     color: $primary;
-    text-decoration: none;
   }
 }
 
@@ -61,7 +60,6 @@
   font-size: 1.9rem;
   line-height: 1;
   color: #6c757d;
-  text-decoration: none;
   z-index: 5;
   background: none;
   border: none;
@@ -70,7 +68,6 @@
 
   &:hover {
     color: $danger;
-    text-decoration: none;
   }
 
   &:focus, &:focus-visible {
