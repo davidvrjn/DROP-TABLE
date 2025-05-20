@@ -19,11 +19,22 @@ const pool = mariadb.createPool({
 //API CALLS
 
 //Login
-app.post('/Get/Login',express.json(),async (req,res) =>{
+//Changelog by Stephan after review
+//Changed Action Based URL to be more clear
+//Merged both password and user check for security reasons to minimalize brute force
+//Changed fail status to error
+//Changed 401 to 404, its not found, not unauthorized
+//Editted success response to match required documentation
+//Editted error logic
+//Might be race conditions, will determine if awaits are needed more in testing
+//.json replaced with send
+//It is conn.end(), that returns the connection to the pool
+app.post('/User/Login',express.json(),async (req,res) =>{
     let conn;
     
     if(!req.is('application/json')){
-        return res.status(400).json({status: 'fail', message: 'Expected application/json'});
+        res.status(400).send({status: 'error', message: 'Expected application/json'});
+        return;
     }
 
     try{
@@ -31,18 +42,16 @@ app.post('/Get/Login',express.json(),async (req,res) =>{
 
         const {username,password} =req.body;
 
-        if (!username){
-            return res.status(400).json({ status: 'fail', message: 'Username missing.' });
-        }
-
-        if (!password){
-            return res.status(400).json({ status: 'fail', message: 'Password missing.' });
+        if (!username || !password){
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
         }
 
         const rows= await conn.query('SQL query ?',[username]) //<==============sql query for a user here
 
         if (rows.length === 0){
-            return res.status(401).json({ status: 'fail', message: 'User with this username does not exist.' });
+            res.status(404).send({ status: 'error', message: 'Specified user not found' });
+            return;
         }
 
         const storedPassword = rows[0].password;
@@ -50,17 +59,31 @@ app.post('/Get/Login',express.json(),async (req,res) =>{
         const match=await bcrypt.compare(password,storedPassword);
         
         if(!match){
-            return res.status(401).json({ status: 'fail', message: 'Incorrect password.' });
+            res.status(401).send({ status: 'error', message: 'Failed Validation' });
+            return;
         } else{
-            return res.status(200).json({ status: 'success', message: 'Login successful.' });
+            //unclear what jwt-token-string is
+            res.status(200).send({ status: 'success',  data: {
+                token: rows[0].apikey,
+                user: {
+                    id: rows[0].id,
+                    email: rows[0].email,
+                    first_name: rows[0].first_name,
+                    last_name: rows[0].last_name,
+                    role: rows[0].role
+                }
+            }});
+            return;
         }
         
-    }catch (e){
-        console.error(e);
-        return res.status(500).json({ status: 'error', message: 'Server error' });
+    }catch (err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error logging in, detailed error in server_logs, please investigate server logs' });
+        return;
     } finally{
         if(conn){
-            conn.release();
+            conn.end();
         }
     }
 })
