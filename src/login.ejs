@@ -83,9 +83,77 @@
             
             if (forgotPasswordBtn) {
                 forgotPasswordBtn.addEventListener('click', function() {
-                    // Handle forgot password functionality
-                    console.log('Forgot password clicked');
-                    alert('Forgot password functionality will be implemented by the JS team');
+                    // Create modal for forgot password
+                    const modalHTML = `
+                        <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="forgotPasswordModalLabel">Reset Password</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="forgotPasswordForm">
+                                            <div class="mb-3">
+                                                <label for="resetEmail" class="form-label">Email address</label>
+                                                <input type="email" class="form-control" id="resetEmail" required>
+                                                <div class="form-text">Enter the email address associated with your account.</div>
+                                            </div>
+                                            <div id="resetConfirmation" class="alert alert-success d-none">
+                                                Our team will contact you soon.
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="submitResetBtn">Submit</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add modal to the document
+                    const modalContainer = document.createElement('div');
+                    modalContainer.innerHTML = modalHTML;
+                    document.body.appendChild(modalContainer);
+                    
+                    // Initialize the modal
+                    const forgotPasswordModal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+                    forgotPasswordModal.show();
+                    
+                    // Handle submit button click
+                    const submitResetBtn = document.getElementById('submitResetBtn');
+                    if (submitResetBtn) {
+                        submitResetBtn.addEventListener('click', function() {
+                            const resetEmail = document.getElementById('resetEmail');
+                            const resetConfirmation = document.getElementById('resetConfirmation');
+                            
+                            if (resetEmail && resetEmail.value) {
+                                // Hide the form elements
+                                resetEmail.parentElement.classList.add('d-none');
+                                submitResetBtn.classList.add('d-none');
+                                
+                                // Show confirmation message
+                                resetConfirmation.classList.remove('d-none');
+                                
+                                // Close the modal after 3 seconds
+                                setTimeout(() => {
+                                    forgotPasswordModal.hide();
+                                    
+                                    // Remove the modal from DOM after it's hidden
+                                    document.getElementById('forgotPasswordModal').addEventListener('hidden.bs.modal', function() {
+                                        document.body.removeChild(modalContainer);
+                                    });
+                                }, 3000);
+                            }
+                        });
+                    }
+                    
+                    // Clean up when modal is closed
+                    document.getElementById('forgotPasswordModal').addEventListener('hidden.bs.modal', function() {
+                        document.body.removeChild(modalContainer);
+                    });
                 });
             }
         });
