@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "COS221 Assignment 5 Repo",
   "scripts": {
-    "dev": "parcel src/index.ejs src/view.ejs",
-    "build": "parcel build src/index.ejs src/view.ejs --dist-dir dist",
+    "dev": "parcel src/index.ejs src/view.ejs src/admin.ejs",
+    "build": "parcel build src/index.ejs src/view.ejs src/admin.ejs --dist-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
