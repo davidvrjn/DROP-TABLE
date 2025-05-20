@@ -221,6 +221,84 @@ app.post('/User/Login',express.json(),async (req,res) =>{
     }
 })
 
+//Registor method
+app.post('/User/Register',express.json(),async (req,res) =>{
+    let conn;
+
+    if(!req.is('application/json')){
+        res.status(400).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+    try{
+        conn= await pool.getConnection();
+        const {first_name,last_name,email,password,role} =req.body;
+
+        if(!first_name || !last_name || !email || !password || !role){
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
+        }
+
+        if(role!='normal' && role!='admin'){
+            res.status(422).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        }
+
+        //check password
+        if(password.length>72){
+            res.status(422).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        }
+
+        //validate email. regex sourced from https://www.geeksforgeeks.org/how-to-validate-email-address-using-regexp-in-javascript/
+        let regex=/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if(!regex.test(email)){
+            res.status(422).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        }
+
+
+        //ATP: the 4 params are retrieved. password is length 72 or less. Check if user already exists.
+        const rows= await conn.query('SQL query ?',[email]) //<==============sql query for a user here. check for a matching email
+
+        if(rows.length === 0){
+            //there is no matching email
+            
+            //generate api key
+            const apikey=generateAlphanumeric();
+
+            //hash new password
+            const new_Password=await hashString(password);
+
+            await conn.query('SQL query to insert a user??????',[first_name,last_name,email,role,new_Password,apikey]); //<=========sql for insert user here
+            res.status(200).send({ status: 'success',  data: {
+                user: {
+                    email: email,
+                    first_name: first_name,
+                    last_name: last_name,
+                    role: role,
+                    apikey: apikey
+                }
+            }});
+            return;
+        
+        } else{
+            //there is a matching email
+            res.status(409).send({ status: 'error', message: 'User with email exists.' });
+            return;
+        }
+    } catch(err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error registering user, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
+
 
 //API CONNECT
 app.listen(port, () => {
