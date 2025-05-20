@@ -28,6 +28,20 @@ app.get('/Get/Products', express.json(), async (req, res) => {
     }
     try{
         conn = await pool.getConnection();
+        var WHEREQuery = "WHERE 1 = 1 " // 1 = 1 is used so that additional statements can be appended easily.
+        if(req.body['filters']){
+            const filters = req.body['filters'];
+            //I wish i could use a switch here but multiple conditions need to be able to trigger
+            if(filters['brands']){
+                const brands = filters['brands'];
+                var brandWhere = "AND brand IN (";
+                brandWhere += `${brands.map(brand => `'${brand}'`).join(", ")}`
+                brandWhere += ")";
+                WHEREQuery += brandWhere;
+            }
+        }
+        
+
 
         const rows = await conn.query("SQL QUERY ?, ?", ["param1", "param2"]);
     }
