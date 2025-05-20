@@ -60,6 +60,51 @@ Possible response codes:
 + 400
 + 500
 
+## Get/Product/:productId/:retailerId
+example url host/Get/Product/1/1 (means product id 1 and retailer id 1)
+Request Example
+```
+{
+    apikey:
+}
+```
+Response Example
+```
+{
+    status: success or error
+    //if error
+    message:
+    //if success
+    data: {
+        id:
+        image_url:
+        title:
+        final_price:,
+        retailer_name:,
+        rating:,
+        initial_price:,
+        discount:,
+        reviews: [
+            {
+                r_Id:,
+                r_Username:,
+                r_Rating:,
+                r_Date:,
+                r_Text:,
+            },
+            {
+                ...
+            }
+        ]
+    }
+}
+```
+Possible Response Codes:
++ 200
++ 400
++ 404
++ 500
+
 ## User/Login
 Request Example
 ```

@@ -185,11 +185,11 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
         rows = conn.query("SQL Query", "PARAMS");
         rows.foreach(review => {
             allReviews.push({
-                id: review.id,
-                username: review.username,
-                rating: review.rating,
-                date: review.date,
-                text: review.message
+                r_Id: review.id,
+                r_Username: review.username,
+                r_Rating: review.rating,
+                r_Date: review.date,
+                r_Text: review.message
             });
         });
 
