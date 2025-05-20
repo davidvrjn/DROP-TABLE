@@ -174,7 +174,6 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
             });
         });
 
-        
         const productJSON = {
             id: product.id,
             image_url: product.image_url,
@@ -186,6 +185,11 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
             discount: product.discount,
             reviews: allReviews
         }
+
+        res.status(200).send({
+            status: "success",
+            data: productJSON
+        });
     }
     catch(err){
         console.error(err);
