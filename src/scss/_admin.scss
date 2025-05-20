@@ -129,6 +129,29 @@
   .remove-retailer {
     padding: 0.25rem 0.5rem;
   }
+  
+  // Mobile responsive adjustments for retailer rows
+  @media (max-width: 767.98px) {
+    .retailer-price-row {
+      margin-bottom: 1.5rem;
+      
+      .col-5, .col-4, .col-2, .col-1 {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      
+      .col-1 {
+        text-align: right;
+        margin-top: 0.5rem;
+      }
+      
+      .remove-retailer {
+        padding: 0.375rem 0.75rem;
+      }
+    }
+  }
 }
 
 // Retailer badges in product table
@@ -198,5 +221,34 @@
     border-right: none;
     border-bottom: 1px solid #dee2e6;
     margin-bottom: 1rem;
+  }
+  
+  // Improve form elements on mobile
+  #addProductForm {
+    .row > [class*="col-"] {
+      margin-bottom: 0.75rem;
+    }
+  }
+  
+  // Improve specifications container on mobile
+  #specificationsContainer {
+    .spec-row {
+      margin-bottom: 1.5rem;
+      
+      .col-5, .col-6, .col-1 {
+        width: 100%;
+        margin-bottom: 0.5rem;
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+      
+      .col-1 {
+        text-align: right;
+      }
+      
+      .remove-spec {
+        padding: 0.375rem 0.75rem;
+      }
+    }
   }
 }

@@ -256,22 +256,22 @@
                                 <label class="form-label">Retailers, Prices and Discount</label>
                                 <div id="retailerPricesContainer">
                                     <div class="row mb-2 retailer-price-row">
-                                        <div class="col-5">
+                                        <div class="col-md-5 col-5">
                                             <select class="form-select retailer-select" name="retailerId[]">
                                                 <option value="">Select Retailer</option>
                                                 <!-- Retailers will be populated by JS -->
                                             </select>
                                         </div>
-                                        <div class="col-4">
+                                        <div class="col-md-4 col-4">
                                             <div class="input-group">
                                                 <span class="input-group-text">R</span>
                                                 <input type="number" class="form-control retailer-price" name="retailerPrice[]" step="0.01" min="0" placeholder="Price">
                                             </div>
                                         </div>
-                                        <div class="col-2">
+                                        <div class="col-md-2 col-2">
                                             <input type="number" class="form-control retailer-discount" name="retailerDiscount[]" min="0" max="100" placeholder="Discount %">
                                         </div>
-                                        <div class="col-1">
+                                        <div class="col-md-1 col-1">
                                             <button type="button" class="btn btn-outline-danger remove-retailer"><i class="bi bi-trash"></i></button>
                                         </div>
                                     </div>
@@ -404,67 +404,7 @@
 
     <!-- # FOOTER SEGMENT # -->
     <%- include('partials/_footer.ejs') %>
-    
-    <script type="module">
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize admin dashboard functionality
-            // This will be done by JS
-            
-            // Example: Add specification row
-            document.getElementById('addSpecBtn').addEventListener('click', function() {
-                const container = document.getElementById('specificationsContainer');
-                const newRow = document.createElement('div');
-                newRow.className = 'row mb-2 spec-row';
-                newRow.innerHTML = `
-                    <div class="col-5">
-                        <input type="text" class="form-control" placeholder="Name" name="specName[]">
-                    </div>
-                    <div class="col-6">
-                        <input type="text" class="form-control" placeholder="Value" name="specValue[]">
-                    </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-outline-danger remove-spec"><i class="bi bi-trash"></i></button>
-                    </div>
-                `;
-                container.appendChild(newRow);
-                
-                // Add event listener to the new remove button
-                newRow.querySelector('.remove-spec').addEventListener('click', function() {
-                    container.removeChild(newRow);
-                });
-            });
-            
-            // Add event listeners to existing remove buttons
-            document.querySelectorAll('.remove-spec').forEach(button => {
-                button.addEventListener('click', function() {
-                    const row = this.closest('.spec-row');
-                    row.parentNode.removeChild(row);
-                });
-            });
-            
-            // Example: Save product button
-            document.getElementById('saveProductBtn').addEventListener('click', function() {
-                alert('Product save functionality will be done by JS');
-                // Here you would normally validate the form and submit the data
-            });
-            
-            // Example: Save category button
-            document.getElementById('saveCategoryBtn').addEventListener('click', function() {
-                alert('Category save functionality will be done by JS');
-            });
-            
-            // Example: Save retailer button
-            document.getElementById('saveRetailerBtn').addEventListener('click', function() {
-                alert('Retailer save functionality will be done by JS');
-            });
-            
-            // Example: Save brand button
-            document.getElementById('saveBrandBtn').addEventListener('click', function() {
-                alert('Brand save functionality will be done by JS');
-            });
-        });
-    </script>
 
-    <!-- <script type="module" src="./js/static_admin_test.js"></script> -->
+    <script type="module" src="./js/static_admin_test.js"></script>
 </body>
 </html>
