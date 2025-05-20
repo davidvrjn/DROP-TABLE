@@ -59,3 +59,37 @@ Possible response codes:
 + 200
 + 400
 + 500
+
+## User/Login
+Request Example
+```
+{
+    email:,
+    password:
+}
+```
+Response Example
+```
+{
+    status: success or error
+    //if error
+    message:
+    //if success
+    data: {
+        token: apikey,
+        user: {
+            id:,
+            email:,
+            first_name:,
+            last_name:,
+            role:,
+        }
+    }
+}
+```
+Possible response codes:
++ 200
++ 400
++ 401
++ 404
++ 500

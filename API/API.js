@@ -154,14 +154,14 @@ app.post('/User/Login',express.json(),async (req,res) =>{
     try{
         conn= await pool.getConnection();
 
-        const {username,password} =req.body;
+        const {email,password} =req.body;
 
-        if (!username || !password){
+        if (!email || !password){
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
-        const rows= await conn.query('SQL query ?',[username]) //<==============sql query for a user here
+        const rows= await conn.query('SQL query ?',[email]) //<==============sql query for a user here
 
         if (rows.length === 0){
             res.status(404).send({ status: 'error', message: 'Specified user not found' });
