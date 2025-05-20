@@ -20,7 +20,7 @@ const pool = mariadb.createPool({
 
 //API CALLS
 //Get products
-app.get('/Get/Products', express.json(), async (req, res) => {
+app.post('/Get/Products', express.json(), async (req, res) => {
     let conn;
     if(!req.is('application/json')){
         res.status(400).send({
@@ -108,6 +108,59 @@ app.get('/Get/Products', express.json(), async (req, res) => {
             data: productJSON,
             total: productJSON.length()
         })
+    }
+    catch(err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({
+            status: "error",
+            message: "Error retrieving data, detailed error in server_logs, please investigate server logs"
+        });
+    }
+    finally{
+        if(conn){
+            conn.end();
+        } 
+    }
+})
+
+app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) => {
+    let conn;
+    if(!req.is('application/json')){
+        res.status(400).send({
+            status: "error",
+            message: "Request must be in JSON format, if it is, check request headers are set properly"
+        })
+    }
+    try{
+        conn = await pool.getConnection();
+        const productID = req.params.productID;
+        const retailerID = req.params.retailerID;
+
+        //Used to determine if the product is wishlisted, but optional
+        var isWatchlisted = false;
+        if(req.body['apikey']){
+            //Take the product id and retailer id and determine if that instance is in this users watchlist, 
+            //if it exists, set isWatchlisted to true. nothing else should need to be done.
+        }
+
+        const rows = conn.query("SQL QUERY", ["Params"]);
+        if(rows.length == 0){
+           res.status(404).send({
+            status: "error",
+            message: "Specified retailer product not found"
+           }) 
+           return;
+        }
+        else if(rows.length > 1){
+            res.status(500).send({
+                status: "error",
+                message: "Error in the database, 2 or more products retrieved, there should be 1"
+            });
+            return;
+        }
+
+        
     }
     catch(err){
         console.error(err);
