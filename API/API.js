@@ -48,6 +48,9 @@ app.get('/Get/Products', express.json(), async (req, res) => {
                 WHEREQuery += departmentWhere;
             }
             //SQL person implement the retailers array, should just be a copy paste as shown above
+            if(filters['retailers']){
+
+            }
             if(filters['prices']){
                 const prices = filters['prices'];
                 //AND BETWEEN prices[0] AND prices[1]
@@ -61,13 +64,21 @@ app.get('/Get/Products', express.json(), async (req, res) => {
                 const search = filters['search'];
                 //AND product_name = ''
             }
-
-
+        }
+        var ORDERQuery = "ORDER BY Rand(), " //Used to cause random product order.
+        if(req.body['ordering']){
+            ORDERQuery += `${req.body['order']['field']} ${req.body['order']['order']}`
+        }
+        var LIMITQuery = "";
+        if(req.body['limit']){
+            LIMITQuery = `LIMIT BY ${req.body['limit']}`;
         }
         
 
 
         const rows = await conn.query("SQL QUERY ?, ?", ["param1", "param2"]);
+        //apikey will be used later to determine which selected products are wishlisted.
+        
     }
     catch(err){
         console.error(err);
