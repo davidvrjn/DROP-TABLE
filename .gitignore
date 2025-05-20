@@ -1,2 +1,7 @@
 node_modules
 .env
+dist/*
+.parcel-cache/*
+dist
+parcel-cache
+
