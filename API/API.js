@@ -22,7 +22,7 @@ app.get('/Get/Products', express.json(), async (req, res) => {
     let conn;
     if(!req.is('application/json')){
         res.status(400).send({
-            status: "Error",
+            status: "error",
             message: "Request must be in JSON format, if it is, check request headers are set properly"
         })
     }
@@ -78,13 +78,40 @@ app.get('/Get/Products', express.json(), async (req, res) => {
 
         const rows = await conn.query("SQL QUERY ?, ?", ["param1", "param2"]);
         //apikey will be used later to determine which selected products are wishlisted.
-        
+
+        //Retrieved products without wishlist field, that will be added later
+        //product.name is from retailer entity, rename it if need be
+        //If discount needs to be calculated here, tell me and I will update, otherwise calculate it with the query.
+        var productJSON = [];
+        await rows.forEach(product => {
+            productJSON.push({
+               "id": product.id,
+               "image_url": product.image_url,
+               "title": product.title,
+               "final_price": product.final_price,
+               "retailer_name": product.name,
+               "rating": product.avgRating,
+               "initial_price": product.initial_price,
+               "discount": product.discount,
+               "watchlist": false
+            })
+        });
+
+        //NB add later, find a way to get the user id from the apikey,
+        //and then use that, and the retailer_product to determine if it exists in the watchlist
+        //with those 3 keys, and if it does change watchlist to true
+
+        res.status(200).send({
+            status: "success",
+            data: productJSON,
+            total: productJSON.length()
+        })
     }
     catch(err){
         console.error(err);
         fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
         res.status(500).send({
-            status: "Error",
+            status: "error",
             message: "Error retrieving data, detailed error in server_logs, please investigate server logs"
         });
     }
@@ -100,7 +127,7 @@ app.get('/Get/Products', express.json(), async (req, res) => {
 app.use((err, req, res, next) => {
     console.error(err.stack);
     fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
-    res.status(500).send({status: "Error", message: "Error in the API, detailed error in error.log, please investigate error.log"});
+    res.status(500).send({status: "error", message: "Error in the API, detailed error in error.log, please investigate error.log"});
 })
 
 //API CONNECT
