@@ -30,15 +30,39 @@ app.get('/Get/Products', express.json(), async (req, res) => {
         conn = await pool.getConnection();
         var WHEREQuery = "WHERE 1 = 1 " // 1 = 1 is used so that additional statements can be appended easily.
         if(req.body['filters']){
+            //Ensure WHERE query is inserted as a prepared statement as a whole, these cant be done individually because which params are included are variable.
             const filters = req.body['filters'];
             //I wish i could use a switch here but multiple conditions need to be able to trigger
             if(filters['brands']){
                 const brands = filters['brands'];
                 var brandWhere = "AND brand IN (";
                 brandWhere += `${brands.map(brand => `'${brand}'`).join(", ")}`
-                brandWhere += ")";
+                brandWhere += ") ";
                 WHEREQuery += brandWhere;
             }
+            if(filters['departments']){
+                const departments = filters['departments'];
+                var departmentWhere = "AND department IN (";
+                brandWhere += `${departments.map(department => `'${brand}'`).join(", ")}`
+                brandWhere += ") ";
+                WHEREQuery += departmentWhere;
+            }
+            //SQL person implement the retailers array, should just be a copy paste as shown above
+            if(filters['prices']){
+                const prices = filters['prices'];
+                //AND BETWEEN prices[0] AND prices[1]
+            }
+            if(filters['rating']){
+                const rating = filters['rating'];
+                //AND rating > this.rating, youre going to have to find out how the average rating is calculated and joined, probably a nested query
+                //This can be moved to last to make the query neater if need be.
+            }
+            if(filters['search']){
+                const search = filters['search'];
+                //AND product_name = ''
+            }
+
+
         }
         
 
