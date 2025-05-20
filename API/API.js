@@ -16,6 +16,15 @@ function generateAlphanumeric(length = 32) {
   return result;
 }
 
+//hashing function
+async function hashString(input, saltRounds = 10) {
+  try {
+    return await bcrypt.hash(input, saltRounds);
+  } catch (err) {
+    throw new Error(`Hashing failed: ${err.message}`);
+  }
+}
+
 //variables for connections
 const port = 3000;
 //Pooling database connection for quick connections
