@@ -5,6 +5,16 @@ const mariadb = require('mariadb');
 const fs = require('fs');
 const bcrypt=require('bcryptjs');
 
+//By default,generates an apikey. Can be repurposed by providing a length
+function generateAlphanumeric(length = 32) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    const idx = Math.floor(Math.random() * chars.length);
+    result += chars.charAt(idx);
+  }
+  return result;
+}
 
 //variables for connections
 const port = 3000;
