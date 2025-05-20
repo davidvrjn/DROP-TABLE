@@ -144,7 +144,7 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
             //if it exists, set isWatchlisted to true. nothing else should need to be done.
         }
 
-        const rows = conn.query("SQL QUERY", ["Params"]);
+        var rows = conn.query("SQL QUERY", ["Params"]);
         if(rows.length == 0){
            res.status(404).send({
             status: "error",
@@ -160,7 +160,32 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
             return;
         }
 
+        const product = row[0];
+        const allReviews = [];
+        //Query to retrieve all reviews of selected product, retailer shouldnt be involved from what I understand.
+        rows = conn.query("SQL Query", "PARAMS");
+        rows.foreach(review => {
+            allReviews.push({
+                id: review.id,
+                username: review.username,
+                rating: review.rating,
+                date: review.date,
+                text: review.message
+            });
+        });
+
         
+        const productJSON = {
+            id: product.id,
+            image_url: product.image_url,
+            title: product.title,
+            final_price: product.final_price,
+            retailer_name: product.name,
+            rating: product.rating,
+            initial_price: product.initial_price,
+            discount: product.discount,
+            reviews: allReviews
+        }
     }
     catch(err){
         console.error(err);
