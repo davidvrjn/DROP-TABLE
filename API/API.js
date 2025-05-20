@@ -221,7 +221,8 @@ app.post('/User/Login',express.json(),async (req,res) =>{
     }
 })
 
-//Registor method
+//Register method
+//Adding validation to determine it succeeded.
 app.post('/User/Register',express.json(),async (req,res) =>{
     let conn;
 
@@ -270,8 +271,9 @@ app.post('/User/Register',express.json(),async (req,res) =>{
             //hash new password
             const new_Password=await hashString(password);
 
-            await conn.query('SQL query to insert a user??????',[first_name,last_name,email,role,new_Password,apikey]); //<=========sql for insert user here
-            res.status(200).send({ status: 'success',  data: {
+            const inserted = await conn.query('SQL query to insert a user??????',[first_name,last_name,email,role,new_Password,apikey]); //<=========sql for insert user here
+            if(inserted.affectedRows == 1){
+              res.status(200).send({ status: 'success',  data: {
                 user: {
                     email: email,
                     first_name: first_name,
@@ -281,6 +283,11 @@ app.post('/User/Register',express.json(),async (req,res) =>{
                 }
             }});
             return;
+            }
+            //0 or 2 or more users were inserted, investigate the database immeaditely, and fix any errors
+            else{
+              res.status(500).send({ status: 'error', message: 'Inserted an invalid amount of users, database errors expected, investigate and fix immeaditely' });
+            }
         
         } else{
             //there is a matching email
