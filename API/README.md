@@ -58,6 +58,7 @@ Response example
 Possible response codes:
 + 200
 + 400
++ 415
 + 500
 
 ## Get/Product/:productId/:retailerId
@@ -103,6 +104,7 @@ Possible Response Codes:
 + 200
 + 400
 + 404
++ 415
 + 500
 
 ## User/Login
@@ -137,4 +139,42 @@ Possible response codes:
 + 400
 + 401
 + 404
++ 415
++ 500
+
+## User/Register
+Example request
+```
+{
+    email:,
+    first_name:,
+    last_name:,
+    password:,
+    role:,
+}
+```
+Example response
+```
+{
+    status: success or error
+    //if error
+    message:
+    //if success
+    data: {
+        user:{
+            email:,
+            first_name:,
+            last_name:,
+            role:,
+            apikey:,
+        }
+    }
+}
+```
+Possible response codes:
++ 201
++ 400
++ 409
++ 415
++ 422
 + 500

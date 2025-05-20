@@ -42,7 +42,7 @@ const pool = mariadb.createPool({
 app.post('/Get/Products', express.json(), async (req, res) => {
     let conn;
     if(!req.is('application/json')){
-        res.status(400).send({
+        res.status(415).send({
             status: "error",
             message: "Request must be in JSON format, if it is, check request headers are set properly"
         })
@@ -146,7 +146,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
 app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) => {
     let conn;
     if(!req.is('application/json')){
-        res.status(400).send({
+        res.status(415).send({
             status: "error",
             message: "Request must be in JSON format, if it is, check request headers are set properly"
         })
@@ -248,7 +248,7 @@ app.post('/User/Login',express.json(),async (req,res) =>{
     let conn;
     
     if(!req.is('application/json')){
-        res.status(400).send({status: 'error', message: 'Expected application/json'});
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
         return;
     }
 
@@ -309,7 +309,7 @@ app.post('/User/Register',express.json(),async (req,res) =>{
     let conn;
 
     if(!req.is('application/json')){
-        res.status(400).send({status: 'error', message: 'Expected application/json'});
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
         return;
     }
 
@@ -355,7 +355,7 @@ app.post('/User/Register',express.json(),async (req,res) =>{
 
             const inserted = await conn.query('SQL query to insert a user??????',[first_name,last_name,email,role,new_Password,apikey]); //<=========sql for insert user here
             if(inserted.affectedRows == 1){
-              res.status(200).send({ status: 'success',  data: {
+              res.status(201).send({ status: 'success',  data: {
                 user: {
                     email: email,
                     first_name: first_name,
