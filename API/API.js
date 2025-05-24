@@ -575,9 +575,9 @@ app.post('Update/Category',express.json(),async (req,res)=>{
     }
 
     try{
-        const {id,cat_name,userid}=req.body;
+        const {cat_id,cat_name,userid}=req.body;
 
-        if(!id || !cat_name || !userid){
+        if(!cat_id || !cat_name || !userid){
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
@@ -603,7 +603,7 @@ app.post('Update/Category',express.json(),async (req,res)=>{
         }
 
         //validate id
-        const idVal=await conn.query('SELECT * from ... WHERE ...=?',[id]); //<===========================sql to find user with this id
+        const idVal=await conn.query('SELECT * from ... WHERE ...=?',[cat_id]); //<===========================sql to find user with this id
 
         if(idVal.length===0){
             res.status(404).send({ status: 'error', message: 'Category not found' });
@@ -611,7 +611,7 @@ app.post('Update/Category',express.json(),async (req,res)=>{
         }
     
         //now evrything is valid. perform the update
-        const update=await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?',[cat_name,id]); //<========sql query for the cat update
+        const update=await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?',[cat_name,cat_id]); //<========sql query for the cat update
 
         if(update.affectedRows>0){
             res.status(200).send({ status: 'success', message: 'Categories successfully updated' });
