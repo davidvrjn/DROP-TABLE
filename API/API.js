@@ -391,7 +391,6 @@ app.post('/User/Register',express.json(),async (req,res) =>{
 app.post('Get/Retailers',express.json(),async (req,res)=>{
     let conn;
     
-
     if(!req.is('application/json')){
         res.status(415).send({status: 'error', message: 'Expected application/json'});
         return;
@@ -399,39 +398,50 @@ app.post('Get/Retailers',express.json(),async (req,res)=>{
 
     try{
         const {search}=req.body;
+        conn= await pool.getConnection();
 
         if(!search){
-            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
-            return;
-        }
-
-        if(search!='Retailers'){
-            res.status(422).send({ status: 'error', message: 'Failed Validation' });
-            return;
-        }
-
-        conn= await pool.getConnection();
-        const [rows]= await conn.query('SQL HERE'); //<=====================SQL for select unique retailers here. No params because user input is not necessary for query
-    
-        let retailerJSON=[];
-
-        for(let i=0;i<rows.length;i++){
-            let temp={
+            //get all retailers here, no search provided
+            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            let retailerJSON=[];
+            
+            for(let i=0;i<rows.length;i++){
+                let temp={
                 retailer_name: rows[i].name,
                 retailer_id: rows[i].id
+                }
+
+                retailerJSON.push(temp);
             }
 
-            retailerJSON.push(temp)
+            
+            res.status(200).send({ status: 'success',  data: retailerJSON})
+            return;
+        } else{
+            //the user did provide a search, use search
+            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            let retailerJSON=[];
+
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                retailer_name: rows[i].name,
+                retailer_id: rows[i].id
+                }
+
+                retailerJSON.push(temp)
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: retailerJSON})
+            return;
         }
 
-        res.status(200).send({ status: 'success',  data: retailerJSON})
-        return;
-      } catch (err){
+    } catch (err){
         console.error(err);
         fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
-        res.status(500).send({ status: 'error', message: 'Error registering user, detailed error in server_logs, please investigate server logs' });
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
         return;
-      } finally{
+    } finally{
         if(conn){
             conn.end();
         }
