@@ -500,6 +500,12 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
         fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
         res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
         return;
+      } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
 
 //API CONNECT
 app.listen(port, () => {
