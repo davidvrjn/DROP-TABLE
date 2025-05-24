@@ -507,6 +507,14 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
     }
 })
 
+app.post('Get/Categories',express.json(),async (req,res)=>{
+    let conn;
+    
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
 //API CONNECT
 app.listen(port, () => {
     console.log(`API listening on localhost:${port}`);
