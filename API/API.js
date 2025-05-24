@@ -388,6 +388,183 @@ app.post('/User/Register',express.json(),async (req,res) =>{
     }
 })
 
+app.post('Get/Retailers',express.json(),async (req,res)=>{
+    let conn;
+    
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+    try{
+        const {search}=req.body;
+        conn= await pool.getConnection();
+
+        if(!search){
+            //get all retailers here, no search provided
+            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            let retailerJSON=[];
+            
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                retailer_name: rows[i].name,
+                retailer_id: rows[i].id
+                }
+
+                retailerJSON.push(temp);
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: retailerJSON})
+            return;
+        } else{
+            //the user did provide a search, use search
+            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            let retailerJSON=[];
+
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                retailer_name: rows[i].name,
+                retailer_id: rows[i].id
+                }
+
+                retailerJSON.push(temp)
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: retailerJSON})
+            return;
+        }
+
+    } catch (err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
+
+app.post('Get/Brands',express.json(),async (req,res)=>{
+    let conn;
+    
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+    try{
+        const {search}=req.body;
+        conn= await pool.getConnection();
+
+        if(!search){
+            //get all brands here, no search provided
+            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            let brandJSON=[];
+            
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                brand_name: rows[i].name,
+                brand_id: rows[i].id
+                }
+
+                brandJSON.push(temp);
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: brandJSON})
+            return;
+        } else{
+            //the user did provide a search, use search
+            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            let brandJSON=[];
+
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                brand_name: rows[i].name,
+                brand_id: rows[i].id
+                }
+
+                brandJSON.push(temp)
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: brandJSON})
+            return;
+        }
+      } catch (err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
+        return;
+      } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
+
+app.post('Get/Categories',express.json(),async (req,res)=>{
+    let conn;
+    
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+    try{
+        const {search}=req.body;
+        conn= await pool.getConnection();
+
+        if(!search){
+            //get all categories here, no search provided
+            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            let categoryJSON=[];
+            
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                    cat_name: rows[i].cat_name,
+                    cat_id: rows[i].cat_id
+                }
+
+                categoryJSON.push(temp);
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: categoryJSON})
+            return;
+        } else{
+            //the user did provide a search, use search
+            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            let categoryJSON=[];
+
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                cat_name: rows[i].cat_name,
+                cat_id: rows[i].cat_id
+                }
+
+                categoryJSON.push(temp)
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: categoryJSON})
+            return;
+        }
+      } catch (err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
 
 //API CONNECT
 app.listen(port, () => {
