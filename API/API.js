@@ -554,6 +554,17 @@ app.post('Get/Categories',express.json(),async (req,res)=>{
             res.status(200).send({ status: 'success',  data: categoryJSON})
             return;
         }
+      } catch (err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
 
 //API CONNECT
 app.listen(port, () => {
