@@ -611,7 +611,7 @@ app.post('Update/Category',express.json(),async (req,res)=>{
         }
     
         //now evrything is valid. perform the update
-        const update=await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?',[catName,id]);
+        const update=await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?',[catName,id]); //<========sql query for the cat update
 
         if(update.affectedRows>0){
             res.status(200).send({ status: 'success', message: 'Categories successfully updated' });
@@ -620,6 +620,17 @@ app.post('Update/Category',express.json(),async (req,res)=>{
             res.status(200).send({ status: 'success', message: 'Success, no rows affected' });
             return;
         }
+      } catch(err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally{
+        if(conn){
+            conn.end();
+        }
+    }
+})
 
 //API CONNECT
 app.listen(port, () => {
