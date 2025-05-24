@@ -456,6 +456,46 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
         return;
     }
 
+    try{
+        const {search}=req.body;
+        conn= await pool.getConnection();
+
+        if(!search){
+            //get all brands here, no search provided
+            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            let brandJSON=[];
+            
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                brand_name: rows[i].name,
+                brand_id: rows[i].id
+                }
+
+                brandJSON.push(temp);
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: brandJSON})
+            return;
+        } else{
+            //the user did provide a search, use search
+            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            let brandJSON=[];
+
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                brand_name: rows[i].name,
+                brand_id: rows[i].id
+                }
+
+                brandJSON.push(temp)
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: brandJSON})
+            return;
+        }
+
 //API CONNECT
 app.listen(port, () => {
     console.log(`API listening on localhost:${port}`);
