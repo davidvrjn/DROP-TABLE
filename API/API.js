@@ -397,6 +397,36 @@ app.post('Get/Retailers',express.json(),async (req,res)=>{
         return;
     }
 
+    try{
+        const {search}=req.body;
+
+        if(!search){
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
+        }
+
+        if(search!='Retailers'){
+            res.status(422).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        }
+
+        conn= await pool.getConnection();
+        const [rows]= await conn.query('SQL HERE'); //<=====================SQL for select unique retailers here. No params because user input is not necessary for query
+    
+        let retailerJSON=[];
+
+        for(let i=0;i<rows.length;i++){
+            let temp={
+                retailer_name: rows[i].name,
+                retailer_id: rows[i].id
+            }
+
+            retailerJSON.push(temp)
+        }
+
+        res.status(200).send({ status: 'success',  data: retailerJSON})
+        return;
+
 
 //API CONNECT
 app.listen(port, () => {
