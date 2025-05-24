@@ -495,6 +495,11 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
             res.status(200).send({ status: 'success',  data: brandJSON})
             return;
         }
+      } catch (err){
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error retrieving data, detailed error in server_logs, please investigate server logs' });
+        return;
 
 //API CONNECT
 app.listen(port, () => {
