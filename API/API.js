@@ -515,6 +515,46 @@ app.post('Get/Categories',express.json(),async (req,res)=>{
         return;
     }
 
+    try{
+        const {search}=req.body;
+        conn= await pool.getConnection();
+
+        if(!search){
+            //get all categories here, no search provided
+            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            let categoryJSON=[];
+            
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                    cat_name: rows[i].cat_name,
+                    cat_id: rows[i].cat_id
+                }
+
+                categoryJSON.push(temp);
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: categoryJSON})
+            return;
+        } else{
+            //the user did provide a search, use search
+            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            let categoryJSON=[];
+
+            for(let i=0;i<rows.length;i++){
+                let temp={
+                cat_name: rows[i].cat_name,
+                cat_id: rows[i].cat_id
+                }
+
+                categoryJSON.push(temp)
+            }
+
+            
+            res.status(200).send({ status: 'success',  data: categoryJSON})
+            return;
+        }
+
 //API CONNECT
 app.listen(port, () => {
     console.log(`API listening on localhost:${port}`);
