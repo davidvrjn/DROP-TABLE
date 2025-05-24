@@ -574,6 +574,53 @@ app.post('Update/Category',express.json(),async (req,res)=>{
         return;
     }
 
+    try{
+        const {id,catName,userid}=req.body;
+
+        if(!id || !catName || !userid){
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
+        }
+
+        //validate userid
+        conn= await pool.getConnection();
+        const user_details= await conn.query('SELECT * FROM ... WHERE ...=?',[userid]); //<==============sql to get a the user
+
+        if(user_details.length===0){
+            res.status(404).send({ status: 'error', message: 'User not found' });
+            return;
+        } else if(user_details[0].role!='admin'){
+            res.status(401).send({ status: 'error', message: 'Unauthorized' });
+            return;
+        }
+
+        //validate x_name
+        const catVal= await conn.query('SELECT * from ... WHERE ...=?',[catName]); //<================sql to get category with this name
+
+        if(catVal.length!=0){
+            res.status(409).send({ status: 'error', message: 'Category already exists' });
+            return;
+        }
+
+        //validate id
+        const idVal=await conn.query('SELECT * from ... WHERE ...=?',[id]); //<===========================sql to find user with this id
+
+        if(idVal.length===0){
+            res.status(404).send({ status: 'error', message: 'Category not found' });
+            return;
+        }
+    
+        //now evrything is valid. perform the update
+        const update=await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?',[catName,id]);
+
+        if(update.affectedRows>0){
+            res.status(200).send({ status: 'success', message: 'Categories successfully updated' });
+            return;
+        } else{
+            res.status(200).send({ status: 'success', message: 'Success, no rows affected' });
+            return;
+        }
+
 //API CONNECT
 app.listen(port, () => {
     console.log(`API listening on localhost:${port}`);
