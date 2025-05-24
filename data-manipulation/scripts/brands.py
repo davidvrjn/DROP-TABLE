@@ -8,15 +8,18 @@ MANIPULATED_DATA = BASE_DIR / 'manipulated-data'
 
 # Create mapping from brands.sql
 def parse_brands():
+    print("⏳ Parsing brands from brands.sql...")
     brands = {}
     with open(ORIGINAL_DATA / 'brands.sql', 'r') as f:
         lines = [line.strip() for line in f if line.strip().startswith("('")]
     for idx, line in enumerate(lines, start=1):
         name = line.split("'")[1]
         brands[name] = idx
+    print(f"✅ Found {len(brands)} brand mappings")
     return brands
 
 def process_products(brand_map):
+    print(f"🔧 Processing {len(brand_map)} brands in products_with_text_brand.sql")
     with open(ORIGINAL_DATA / 'products_with_text_brand.sql', 'r') as f:
         content = f.read()
     
@@ -35,6 +38,7 @@ def process_products(brand_map):
     return 'INSERT INTO `Products` (`brand_id`) VALUES\n' + '\n'.join(updated_lines)
 
 if __name__ == '__main__':
+    print("🚀 Starting brand ID conversion")
     brand_map = parse_brands()
     new_sql = process_products(brand_map)
     
@@ -46,4 +50,4 @@ if __name__ == '__main__':
     with open(output_path, 'w') as f:
         f.write(new_sql)
     
-    print(f'Generated {output_path} with {len(brand_map)} brand mappings')
+    print(f"\n🎉 Successfully generated {output_path} with {len(brand_map)} brand mappings\n")

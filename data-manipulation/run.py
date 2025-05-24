@@ -6,21 +6,14 @@ import sys
 SCRIPTS_FOLDER = "scripts"
 
 def run_python_script(script_path):
-    """
-    Executes a single Python script using a new Python interpreter process.
-    Handles potential errors during execution.
-    """
-    print(f"--- Running: {script_path} ---")
+    print(f"\n🔵 Executing: {script_path}")
     try:
-        # Use sys.executable to ensure the current Python interpreter is used
-        # (especially useful in virtual environments)
-        result = subprocess.run([sys.executable, script_path], check=True, capture_output=True, text=True)
-        print("Script Output:")
-        print(result.stdout)
-        if result.stderr:
-            print("Script Errors (if any):")
-            print(result.stderr)
-        print(f"--- Finished: {script_path} (Success) ---")
+        result = subprocess.run(
+            [sys.executable, script_path],
+            check=True,
+            text=True
+        )
+        print(f"🟢 Success: {script_path}")
     except subprocess.CalledProcessError as e:
         print(f"--- Finished: {script_path} (FAILED) ---")
         print(f"Error Code: {e.returncode}")
@@ -42,6 +35,7 @@ def run_all_scripts_in_folder(folder_path):
         print(f"Error: Folder '{folder_path}' not found.")
         return
 
+    print("\n")
     print(f"Scanning for Python scripts in: {folder_path}")
     scripts_found = []
 
