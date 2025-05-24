@@ -322,7 +322,7 @@ app.post('/User/Register',express.json(),async (req,res) =>{
             return;
         }
 
-        if(role!='normal' && role!='admin'){
+        if(role!='user' && role!='admin'){
             res.status(422).send({ status: 'error', message: 'Failed Validation' });
             return;
         }
