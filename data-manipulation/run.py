@@ -15,16 +15,16 @@ def run_python_script(script_path):
         )
         print(f"🟢 Success: {script_path}")
     except subprocess.CalledProcessError as e:
-        print(f"--- Finished: {script_path} (FAILED) ---")
+        print(f"🔴 Error: {script_path} (FAILED)")
         print(f"Error Code: {e.returncode}")
         print("STDOUT:")
         print(e.stdout)
         print("STDERR:")
         print(e.stderr)
     except FileNotFoundError:
-        print(f"Error: Python interpreter not found at {sys.executable}. Make sure Python is correctly installed.")
+        print(f"🔴 Error: Python interpreter not found at {sys.executable}. Make sure Python is correctly installed.")
     except Exception as e:
-        print(f"An unexpected error occurred while trying to run {script_path}: {e}")
+        print(f"🔴 Error: An unexpected error occurred while trying to run {script_path}: {e}")
 
 def run_all_scripts_in_folder(folder_path):
     """
@@ -32,7 +32,7 @@ def run_all_scripts_in_folder(folder_path):
     Excludes files starting with '__' (like __init__.py).
     """
     if not os.path.isdir(folder_path):
-        print(f"Error: Folder '{folder_path}' not found.")
+        print(f"🔴 Error: Folder '{folder_path}' not found.")
         return
 
     print("\n")
@@ -45,7 +45,7 @@ def run_all_scripts_in_folder(folder_path):
             scripts_found.append(item_path)
 
     if not scripts_found:
-        print(f"No Python scripts found in '{folder_path}'.")
+        print(f"🔴 Error: No Python scripts found in '{folder_path}'.")
         return
 
     # Sort scripts to ensure consistent execution order (optional, but good practice)
