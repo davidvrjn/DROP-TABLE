@@ -8,11 +8,11 @@ let currentReviewsPage = 1;
 const reviewsPerPage = 2; // Show 2 reviews per page
 let currentReviewsData = null; // Track the current reviews dataset
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener("DOMContentLoaded", function () {
     // Get the product ID from the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id') || 'sample-product';
-    
+    const productId = urlParams.get("id") || "sample-product";
+
     // Load reviews for the product
     loadProductReviews(productId);
 });
@@ -21,14 +21,47 @@ document.addEventListener('DOMContentLoaded', function() {
  * Load product reviews
  * @param {string} productId - The ID of the product
  */
-function loadProductReviews(productId) {
-    // this would be an API call
-    const reviewsData = getSampleReviewsData(productId);
-    currentReviewsData = reviewsData; // Store for pagination
-    
-    // Render reviews with pagination
-    renderReviewsWithPagination(reviewsData);
-    setupLoadMoreReviewsButton(reviewsData);
+async function loadProductReviews(productId) {
+    const userId = localStorage.getItem("userId") || null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const retailerId = urlParams.get("retailerId") || 1;
+
+    try {
+        const response = await fetch(
+            `http://localhost:3000/Get/Product/${productId}/${retailerId}`,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userid: userId }),
+            }
+        );
+
+        const result = await response.json();
+        if (result.status === "success") {
+            const reviews = result.data.reviews ?? [];
+            const averageRating = result.data.rating ?? 0;
+            const reviewData = {
+                productId,
+                averageRating,
+                totalReviews: reviews.length,
+                reviews: reviews.map((r) => ({
+                    id: r.r_Id,
+                    userName: r.r_Username,
+                    rating: r.r_Rating,
+                    date: r.r_Date,
+                    text: r.r_Text,
+                })),
+            };
+
+            currentReviewsData = reviewData;
+            renderReviewsWithPagination(reviewData);
+            setupLoadMoreReviewsButton(reviewData);
+        } else {
+            console.error("API error:", result.message);
+        }
+    } catch (err) {
+        console.error("Review fetch error:", err);
+    }
 }
 
 /**
@@ -36,61 +69,6 @@ function loadProductReviews(productId) {
  * @param {string} productId - The ID of the product
  * @returns {object} Sample reviews data
  */
-function getSampleReviewsData(productId) {
-    // Sample reviews data
-    return {
-        productId: productId,
-        averageRating: 4.3,
-        totalReviews: 5,
-        reviews: [
-            {
-                id: 'rev1',
-                userName: 'John Smith',
-                rating: 5,
-                date: '2025-10-15',
-                text: 'These headphones are amazing! The noise cancellation is top-notch and the sound quality is incredible. Battery life is as advertised, and they\'re very comfortable for long listening sessions.'
-            },
-            {
-                id: 'rev2',
-                userName: 'Sarah Johnson',
-                rating: 4,
-                date: '2025-09-28',
-                text: 'Great headphones overall. The sound quality is excellent and the noise cancellation works well. My only complaint is that they get a bit uncomfortable after wearing them for several hours.'
-            },
-            {
-                id: 'rev3',
-                userName: 'Michael Brown',
-                rating: 5,
-                date: '2025-09-10',
-                text: 'Best headphones I\'ve ever owned! The sound is crystal clear, and the noise cancellation is perfect for my daily commute. The battery life is impressive too.'
-            },
-            {
-                id: 'rev4',
-                userName: 'Emily Davis',
-                rating: 3,
-                date: '2025-08-22',
-                text: 'Decent headphones but not worth the price in my opinion. The sound quality is good, but I\'ve had issues with the Bluetooth connection dropping occasionally.'
-            },
-            {
-                id: 'rev5',
-                userName: 'David Wilson',
-                rating: 5,
-                date: '2025-08-05',
-                text: 'Absolutely love these headphones! The sound quality is superb, and the noise cancellation is a game-changer for working in noisy environments. Highly recommend!'
-            }
-        ]
-    };
-    
-    // For testing empty reviews scenario, uncomment the following:
-    /*
-    return {
-        productId: productId,
-        averageRating: 0,
-        totalReviews: 0,
-        reviews: []
-    };
-    */
-}
 
 /**
  * Render reviews with pagination
@@ -98,34 +76,37 @@ function getSampleReviewsData(productId) {
  */
 function renderReviewsWithPagination(reviewsData = currentReviewsData) {
     // Update overall rating
-    const overallRatingValue = document.getElementById('overall-rating-value');
-    const overallRatingCount = document.getElementById('overall-rating-count');
-    
+    const overallRatingValue = document.getElementById("overall-rating-value");
+    const overallRatingCount = document.getElementById("overall-rating-count");
+
     if (overallRatingValue && overallRatingCount) {
         overallRatingValue.textContent = reviewsData.averageRating.toFixed(1);
         overallRatingCount.textContent = `(${reviewsData.totalReviews} reviews)`;
-        
+
         // Update star rating visualization
-        updateStarRating(document.querySelector('.overall-rating .rating-stars'), reviewsData.averageRating);
+        updateStarRating(
+            document.querySelector(".overall-rating .rating-stars"),
+            reviewsData.averageRating
+        );
     }
-    
+
     // Get reviews container
-    const reviewsContainer = document.getElementById('reviews-container');
-    const noReviewsMessage = document.getElementById('no-reviews-message');
+    const reviewsContainer = document.getElementById("reviews-container");
+    const noReviewsMessage = document.getElementById("no-reviews-message");
     if (!reviewsContainer) return;
 
     // Clear existing reviews
-    const existingReviews = reviewsContainer.querySelectorAll('.review-item');
-    existingReviews.forEach(review => review.remove());
-    
+    const existingReviews = reviewsContainer.querySelectorAll(".review-item");
+    existingReviews.forEach((review) => review.remove());
+
     // Show or hide no reviews message
     if (reviewsData.reviews.length === 0) {
-        if (noReviewsMessage) noReviewsMessage.style.display = 'block';
-        const loadMoreButton = document.getElementById('load-more-reviews');
-        if (loadMoreButton) loadMoreButton.style.display = 'none';
+        if (noReviewsMessage) noReviewsMessage.style.display = "block";
+        const loadMoreButton = document.getElementById("load-more-reviews");
+        if (loadMoreButton) loadMoreButton.style.display = "none";
         return;
     } else {
-        if (noReviewsMessage) noReviewsMessage.style.display = 'none';
+        if (noReviewsMessage) noReviewsMessage.style.display = "none";
     }
 
     // Calculate reviews to display
@@ -134,16 +115,19 @@ function renderReviewsWithPagination(reviewsData = currentReviewsData) {
     const reviewsToRender = reviewsData.reviews.slice(0, end);
 
     // Add reviews to container
-    const reviewsHTML = reviewsToRender.map(review => {
-        const reviewElement = createReviewElement(review);
-        return reviewElement.outerHTML;
-    }).join('');
+    const reviewsHTML = reviewsToRender
+        .map((review) => {
+            const reviewElement = createReviewElement(review);
+            return reviewElement.outerHTML;
+        })
+        .join("");
     reviewsContainer.innerHTML += reviewsHTML;
 
     // Hide "Load More" button if all reviews are displayed
-    const loadMoreButton = document.getElementById('load-more-reviews');
+    const loadMoreButton = document.getElementById("load-more-reviews");
     if (loadMoreButton) {
-        loadMoreButton.style.display = end >= reviewsData.reviews.length ? 'none' : 'block';
+        loadMoreButton.style.display =
+            end >= reviewsData.reviews.length ? "none" : "block";
     }
 
     // Future API implementation:
@@ -166,9 +150,9 @@ function renderReviewsWithPagination(reviewsData = currentReviewsData) {
  * @param {object} reviewsData - The reviews data
  */
 function setupLoadMoreReviewsButton(reviewsData) {
-    const loadMoreButton = document.getElementById('load-more-reviews');
+    const loadMoreButton = document.getElementById("load-more-reviews");
     if (loadMoreButton) {
-        loadMoreButton.addEventListener('click', () => {
+        loadMoreButton.addEventListener("click", () => {
             currentReviewsPage++;
             renderReviewsWithPagination(reviewsData);
         });
@@ -181,17 +165,17 @@ function setupLoadMoreReviewsButton(reviewsData) {
  * @returns {HTMLElement} The review element
  */
 function createReviewElement(review) {
-    const reviewElement = document.createElement('div');
-    reviewElement.className = 'review-item';
-    
+    const reviewElement = document.createElement("div");
+    reviewElement.className = "review-item";
+
     // Format date
     const reviewDate = new Date(review.date);
-    const formattedDate = reviewDate.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
+    const formattedDate = reviewDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
     });
-    
+
     // Create review HTML
     reviewElement.innerHTML = `
         <div class="review-header">
@@ -203,7 +187,7 @@ function createReviewElement(review) {
         </div>
         <div class="review-text">${review.text}</div>
     `;
-    
+
     return reviewElement;
 }
 
@@ -213,8 +197,8 @@ function createReviewElement(review) {
  * @returns {string} Star rating HTML
  */
 function getStarRatingHTML(rating) {
-    let starsHTML = '';
-    
+    let starsHTML = "";
+
     // Add filled stars
     for (let i = 0; i < 5; i++) {
         if (i < Math.floor(rating)) {
@@ -225,7 +209,7 @@ function getStarRatingHTML(rating) {
             starsHTML += '<i class="bi bi-star"></i>';
         }
     }
-    
+
     return starsHTML;
 }
 
@@ -236,10 +220,10 @@ function getStarRatingHTML(rating) {
  */
 function updateStarRating(starsContainer, rating) {
     if (!starsContainer) return;
-    
+
     // Clear existing stars
-    starsContainer.innerHTML = '';
-    
+    starsContainer.innerHTML = "";
+
     // Add new stars based on rating
     starsContainer.innerHTML = getStarRatingHTML(rating);
 }
