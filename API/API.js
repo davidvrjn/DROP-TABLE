@@ -771,6 +771,14 @@ app.post('Remove/Brand',express.json(),async (req,res)=>{
         res.status(415).send({status: 'error', message: 'Expected application/json'});
         return;
     }
+
+  try{
+    
+  } catch (err) {
+    
+  } finally{
+    
+  }
 })
 
 //API CONNECT
