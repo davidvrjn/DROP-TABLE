@@ -19,6 +19,9 @@ export function initLogin(hashSHA256) {
             const rememberMe = document.getElementById('rememberMe').checked;
 
             try {
+                // Reset error message
+                errorMessage.style.display = 'none';
+
                 // Basic validation
                 if (!email || !password) {
                     throw new Error('Email and password are required');
@@ -27,7 +30,7 @@ export function initLogin(hashSHA256) {
                 // Hash password with SHA-256 client-side
                 const hashedPassword = await hashSHA256(password);
 
-                // Send login request to API with hashed password
+                // Send login request to API
                 const response = await fetch('http://localhost:3000/User/Login', {
                     method: 'POST',
                     headers: {
@@ -36,30 +39,9 @@ export function initLogin(hashSHA256) {
                     body: JSON.stringify({ email, password: hashedPassword }),
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    if (data.status === 'success') {
-                        const { user } = data.data; // No token in the provided API response, adjust if token is added
-                        if (rememberMe) {
-                            localStorage.setItem('user', JSON.stringify(user));
-                        } else {
-                            sessionStorage.setItem('user', JSON.stringify(user));
-                        }
-
-                        // Redirect based on role
-                        if (user.role === 'admin') {
-                            window.location.href = '/admin';
-                            alert('Redirecting to /admin');
-                        } else {
-                            window.location.href = '/index';
-                            alert('Redirecting to /index');
-                        }
-                    } else {
-                        errorMessage.textContent = data.message || 'Login failed';
-                        errorMessage.style.display = 'block';
-                    }
-                } else {
+                // Check if response is OK before parsing JSON
+                if (!response.ok) {
+                    const data = await response.json();
                     let errorMsg = data.message || `Error: ${response.status}`;
                     switch (response.status) {
                         case 400:
@@ -78,12 +60,33 @@ export function initLogin(hashSHA256) {
                             errorMsg = 'Server error';
                             break;
                     }
-                    errorMessage.textContent = errorMsg;
-                    errorMessage.style.display = 'block';
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    const { user } = data.data;
+                    // Store user data
+                    if (rememberMe) {
+                        localStorage.setItem('user', JSON.stringify(user));
+                    } else {
+                        sessionStorage.setItem('user', JSON.stringify(user));
+                    }
+
+                    // Redirect based on user type
+                    if (user.type === 'admin') {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/'; // Root route serves index.ejs
+                    }
+                } else {
+                    throw new Error(data.message || 'Login failed');
                 }
             } catch (error) {
                 errorMessage.textContent = 'Error: ' + error.message;
                 errorMessage.style.display = 'block';
+                console.error('Login error:', error);
             }
         });
     }
