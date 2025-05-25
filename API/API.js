@@ -528,7 +528,7 @@ app.post('/Get/Categories',express.json(),async (req,res)=>{
             for(let i=0;i<rows.length;i++){
                 let temp={
                     cat_name: rows[i].cat_name,
-                    cat_id: rows[i].cat_id
+                    id: rows[i].id
                 }
 
                 categoryJSON.push(temp);
@@ -544,8 +544,8 @@ app.post('/Get/Categories',express.json(),async (req,res)=>{
 
             for(let i=0;i<rows.length;i++){
                 let temp={
-                cat_name: rows[i].cat_name,
-                cat_id: rows[i].cat_id
+                    cat_name: rows[i].cat_name,
+                    id: rows[i].id
                 }
 
                 categoryJSON.push(temp)
