@@ -4,7 +4,6 @@ const app = express();
 const mariadb = require('mariadb');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
-const { findPackageJSON } = require('module');
 
 //By default,generates an apikey. Can be repurposed by providing a length
 function generateAlphanumeric(length = 32) {
