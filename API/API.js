@@ -50,22 +50,22 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         }
         if (req.body['filters']) {
             const filters = req.body['filters'];
-            if (filters['brands']) {
+            if (filters['brands'] && filters['brands'].length > 0) {
                 const brands = filters['brands'];
                 where.push(`B.name IN (${brands.map(() => '?').join(', ')})`);
                 values.push(...brands);
             }
-            if (filters['departments']) {
+            if (filters['departments'] && filters['departments'].length > 0) {
                 const departments = filters['departments'];
                 where.push(`cat_name IN (${departments.map(() => '?').join(', ')})`);
                 values.push(...departments);
             }
-            if (filters['retailers']) {
+            if (filters['retailers'] && filters['retailers'].length > 0) {
                 const retailers = filters['retailers'];
                 where.push(`R.name IN (${retailers.map(() => '?').join(', ')})`);
                 values.push(...retailers);
             }
-            if (filters['prices']) {
+            if (filters['prices'] && filters['prices'].length > 0) {
                 const prices = filters['prices'];
                 where.push(`final_price BETWEEN ? AND ?`);
                 values.push(prices[0], prices[1]);
