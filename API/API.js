@@ -4,6 +4,8 @@ const app = express();
 const mariadb = require('mariadb');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
+app.use(cors());
 
 //hashing function
 async function hashString(input, saltRounds = 10) {
@@ -41,6 +43,11 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         conn = await pool.getConnection();
         let where = [];
         let values = [];
+        if(req.body['userid']){
+            const userid = req.body['userid'];
+            where.push(`W.user_id = ?`);
+            values.push(`%${search}%`);
+        }
         if (req.body['filters']) {
             const filters = req.body['filters'];
             if (filters['brands']) {
@@ -170,10 +177,6 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
 
         //Used to determine if the product is wishlisted, but optional
         var isWatchlisted = false;
-        if (req.body['apikey']) {
-            //Take the product id and retailer id and determine if that instance is in this users watchlist, 
-            //if it exists, set isWatchlisted to true. nothing else should need to be done.
-        }
 
         var rows = conn.query("SQL QUERY", ["Params"]);
         if (rows.length == 0) {
