@@ -527,7 +527,7 @@ app.post('/Get/Categories', express.json(), async (req, res) => {
         if (!search) {
             //get all categories here, no search provided
 
-            const rows = await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            const rows = await conn.query('SELECT * FROM Category');  //<==============no search provided, just a select unique  
             let categoryJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
