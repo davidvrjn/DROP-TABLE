@@ -34,6 +34,8 @@
                                 <button type="submit" class="btn btn-primary">Login</button>
                             </div>
                             
+                            <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+                            
                             <div class="text-center mt-3">
                                 <button type="button" id="forgotPasswordBtn" class="btn btn-link text-decoration-none p-0">Forgot password?</button>
                             </div>
@@ -52,42 +54,15 @@
 
     <br><br>
     <!-- # FOOTER SEGMENT # -->
-    <%- include('partials/_footer.ejs') %>
+    <%- include('./partials/_footer.ejs') %>
     
     <script type="module">
         import { initPasswordEye } from './partials/_passwordeye.js';
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize password eye toggle
+
+        document.addEventListener('DOMContentLoaded', async function() {
             initPasswordEye();
-            
-            const loginForm = document.getElementById('loginForm');
-            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
-            
-            if (loginForm) {
-                loginForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // Get form values
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
-                    const rememberMe = document.getElementById('rememberMe').checked;
-                    
-                    console.log('Login attempt:', { email, password, rememberMe });
-                    
-                    alert('Login');
-                    // Redirect to home page
-                    // window.location.href = 'index.ejs';
-                });
-            }
-            
-            if (forgotPasswordBtn) {
-                forgotPasswordBtn.addEventListener('click', function() {
-                    // Handle forgot password functionality
-                    console.log('Forgot password clicked');
-                    alert('Forgot password functionality will be implemented by the JS team');
-                });
-            }
+            const { initLogin } = await import('./js/login.js');
+            initLogin();
         });
     </script>
 </body>

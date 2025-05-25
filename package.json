@@ -26,5 +26,8 @@
     "parcel": "^2.15.0",
     "parcel-transformer-ejs": "^1.0.1",
     "sass": "^1.88.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2"
   }
 }

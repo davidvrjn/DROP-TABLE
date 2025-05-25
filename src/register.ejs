@@ -54,6 +54,8 @@
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Register</button>
                             </div>
+                            
+                            <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
                         </form>
                         
                         <hr class="my-4">
@@ -69,49 +71,15 @@
 
     <br><br>
     <!-- # FOOTER SEGMENT # -->
-    <%- include('partials/_footer.ejs') %>
+    <%- include('./partials/_footer.ejs') %>
     
     <script type="module">
         import { initPasswordEye } from './partials/_passwordeye.js';
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize password eye toggle
+
+        document.addEventListener('DOMContentLoaded', async function() {
             initPasswordEye();
-            
-            const registerForm = document.getElementById('registerForm');
-            
-            if (registerForm) {
-                registerForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    // Get form values
-                    const firstName = document.getElementById('firstName').value;
-                    const lastName = document.getElementById('lastName').value;
-                    const email = document.getElementById('email').value;
-                    const password = document.getElementById('password').value;
-                    const confirmPassword = document.getElementById('confirmPassword').value;
-                    
-                    // Password validation regex
-                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                    
-                    // Basic validation
-                    if (password !== confirmPassword) {
-                        alert('Passwords do not match!');
-                        return;
-                    }
-                    
-                    if (!passwordRegex.test(password)) {
-                        alert('Password does not meet security requirements!');
-                        return;
-                    }
-                    
-                    console.log('Registration attempt:', { firstName, lastName, email, password });
-                    
-                    alert('Registration successful!');
-                    // Redirect to login page
-                    // window.location.href = 'login.ejs';
-                });
-            }
+            const { initRegister } = await import('./js/register.js');
+            initRegister();
         });
     </script>
 </body>
