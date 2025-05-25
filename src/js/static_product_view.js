@@ -80,47 +80,6 @@ function showProductError(message) {
  * @param {string} productId - The ID of the product
  * @returns {object} Sample product data
  */
-function getSampleProductData(productId) {
-    // Sample product data
-    return {
-        id: productId,
-        title: "Sony WH-1000XM4 Wireless Noise Cancelling Headphones",
-        description:
-            "Industry-leading noise cancellation with Dual Noise Sensor technology. Next-level music with Edge-AI, co-developed with Sony Music Studios Tokyo. Up to 30-hour battery life with quick charging (10 min charge for 5 hours of playback). Touch Sensor controls to pause/play/skip tracks, control volume, activate your voice assistant, and answer phone calls. Speak-to-chat technology automatically reduces volume during conversations.",
-        price: 4999.99,
-        discount: 15,
-        originalPrice: 5999.99,
-        rating: 4.8,
-        reviewCount: 1245,
-        retailer: "Takealot",
-        inStock: true,
-        images: [
-            "https://m.media-amazon.com/images/I/71o8Q5XJS5L._AC_SL1500_.jpg",
-            "https://m.media-amazon.com/images/I/81d0PKhH7FL._AC_SL1500_.jpg",
-            "https://m.media-amazon.com/images/I/71Zg1CXSOFL._AC_SL1500_.jpg",
-        ],
-        features: [
-            "Industry-leading noise cancellation",
-            "30-hour battery life",
-            "Speak-to-chat technology",
-            "Touch sensor controls",
-            "Wearing detection with smart playback",
-            "Seamless multiple-device pairing",
-        ],
-        specifications: {
-            Brand: "Sony",
-            Model: "WH-1000XM4",
-            Color: "Black",
-            Connectivity: "Bluetooth 5.0",
-            "Battery Life": "30 hours",
-            "Charging Time": "3 hours",
-            Weight: "254g",
-            "Noise Cancellation": "Yes",
-            Microphone: "Built-in",
-            Warranty: "1 Year",
-        },
-    };
-}
 
 /**
  * Render product data to the page

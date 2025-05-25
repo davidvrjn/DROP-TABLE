@@ -95,19 +95,51 @@ function renderProductsWithPagination(products = currentProducts) {
             end >= products.length ? "none" : "block";
     }
 
-    // Future API implementation:
-    /*
-    fetch(`/api/products?page=${currentPage}&limit=${itemsPerPage}`)
-        .then(response => response.json())
-        .then(data => {
-            data.products.forEach(product => {
-                const productCardHTML = createProductCardHTML(product);
-                productListContainer.innerHTML += productCardHTML;
-            });
-            loadMoreButton.style.display = data.hasMore ? 'block' : 'none';
-        })
-        .catch(error => console.error('Error loading products:', error));
-    */
+    setupWatchlistButtons();
+}
+
+function setupWatchlistButtons() {
+    const userId = localStorage.getItem("userId");
+    const buttons = document.querySelectorAll(".watchlist-icon");
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", async function () {
+            const productId = this.getAttribute("data-product-id");
+            const retailerId = this.getAttribute("data-retailer-id") || 1;
+
+            if (!userId) {
+                alert("Please log in to add items to your watchlist.");
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    "http://localhost:3000/Add/ToWishlist",
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            retailer_id: retailerId,
+                            watchlist: userId,
+                        }),
+                    }
+                );
+
+                const result = await response.json();
+                if (result.status === "success") {
+                    this.classList.add("added");
+                } else {
+                    console.error(
+                        "Failed to add to watchlist:",
+                        result.message
+                    );
+                }
+            } catch (err) {
+                console.error("Error adding to watchlist:", err);
+            }
+        });
+    });
 }
 
 function setupLoadMoreButton() {
