@@ -33,12 +33,20 @@ export function initRegister(hashSHA256) {
                     errorMessage.textContent = 'Passwords do not match!';
                     errorMessage.style.display = 'block';
                     fade.classList.remove('hidden');
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                        fade.classList.add('hidden');
+                    }, 3000);
                     return;
                 }
                 if (!passwordRegex.test(password)) {
                     errorMessage.textContent = 'Password does not meet security requirements!';
                     errorMessage.style.display = 'block';
                     fade.classList.remove('hidden');
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                        fade.classList.add('hidden');
+                    }, 3000);
                     return;
                 }
 
@@ -60,9 +68,29 @@ export function initRegister(hashSHA256) {
                 });
 
                 // Check if response is OK before parsing JSON
-                if (!response.created) {
-                    const text = await response.text(); // Get raw response for debugging
-                    throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                if (!response.ok) {
+                    const data = await response.json();
+                    let userMessage;
+                    switch (response.status) {
+                        case 400:
+                            userMessage = 'Invalid input. Please check your details.';
+                            break;
+                        case 409:
+                            userMessage = 'User already exists with this email.';
+                            break;
+                        case 415:
+                            userMessage = 'Unsupported media type. Contact support.';
+                            break;
+                        case 422:
+                            userMessage = 'Invalid email or password format.';
+                            break;
+                        case 500:
+                            userMessage = 'Server error. Please try again later.';
+                            break;
+                        default:
+                            userMessage = data.message || 'Registration failed. Please try again.';
+                    }
+                    throw new Error(userMessage);
                 }
 
                 const data = await response.json();
@@ -76,16 +104,33 @@ export function initRegister(hashSHA256) {
                         window.location.href = '/login';
                     }, 1500);
                 } else {
-                    errorMessage.textContent = data.message || 'Registration failed';
+                    errorMessage.textContent = data.message || 'Registration failed. Please try again.';
                     errorMessage.style.display = 'block';
                     fade.classList.remove('hidden');
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                        fade.classList.add('hidden');
+                    }, 3000);
                 }
             } catch (error) {
-                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.textContent = error.message || 'An unexpected error occurred. Please try again.';
                 errorMessage.style.display = 'block';
                 fade.classList.remove('hidden');
-                console.error('Registration error:', error); // Log to browser console
+                console.error('Registration error:', error); // Log to browser console for debugging
+                setTimeout(() => {
+                    errorMessage.style.display = 'none';
+                    fade.classList.add('hidden');
+                }, 3000);
             }
         });
+
+        // Add click event to dismiss the fade overlay
+        if (fade) {
+            fade.addEventListener('click', () => {
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                fade.classList.add('hidden');
+            });
+        }
     }
 }
