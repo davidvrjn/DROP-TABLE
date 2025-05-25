@@ -1,8 +1,9 @@
-# Dependencies
-node_modules/
 
-# Build output
-dist/
+node_modules
+.env
+dist/*
+.parcel-cache/*
+dist
+.parcel-cache
+error.log
 
-# Parcel cache
-.parcel-cache/
