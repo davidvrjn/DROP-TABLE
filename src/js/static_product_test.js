@@ -7,66 +7,38 @@
 // Import the function to generate product card HTML
 import { createProductCardHTML } from "../partials/_product-card.js";
 
-// Static data for testing product card rendering.
-// This array contains 5 product objects.
-const staticProductData = [
-    {
-        id: "prod-001",
-        image_url:
-            "https://m.media-amazon.com/images/I/71geIOeuw-L._AC_SY450_.jpg", // Placeholder image
-        title: "Wireless Mouse but this is a longer name to test wrapping, some product titles go on forever",
-        final_price: 299.99,
-        retailer_name: "Amazon",
-        rating: 4.5, // Average rating
-        brand: "Apple",
-        category: "Audio",
-    },
-    {
-        id: "prod-002",
-        image_url:
-            "https://m.media-amazon.com/images/I/71geIOeuw-L._AC_SY450_.jpg",
-        title: "Mechanical Keyboard",
-        final_price: 750.0,
-        retailer_name: "Checkers",
-        initial_price: 1000.0, // Initial price for discount
-        discount: 25, // Discount percentage
-        brand: "Samsung",
-        category: "Audio",
-    },
-    {
-        id: "prod-003",
-        image_url:
-            "https://m.media-amazon.com/images/I/71geIOeuw-L._AC_SY450_.jpg",
-        title: "USB-C Hub",
-        final_price: 100000.5,
-        retailer_name: "Pick n Pay",
-        rating: 2.0,
-        brand: "Sony",
-        category: "Audio",
-    },
-    {
-        id: "prod-004",
-        image_url:
-            "https://m.media-amazon.com/images/I/71geIOeuw-L._AC_SY450_.jpg",
-        title: "Webcam 1080p",
-        final_price: 1000000.0,
-        retailer_name: "Takealot",
-        initial_price: 1000001.0,
-        discount: 20,
-        brand: "LG",
-        category: "Accesories",
-    },
-    {
-        id: "prod-005",
-        image_url:
-            "https://m.media-amazon.com/images/I/71geIOeuw-L._AC_SY450_.jpg",
-        title: "Monitor Stand",
-        final_price: 350.0,
-        retailer_name: "AReallyLongCompanyNameThatIsLongEnough",
-        brand: "Google",
-        category: "Wearables",
-    },
-];
+async function fetchProducts({
+    filters = {},
+    ordering = {},
+    limit = 100,
+    userid = null,
+} = {}) {
+    try {
+        const response = await fetch("http://localhost:3000/Get/Products", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                userid,
+                filters,
+                ordering,
+                limit,
+            }),
+        });
+
+        const result = await response.json();
+        if (result.status === "success") {
+            return result.data;
+        } else {
+            console.error("API error:", result.message);
+            return [];
+        }
+    } catch (err) {
+        console.error("Network error:", err);
+        return [];
+    }
+}
 
 let activeFilters = {
     categories: [],
@@ -80,7 +52,7 @@ let activeFilters = {
 // Pagination state
 let currentPage = 1;
 const itemsPerPage = 3; // Show 3 products per page
-let currentProducts = staticProductData; // Track the current dataset (for search/filter)
+let currentProducts = [];
 
 function renderProductsWithPagination(products = currentProducts) {
     const productListContainer = document.getElementById("product-list");
@@ -130,7 +102,7 @@ function setupLoadMoreButton() {
     const loadMoreButton = document.getElementById("load-more-products");
     if (loadMoreButton) {
         loadMoreButton.addEventListener("click", () => {
-            currentPage++;
+            currentPage += 3;
             renderProductsWithPagination();
         });
     }
@@ -400,42 +372,25 @@ function populateRetailerFilters(retailers) {
     }
 }
 
-// Example usage with sample categories
-const categories = [
-    "Electronics",
-    "Computers",
-    "Smartphones",
-    "Audio",
-    "Gaming",
-    "Accessories",
-    "Home Appliances",
-    "Wearables",
-];
+//get brands, categories etc...
+async function fetchDistinctValues(endpoint) {
+    const res = await fetch(`http://localhost:3000/Get/${endpoint}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ search: "" }),
+    });
 
-// Example usage with brands
-const brands = [
-    "Apple",
-    "Samsung",
-    "Sony",
-    "LG",
-    "Huawei",
-    "Xiaomi",
-    "Google",
-    "OnePlus",
-];
+    const result = await res.json();
+    return result.data.map((item) => item[`${endpoint.slice(0, -1)}_name`]);
+}
 
-// Example usage with retailers
-const retailers = [
-    "Amazon",
-    "Takealot",
-    "Checkers",
-    "Pick n Pay",
-    "Game",
-    "Makro",
-    "Incredible Connection",
-];
+async function populateFilters() {
+    const categories = await fetchDistinctValues("Categories");
+    const brands = await fetchDistinctValues("Brands");
+    const retailers = await fetchDistinctValues("Retailers");
 
-function populateFilters() {
     populateCategoryFilters(categories);
     populateBrandFilters(brands);
     populateRetailerFilters(retailers);
@@ -462,21 +417,13 @@ function setupHeroSearch() {
     }
 }
 
-function performSearch(query) {
-    // For now, filter static data; later, this will call an API
-    const filteredProducts = staticProductData.filter((product) =>
-        product.title.toLowerCase().includes(query)
-    );
-
-    renderProducts(filteredProducts);
-
-    // Future API implementation:
-    /*
-    fetch(`/api/products?search=${encodeURIComponent(query)}`)
-        .then(response => response.json())
-        .then(products => renderProducts(products))
-        .catch(error => console.error('Search error:', error));
-    */
+async function performSearch(query) {
+    const products = await fetchProducts({
+        filters: {
+            search: query,
+        },
+    });
+    renderProducts(products);
 }
 
 function setupSortDropdown() {
@@ -505,7 +452,7 @@ function setupSortDropdown() {
                 break;
             default:
                 //(reset to original)
-                sortedProducts = [...staticProductData];
+                sortedProducts = [...fetchProducts()];
                 break;
         }
 
@@ -547,57 +494,24 @@ function applyFilters() {
                 maxPrice: Infinity,
             };
 
-            renderProducts(staticProductData); // Show all products again
+            renderProducts(fetchProducts()); // Show all products again
         });
 
-    let filtered = staticProductData.filter((product) => {
-        // Category filter (if product has category)
-        if (
-            activeFilters.categories.length > 0 &&
-            product.category &&
-            !activeFilters.categories.includes(product.category)
-        ) {
-            return false;
-        }
+    (async () => {
+        updateActiveFilters();
 
-        // Brand filter
-        if (
-            activeFilters.brands.length > 0 &&
-            product.brand &&
-            !activeFilters.brands.includes(product.brand)
-        ) {
-            return false;
-        }
+        const products = await fetchProducts({
+            filters: {
+                brands: activeFilters.brands,
+                departments: activeFilters.categories,
+                retailers: activeFilters.retailers,
+                prices: [activeFilters.minPrice, activeFilters.maxPrice],
+                rating: Math.min(...activeFilters.ratings, 0),
+            },
+        });
 
-        // Retailer filter
-        if (
-            activeFilters.retailers.length > 0 &&
-            !activeFilters.retailers.includes(product.retailer_name)
-        ) {
-            return false;
-        }
-
-        // Price range
-        if (
-            product.final_price < activeFilters.minPrice ||
-            product.final_price > activeFilters.maxPrice
-        ) {
-            return false;
-        }
-
-        // Ratings
-        const rating = product.rating || 0;
-        if (
-            activeFilters.ratings.length > 0 &&
-            !activeFilters.ratings.some((min) => rating >= min)
-        ) {
-            return false;
-        }
-
-        return true;
-    });
-
-    renderProducts(filtered); // Show filtered products
+        renderProducts(products);
+    })();
 }
 
 function updateActiveFilters() {
@@ -672,14 +586,15 @@ function setupFilterButtons() {
                 maxPrice: Infinity,
             };
 
-            renderProducts(staticProductData);
+            renderProducts(fetchProducts());
         });
     }
 }
 
 // Initialize everything when the DOM is ready
-document.addEventListener("DOMContentLoaded", () => {
-    renderProductsWithPagination();
+document.addEventListener("DOMContentLoaded", async () => {
+    currentProducts = await fetchProducts();
+    renderProductsWithPagination(currentProducts);
     setupLoadMoreButton();
     populateFilters();
     setupHeroSearch();
