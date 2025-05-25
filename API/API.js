@@ -139,7 +139,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
     }
     finally{
         if(conn){
-            conn.end();
+            conn.release();
         } 
     }
 })
@@ -221,7 +221,7 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
     }
     finally{
         if(conn){
-            conn.end();
+            conn.release();
         } 
     }
 })
@@ -299,7 +299,7 @@ app.post('/User/Login',express.json(),async (req,res) =>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -384,7 +384,7 @@ app.post('/User/Register',express.json(),async (req,res) =>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -444,7 +444,7 @@ app.post('/Get/Retailers',express.json(),async (req,res)=>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -503,7 +503,7 @@ app.post('/Get/Brands',express.json(),async (req,res)=>{
         return;
       } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -562,7 +562,7 @@ app.post('/Get/Categories',express.json(),async (req,res)=>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -628,7 +628,7 @@ app.post('/Update/Category',express.json(),async (req,res)=>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -694,7 +694,7 @@ app.post('/Update/Retailer',express.json(),async (req,res)=>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -760,7 +760,7 @@ app.post('/Update/Brand',express.json(),async (req,res)=>{
         return;
     } finally{
         if(conn){
-            conn.end();
+            conn.release();
         }
     }
 })
@@ -820,7 +820,7 @@ app.post('/Remove/Brand',express.json(),async (req,res)=>{
     return;
   } finally{
     if(conn){
-      conn.end();
+      conn.release();
     }
   }
 })
@@ -880,7 +880,7 @@ app.post('/Remove/Retailer',express.json(),async (req,res)=>{
     return;
   } finally{
     if(conn){
-      conn.end();
+      conn.release();
     }
   }
 })
@@ -940,7 +940,7 @@ app.post('/Remove/Category',express.json(),async (req,res)=>{
     return;
   } finally{
     if(conn){
-      conn.end();
+      conn.release();
     }
   }
 })
