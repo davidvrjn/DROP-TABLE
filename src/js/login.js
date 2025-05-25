@@ -9,6 +9,8 @@ export function initLogin(hashSHA256) {
     const loginForm = document.getElementById('loginForm');
     const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
     const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const fade = document.getElementById('fade');
 
     if (loginForm) {
         loginForm.addEventListener('submit', async function(e) {
@@ -19,8 +21,10 @@ export function initLogin(hashSHA256) {
             const rememberMe = document.getElementById('rememberMe').checked;
 
             try {
-                // Reset error message
+                // Reset UI elements
                 errorMessage.style.display = 'none';
+                if (successMessage) successMessage.style.display = 'none';
+                if (fade) fade.classList.add('hidden');
 
                 // Basic validation
                 if (!email || !password) {
@@ -42,25 +46,27 @@ export function initLogin(hashSHA256) {
                 // Check if response is OK before parsing JSON
                 if (!response.ok) {
                     const data = await response.json();
-                    let errorMsg = data.message || `Error: ${response.status}`;
+                    let userMessage;
                     switch (response.status) {
                         case 400:
-                            errorMsg = 'Bad request: Invalid input';
+                            userMessage = 'Invalid input. Please check your details.';
                             break;
                         case 401:
-                            errorMsg = 'Unauthorized: Invalid credentials';
+                            userMessage = 'Invalid credentials. Please try again.';
                             break;
                         case 404:
-                            errorMsg = 'User not found';
+                            userMessage = 'User not found.';
                             break;
                         case 415:
-                            errorMsg = 'Unsupported media type';
+                            userMessage = 'Unsupported media type. Contact support.';
                             break;
                         case 500:
-                            errorMsg = 'Server error';
+                            userMessage = 'Server error. Please try again later.';
                             break;
+                        default:
+                            userMessage = data.message || 'Login failed. Please try again.';
                     }
-                    throw new Error(errorMsg);
+                    throw new Error(userMessage);
                 }
 
                 const data = await response.json();
@@ -74,21 +80,53 @@ export function initLogin(hashSHA256) {
                         sessionStorage.setItem('user', JSON.stringify(user));
                     }
 
-                    // Redirect based on user type
-                    if (user.type === 'admin') {
-                        window.location.href = '/admin';
+                    // Show success message before redirecting
+                    if (successMessage && fade) {
+                        successMessage.textContent = `Login successful! Redirecting${user.type === 'admin' ? ' to admin page' : ''}...`;
+                        successMessage.style.display = 'block';
+                        fade.classList.remove('hidden');
+
+                        setTimeout(() => {
+                            // Redirect based on user type
+                            if (user.type === 'admin') {
+                                window.location.href = '/admin';
+                            } else {
+                                window.location.href = '/'; // Root route serves index.ejs
+                            }
+                        }, 1500);
                     } else {
-                        window.location.href = '/'; // Root route serves index.ejs
+                        // If success message elements are missing, redirect immediately
+                        if (user.type === 'admin') {
+                            window.location.href = '/admin';
+                        } else {
+                            window.location.href = '/';
+                        }
                     }
                 } else {
-                    throw new Error(data.message || 'Login failed');
+                    throw new Error(data.message || 'Login failed. Please try again.');
                 }
             } catch (error) {
-                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.textContent = error.message || 'An unexpected error occurred. Please try again.';
                 errorMessage.style.display = 'block';
+                if (fade) {
+                    fade.classList.remove('hidden');
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                        fade.classList.add('hidden');
+                    }, 3000);
+                }
                 console.error('Login error:', error);
             }
         });
+
+        // Add click event to dismiss the fade overlay
+        if (fade) {
+            fade.addEventListener('click', () => {
+                errorMessage.style.display = 'none';
+                if (successMessage) successMessage.style.display = 'none';
+                fade.classList.add('hidden');
+            });
+        }
     }
 
     if (forgotPasswordBtn) {

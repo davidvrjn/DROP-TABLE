@@ -1,12 +1,20 @@
-<!-- CHECK THAT THE USER IS AN ADMIN BEFORE THEY ACCESS THIS PAGE -->
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
-    <%- include('./partials/_head.ejs') %>
-    <link rel="stylesheet" href="scss/_admin.scss">
-    <title>Admin Dashboard - Price Checker</title>
+    <%- include('./partials/_head.ejs', { pageTitle: 'Admin Dashboard - Price Checker' }) %>
+    <!-- Removed: <link rel="stylesheet" href="/scss/_admin.scss"> -->
 </head>
 <body>
+    <!-- Client-side admin access check -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            if (!user || user.type !== 'admin') {
+                window.location.href = '/login';
+            }
+        });
+    </script>
+
     <!-- # HEADER SEGMENT # -->
     <%- include('./partials/_header.ejs', { currentPage: 'admin' }) %>
 
@@ -139,7 +147,7 @@
                                         <tbody>
                                             <!-- Categories will be populated by JS -->
                                             <tr>
-                                                <td colspan="4" class="text-center">Loading categories...</td>
+                                                <td colspan="3" class="text-center">Loading categories...</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -253,7 +261,7 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-12">
-                                <label class="form-label">Retailers, Prices and Discount</label>
+                                <label class="form-label">Retailers, Prices, and Discount</label>
                                 <div id="retailerPricesContainer">
                                     <div class="row mb-2 retailer-price-row">
                                         <div class="col-md-5 col-5">
@@ -368,7 +376,6 @@
                             <input type="url" class="form-control" id="retailerWebsite" required>
                         </div>
                     </form>
-                    </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -402,9 +409,10 @@
         </div>
     </div>
 
+    <br><br>
     <!-- # FOOTER SEGMENT # -->
-    <%- include('partials/_footer.ejs') %>
+    <%- include('./partials/_footer.ejs') %>
 
-    <script type="module" src="./js/static_admin_test.js"></script>
+    <script type="module" src="js/static_admin_test.js"></script>
 </body>
 </html>
