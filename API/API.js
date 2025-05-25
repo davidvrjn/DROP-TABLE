@@ -178,7 +178,7 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
         //Used to determine if the product is wishlisted, but optional
         var isWatchlisted = false;
 
-        var rows = conn.query("SQL QUERY", ["Params"]);
+        var rows = conn.query("SELECT P.id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, B.name AS brand FROM Product_Retailer AS PR INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Product AS P ON P.id = PR.product_id LEFT JOIN Review AS RT ON RT.product_id = PR.product_id WHERE product_id = ? AND retailer_id = ?", [`${productID}`, `${retailerID}`]);
         if (rows.length == 0) {
             res.status(404).send({
                 status: "error",
