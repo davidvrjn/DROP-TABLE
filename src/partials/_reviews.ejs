@@ -1,0 +1,33 @@
+<div class="product-reviews-section card">
+    <div class="card-body">
+        <h3 class="card-title">Customer Reviews</h3>
+        
+        <div class="reviews-summary mb-3">
+            <div class="overall-rating">
+                <span class="rating-value" id="overall-rating-value">0.0</span>
+                <div class="rating-stars">
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                    <i class="bi bi-star-fill"></i>
+                </div>
+                <span class="rating-count" id="overall-rating-count">(0 reviews)</span>
+            </div>
+            <button class="btn btn-outline-primary leave-review-btn">
+                <i class="bi bi-pencil"></i> Leave a Review
+            </button>
+        </div>
+        
+        <div class="reviews-container" id="reviews-container">
+            <!-- Reviews will be loaded dynamically -->
+            <div class="no-reviews-message" id="no-reviews-message">
+                No user reviews for now
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <button id="load-more-reviews" class="btn btn-primary">Load More Reviews</button>
+        </div>
+    </div>
+</div>

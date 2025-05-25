@@ -1,0 +1,57 @@
+<header>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="container">
+              <a class="navbar-brand" href="index.ejs">Price Checker</a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="navbar-nav me-auto">
+                      <li class="nav-item">
+                          <!-- Check if currentPage is 'products' and conditionally add the 'active' class AND aria-current="page" -->
+                          <a class="nav-link <% if (currentPage === 'products') { %>active<% } %>" <% if (currentPage === 'products') { %>aria-current="page"<% } %> href="index.ejs">Products</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link <% if (currentPage === 'deals') { %>active<% } %>" <% if (currentPage === 'deals') { %>aria-current="page"<% } %> href="deals.ejs">Best Deals</a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link <% if (currentPage === 'watchlist') { %>active<% } %>" <% if (currentPage === 'watchlist') { %>aria-current="page"<% } %> href="watchlist.ejs">Watchlist</a>
+                      </li>
+                       <li class="nav-item">
+                          <a class="nav-link <% if (currentPage === 'about') { %>active<% } %>" <% if (currentPage === 'about') { %>aria-current="page"<% } %> href="about.ejs">About</a>
+                      </li>
+                      <!-- Add auth links as nav items for mobile view -->
+                      <li class="nav-item d-lg-none">
+                          <a class="nav-link" href="login.ejs">Login</a>
+                      </li>
+                      <li class="nav-item d-lg-none">
+                          <a class="nav-link" href="register.ejs">Register</a>
+                      </li>
+                      <!-- Add theme toggle for mobile view -->
+                      <li class="nav-item d-lg-none mt-2 ms-3">
+                          <div class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" id="themeToggleMobile">
+                              <label class="form-check-label" for="themeToggleMobile">
+                                  <i class="bi bi-moon-stars dark-mode-icon"></i>
+                              </label>
+                          </div>
+                      </li>
+                  </ul>
+                   <div class="d-flex align-items-center">
+                      <!-- Auth links for desktop view only -->
+                      <div class="auth-links d-none d-lg-flex me-3">
+                        <a href="login.ejs" class="text-decoration-none me-3">Login</a>
+                        <a href="register.ejs" class="text-decoration-none">Register</a>
+                      </div>
+                      <!-- Theme toggle for desktop view only -->
+                      <div class="form-check form-switch me-2 d-none d-lg-block">
+                          <input class="form-check-input" type="checkbox" id="themeToggle">
+                          <label class="form-check-label" for="themeToggle">
+                              <i class="bi bi-moon-stars dark-mode-icon"></i>
+                          </label>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </nav>
+  </header>
