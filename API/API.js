@@ -780,6 +780,38 @@ app.post('Remove/Brand',express.json(),async (req,res)=>{
       res.status(400).send({ status: 'error', message: 'Required parameters missing' });
       return;
     }
+
+    //validate userid
+    conn= await pool.getConnection();
+    const user_details= await conn.query('SELECT * FROM ... WHERE ...=?',[userid]); //<==============sql to get a the user
+
+    if(user_details.length===0){
+        res.status(404).send({ status: 'error', message: 'User not found' });
+        return;
+    } else if(user_details[0].role!='admin'){
+        res.status(401).send({ status: 'error', message: 'Unauthorized' });
+        return;
+    }
+
+    //validate id
+    const idVal=await conn.query('SELECT * from ... WHERE ...=?',[id]); //<===========================sql to find brand with this id
+
+    if(idVal.length===0){
+      res.status(404).send({ status: 'error', message: 'Brand not found' });
+      return;
+    }
+
+    //At this point, id and userid is valid. perform remove
+    const del=await conn.query('DELETE * FROM BrandTableName WHERE id=?',[id]);
+
+    if(del.affectedRows>0){
+      res.status(204).send({ status: 'success', message: 'Brand removed' });
+      return;
+    } else{
+      res.status(409).send({ status: 'error', message: 'Brand was not removed' });
+      return;
+    }
+    
   } catch (err) {
     console.error(err);
     fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
