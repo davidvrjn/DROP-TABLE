@@ -276,7 +276,7 @@ app.post('/User/Login', express.json(), async (req, res) => {
                     type: rows[0].type
 
                 }
-            });
+            }});
             return;
         }
 
