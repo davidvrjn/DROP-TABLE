@@ -197,7 +197,7 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
         const product = row[0];
         const allReviews = [];
         //Query to retrieve all reviews of selected product, retailer shouldnt be involved from what I understand.
-        rows = conn.query("SQL Query", "PARAMS");
+        rows = conn.query("SELECT * FROM Review AS R INNER JOIN User AS U ON U.user_id = R.user_id WHERE product_id = ?", [`${productID}`]);
         rows.foreach(review => {
             allReviews.push({
                 r_Id: review.id,
