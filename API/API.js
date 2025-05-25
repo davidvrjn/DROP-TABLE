@@ -87,7 +87,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         
 
 
-        const rows = await conn.query("SELECT id, image_url, title, final_price, initial_price,");
+        const rows = await conn.query("SELECT P.id, image_url, title, final_price, initial_price, name, ((initial_price - final_price)/initial_price) AS Discount, ('5') AS Rating FROM Product AS P INNER JOIN Product_Retailer AS PR ON P.id = PR.product_id INNER JOIN Retailer AS R ON R.id = PR.retailer_id");
         //apikey will be used later to determine which selected products are wishlisted.
 
         //Retrieved products without wishlist field, that will be added later
@@ -101,7 +101,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
                "title": product.title,
                "final_price": product.final_price,
                "retailer_name": product.name,
-               "rating": product.avgRating,
+               "rating": product.Rating,
                "initial_price": product.initial_price,
                "discount": product.discount,
                "watchlist": false
@@ -115,7 +115,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         res.status(200).send({
             status: "success",
             data: productJSON,
-            total: productJSON.length()
+            total: productJSON.length
         })
     }
     catch(err){
