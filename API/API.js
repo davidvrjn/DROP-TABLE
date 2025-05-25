@@ -5,17 +5,6 @@ const mariadb = require('mariadb');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
-//By default,generates an apikey. Can be repurposed by providing a length
-function generateAlphanumeric(length = 32) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        const idx = Math.floor(Math.random() * chars.length);
-        result += chars.charAt(idx);
-    }
-    return result;
-}
-
 //hashing function
 async function hashString(input, saltRounds = 10) {
     try {
@@ -98,7 +87,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
 
 
 
-        const rows = await conn.query("SQL QUERY ?, ?", ["param1", "param2"]);
+        const rows = await conn.query("SELECT id, image_url, title, final_price, initial_price,");
         //apikey will be used later to determine which selected products are wishlisted.
 
         //Retrieved products without wishlist field, that will be added later
@@ -263,32 +252,29 @@ app.post('/User/Login', express.json(), async (req, res) => {
             return;
         }
 
-        const rows = await conn.query('SQL query ?', [email]) //<==============sql query for a user here
+        const rows= await conn.query('SELECT user_id, first_name, last_name, email, type, password FROM User WHERE email = ?',[`${email}`]) //<==============sql query for a user here
 
         if (rows.length === 0) {
             res.status(404).send({ status: 'error', message: 'Specified user not found' });
             return;
         }
 
-        const storedPassword = rows[0].password;
+        const storedPassword = await rows[0].password;
 
         const match = await bcrypt.compare(password, storedPassword);
 
         if (!match) {
             res.status(401).send({ status: 'error', message: 'Failed Validation' });
             return;
-        } else {
-            //unclear what jwt-token-string is
-            res.status(200).send({
-                status: 'success', data: {
-                    token: rows[0].apikey,
-                    user: {
-                        id: rows[0].id,
-                        email: rows[0].email,
-                        first_name: rows[0].first_name,
-                        last_name: rows[0].last_name,
-                        role: rows[0].role
-                    }
+        } else{
+            res.status(200).send({ status: 'success',  data: {
+                user: {
+                    id: rows[0].user_id,
+                    email: rows[0].email,
+                    first_name: rows[0].first_name,
+                    last_name: rows[0].last_name,
+                    type: rows[0].type
+
                 }
             });
             return;
@@ -315,18 +301,13 @@ app.post('/User/Register', express.json(), async (req, res) => {
         res.status(415).send({ status: 'error', message: 'Expected application/json' });
         return;
     }
+  
+    try{
+        conn= await pool.getConnection();
+        const {first_name,last_name,email,password} =req.body;
 
-    try {
-        conn = await pool.getConnection();
-        const { first_name, last_name, email, password, role } = req.body;
-
-        if (!first_name || !last_name || !email || !password || !role) {
+        if(!first_name || !last_name || !email || !password){
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
-            return;
-        }
-
-        if (role != 'user' && role != 'admin') {
-            res.status(422).send({ status: 'error', message: 'Failed Validation' });
             return;
         }
 
@@ -345,31 +326,25 @@ app.post('/User/Register', express.json(), async (req, res) => {
 
 
         //ATP: the 4 params are retrieved. password is length 72 or less. Check if user already exists.
-        const rows = await conn.query('SQL query ?', [email]) //<==============sql query for a user here. check for a matching email
+        const rows= await conn.query('SELECT email FROM User WHERE email = ?',[`${email}`]) //<==============sql query for a user here. check for a matching email
 
-        if (rows.length === 0) {
-            //there is no matching email
-
-            //generate api key
-            const apikey = generateAlphanumeric();
+        if(rows.length === 0){
 
             //hash new password
-            const new_Password = await hashString(password);
+            const new_Password=await hashString(password);
 
-            const inserted = await conn.query('SQL query to insert a user??????', [first_name, last_name, email, role, new_Password, apikey]); //<=========sql for insert user here
-            if (inserted.affectedRows == 1) {
-                res.status(201).send({
-                    status: 'success', data: {
-                        user: {
-                            email: email,
-                            first_name: first_name,
-                            last_name: last_name,
-                            role: role,
-                            apikey: apikey
-                        }
-                    }
-                });
-                return;
+            const inserted = await conn.query('INSERT INTO User(`first_name`, `last_name`, `password`, `email`, `type`) VALUES (?, ?, ?, ?, "user")',[first_name,last_name,new_Password,email]); //<=========sql for insert user here
+            if(inserted.affectedRows == 1){
+              res.status(201).send({ status: 'success',  data: {
+                user: {
+                    id: inserted.insertID,
+                    email: email,
+                    first_name: first_name,
+                    last_name: last_name
+                }
+            }});
+            return;
+
             }
             //0 or 2 or more users were inserted, investigate the database immeaditely, and fix any errors
             else {
@@ -526,13 +501,14 @@ app.post('/Get/Categories', express.json(), async (req, res) => {
 
         if (!search) {
             //get all categories here, no search provided
+
             const rows = await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
             let categoryJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let temp = {
                     cat_name: rows[i].cat_name,
-                    cat_id: rows[i].cat_id
+                    id: rows[i].id
                 }
 
                 categoryJSON.push(temp);
@@ -543,13 +519,14 @@ app.post('/Get/Categories', express.json(), async (req, res) => {
             return;
         } else {
             //the user did provide a search, use search
-            const rows = await conn.query('SQL HERE ?', [search]); //<===============search provided, use it as a fuzzy search
-            let categoryJSON = [];
+            const rows= await conn.query('SELECT * FROM Category WHERE cat_name LIKE ?',[`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
+            let categoryJSON=[];
 
-            for (let i = 0; i < rows.length; i++) {
-                let temp = {
+            for(let i=0;i<rows.length;i++){
+                let temp={
                     cat_name: rows[i].cat_name,
-                    cat_id: rows[i].cat_id
+                    id: rows[i].id
+
                 }
 
                 categoryJSON.push(temp)
