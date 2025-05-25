@@ -65,30 +65,51 @@ app.post('/Get/Products', express.json(), async (req, res) => {
             }
             if (filters['rating']) {
                 const rating = filters['rating'];
-                //AND rating > this.rating, youre going to have to find out how the average rating is calculated and joined, probably a nested query
-                //This can be moved to last to make the query neater if need be.
+                where.push(`score > ?`);
+                values.push(rating);
             }
             if (filters['search']) {
                 const search = filters['search'];
-                //AND product_name = ''
+                where.push(`title LIKE ?`);
+                values.push(`%${search}%`);
             }
         }
-        var ORDERQuery = "ORDER BY Rand(), " //Used to cause random product order.
-        if (req.body['ordering']) {
-            ORDERQuery += `${req.body['order']['field']} ${req.body['order']['order']}`
-        }
-        var LIMITQuery = "";
-        if (req.body['limit']) {
-            LIMITQuery = `LIMIT BY ${req.body['limit']}`;
-        }
 
+        
 
-        let baseQuery = "SELECT P.id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, ('5') AS Rating, B.name AS brand, cat_name FROM Product AS P INNER JOIN Product_Retailer AS PR ON P.id = PR.product_id INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Brand AS B ON B.id = P.brand_id INNER JOIN Category AS C ON C.id = P.category_id";
+        let baseQuery = "SELECT P.id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, B.name AS brand, cat_name FROM Product AS P INNER JOIN Product_Retailer AS PR ON P.id = PR.product_id INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Brand AS B ON B.id = P.brand_id INNER JOIN Category AS C ON C.id = P.category_id LEFT JOIN Review AS RT ON RT.product_id = P.id";
         if (where.length > 0) {
             baseQuery += " WHERE " + where.join(" AND ");
         }
+
+        baseQuery += " GROUP BY P.id, C.id, B.id";
+
+        let orderConditions = [];
+        const allowedFields = ["title", "final_price", "initial_price", "Discount", "Rating"];
+        const allowedOrders = ["ASC", "DESC"];
+
+        if (req.body['ordering']) {
+            const orderField = req.body['ordering']['field'];
+            const orderType = req.body['ordering']['order'];
+
+            if (allowedFields.includes(orderField) && allowedOrders.includes(orderType)) {
+                orderConditions.push(`${orderField} ${orderType}`);
+            }
+        }
+
+        let ORDERQuery = "ORDER BY RAND()";
+        if (orderConditions.length > 0) {
+            ORDERQuery += `, ${orderConditions.join(", ")}`;
+        }
+
+        baseQuery += ` ${ORDERQuery}`;
+        
+        if (req.body['limit']) {
+            values.push(req.body['limit']);
+            baseQuery += `LIMIT ?`;
+        }
+        
         const rows = await conn.query(baseQuery, values);
-        //apikey will be used later to determine which selected products are wishlisted.
 
         //Retrieved products without wishlist field, that will be added later
         //product.name is from retailer entity, rename it if need be
