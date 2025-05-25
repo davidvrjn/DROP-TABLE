@@ -22,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
  * @param {string} productId - The ID of the product
  */
 async function loadProductReviews(productId) {
-    const userId = localStorage.getItem("userId") || null;
+    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const userId = JSON.parse(user)?.id;
     const urlParams = new URLSearchParams(window.location.search);
     const retailerId = urlParams.get("retailerId") || 1;
 

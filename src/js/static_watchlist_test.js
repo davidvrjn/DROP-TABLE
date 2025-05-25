@@ -34,7 +34,8 @@ async function fetchWatchlistData(userId) {
 }
 
 async function renderWatchlistItems() {
-    const userId = localStorage.getItem("userId");
+    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const userId = JSON.parse(user)?.id;
     const watchlistContainer = document.getElementById("watchlist-items");
     const emptyWatchlistElement = document.getElementById("empty-watchlist");
 
@@ -70,7 +71,8 @@ async function renderWatchlistItems() {
  */
 function setupRemoveButtons(watchlistData) {
     const buttons = document.querySelectorAll(".remove-from-watchlist");
-    const userId = localStorage.getItem("userId");
+    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const userId = JSON.parse(user)?.id;
 
     buttons.forEach((button) => {
         button.addEventListener("click", async function () {

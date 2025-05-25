@@ -99,7 +99,8 @@ function renderProductsWithPagination(products = currentProducts) {
 }
 
 function setupWatchlistButtons() {
-    const userId = localStorage.getItem("userId");
+    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const userId = JSON.parse(user)?.id;
     const buttons = document.querySelectorAll(".watchlist-icon");
 
     buttons.forEach((button) => {
