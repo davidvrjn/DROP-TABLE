@@ -1,11 +1,11 @@
 /**
  * Register Script
  * Handles registration functionality for the register page
- * Sends a request to /User/Register with user data
+ * Hashes password with SHA-256 client-side, sends to /User/Register
  * Redirects to login page on success
  */
 
-export function initRegister() {
+export function initRegister(hashSHA256) {
     const registerForm = document.getElementById('registerForm');
     const errorMessage = document.getElementById('error-message');
 
@@ -33,6 +33,10 @@ export function initRegister() {
             }
 
             try {
+                // Hash password with SHA-256 client-side
+                const hashedPassword = await hashSHA256(password);
+
+                // Send registration request to API with hashed password
                 const response = await fetch('http://localhost:3000/User/Register', {
                     method: 'POST',
                     headers: {
@@ -43,7 +47,7 @@ export function initRegister() {
                         first_name: firstName,
                         last_name: lastName,
                         username: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`, // Generate username from name
-                        password,
+                        password: hashedPassword, // Send hashed password
                         role: 'user' // Default role, adjust if selectable
                     }),
                 });
