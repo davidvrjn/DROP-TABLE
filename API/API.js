@@ -252,14 +252,14 @@ app.post('/User/Login',express.json(),async (req,res) =>{
             return;
         }
 
-        const rows= await conn.query('SQL query ?',[email]) //<==============sql query for a user here
+        const rows= await conn.query('SELECT user_id, first_name, last_name, email, type, password FROM User WHERE email = ?',[`${email}`]) //<==============sql query for a user here
 
         if (rows.length === 0){
             res.status(404).send({ status: 'error', message: 'Specified user not found' });
             return;
         }
 
-        const storedPassword = rows[0].password;
+        const storedPassword = await rows[0].password;
 
         const match=await bcrypt.compare(password,storedPassword);
         
@@ -267,15 +267,13 @@ app.post('/User/Login',express.json(),async (req,res) =>{
             res.status(401).send({ status: 'error', message: 'Failed Validation' });
             return;
         } else{
-            //unclear what jwt-token-string is
             res.status(200).send({ status: 'success',  data: {
-                token: rows[0].apikey,
                 user: {
-                    id: rows[0].id,
+                    id: rows[0].user_id,
                     email: rows[0].email,
                     first_name: rows[0].first_name,
                     last_name: rows[0].last_name,
-                    role: rows[0].role
+                    type: rows[0].type
                 }
             }});
             return;
