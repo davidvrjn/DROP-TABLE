@@ -5,17 +5,6 @@ const mariadb = require('mariadb');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
 
-//By default,generates an apikey. Can be repurposed by providing a length
-function generateAlphanumeric(length = 32) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    const idx = Math.floor(Math.random() * chars.length);
-    result += chars.charAt(idx);
-  }
-  return result;
-}
-
 //hashing function
 async function hashString(input, saltRounds = 10) {
   try {
@@ -98,7 +87,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         
 
 
-        const rows = await conn.query("SQL QUERY ?, ?", ["param1", "param2"]);
+        const rows = await conn.query("SELECT id, image_url, title, final_price, initial_price,");
         //apikey will be used later to determine which selected products are wishlisted.
 
         //Retrieved products without wishlist field, that will be added later
@@ -316,9 +305,9 @@ app.post('/User/Register',express.json(),async (req,res) =>{
 
     try{
         conn= await pool.getConnection();
-        const {first_name,last_name,email,password,role} =req.body;
+        const {first_name,last_name,email,password} =req.body;
 
-        if(!first_name || !last_name || !email || !password || !role){
+        if(!first_name || !last_name || !email || !password){
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
@@ -343,26 +332,22 @@ app.post('/User/Register',express.json(),async (req,res) =>{
 
 
         //ATP: the 4 params are retrieved. password is length 72 or less. Check if user already exists.
-        const rows= await conn.query('SQL query ?',[email]) //<==============sql query for a user here. check for a matching email
+        const rows= await conn.query('SELECT email FROM User WHERE email = ?',[email]) //<==============sql query for a user here. check for a matching email
 
         if(rows.length === 0){
             //there is no matching email
             
-            //generate api key
-            const apikey=generateAlphanumeric();
 
             //hash new password
             const new_Password=await hashString(password);
 
-            const inserted = await conn.query('SQL query to insert a user??????',[first_name,last_name,email,role,new_Password,apikey]); //<=========sql for insert user here
+            const inserted = await conn.query('INSERT INTO User(`first_name`, `last_name`, `password`, `email`, `type`) VALUES (?, ?, ?, ?, "user")',[first_name,last_name,email,new_Password]); //<=========sql for insert user here
             if(inserted.affectedRows == 1){
               res.status(201).send({ status: 'success',  data: {
                 user: {
                     email: email,
                     first_name: first_name,
-                    last_name: last_name,
-                    role: role,
-                    apikey: apikey
+                    last_name: last_name
                 }
             }});
             return;
