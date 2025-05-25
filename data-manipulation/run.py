@@ -1,6 +1,8 @@
 import os
 import subprocess
 import sys
+import shutil
+from pathlib import Path
 
 # Define the subfolder where your scripts are located
 SCRIPTS_FOLDER = "scripts"
@@ -56,6 +58,45 @@ def run_all_scripts_in_folder(folder_path):
         run_python_script(script)
     print("\n--- All scripts execution complete ---")
 
+def copyfiles():
+    # Create Final Statements directory
+    final_dir = Path(__file__).parent / 'Final Statements'
+    final_dir.mkdir(exist_ok=True)
+    
+    # Copy required files
+    files_to_copy = [
+        ('original-data', 'brands.sql'),
+        ('original-data', 'categories.sql'),
+        ('manipulated-data', 'retailers.sql'),
+        ('manipulated-data', 'product_retailers.sql'),
+        ('manipulated-data', 'merged_products.sql', 'products.sql')
+    ]
+    
+    for entry in files_to_copy:
+        if len(entry) == 3:
+            folder, src_name, dest_name = entry
+        else:
+            folder, src_name = entry
+            dest_name = src_name
+        
+        src = Path(__file__).parent / folder / src_name
+        dest = final_dir / dest_name
+        try:
+            shutil.copy2(src, dest)
+            print(f"✅ Copied {src_name} to Final Statements")
+        except Exception as e:
+            print(f"🔴 Failed to copy {dest_name}: {str(e)}")
+    
+    # After all copies are done
+    try:
+        manipulated_dir = Path(__file__).parent / 'manipulated-data'
+        shutil.rmtree(manipulated_dir)
+        print(f"✅ Cleaned up {manipulated_dir}")
+    except Exception as e:
+        print(f"🔴 Failed to clean up {manipulated_dir}: {str(e)}")
+    
+    print("\n🎉 All operations completed successfully!")
+
 if __name__ == "__main__":
     # Get the absolute path to the scripts folder
     # This makes the script runnable from any directory if main_runner.py is accessed
@@ -64,3 +105,4 @@ if __name__ == "__main__":
     full_scripts_folder_path = os.path.join(current_dir, SCRIPTS_FOLDER)
 
     run_all_scripts_in_folder(full_scripts_folder_path)
+    copyfiles()

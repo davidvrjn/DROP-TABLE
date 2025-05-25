@@ -1,0 +1,5 @@
+takealot = https://www.takealot.com/
+amazon = https://www.amazon.co.za/
+aliexpress = https://www.aliexpress.com/
+game = https://www.game.co.za/
+makro = https://www.makro.co.za/
