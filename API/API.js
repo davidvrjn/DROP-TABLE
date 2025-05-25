@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 const mariadb = require('mariadb');
 const fs = require('fs');
-const bcrypt=require('bcryptjs');
+const bcrypt = require('bcryptjs');
 
 //By default,generates an apikey. Can be repurposed by providing a length
 function generateAlphanumeric(length = 32) {
@@ -29,9 +29,10 @@ async function hashString(input, saltRounds = 10) {
 const port = 3000;
 //Pooling database connection for quick connections
 const pool = mariadb.createPool({
-    host: `${process.env.MARIADB_HOST}:${process.env.MARIADB_PORT}`,
+    host: `${process.env.MARIADB_HOST}`,
     user: process.env.MARIADB_USER,
     password: process.env.MARIADB_PASSWORD,
+    port: process.env.MARIADB_PORT,
     database: process.env.MARIADB_DB,
     connectionLimit: 5
 
@@ -388,7 +389,7 @@ app.post('/User/Register',express.json(),async (req,res) =>{
     }
 })
 
-app.post('Get/Retailers',express.json(),async (req,res)=>{
+app.post('/Get/Retailers',express.json(),async (req,res)=>{
     let conn;
     
     if(!req.is('application/json')){
@@ -402,7 +403,7 @@ app.post('Get/Retailers',express.json(),async (req,res)=>{
 
         if(!search){
             //get all retailers here, no search provided
-            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            const rows= await conn.query('SELECT * FROM Retailer');  //<==============no search provided, just a select unique  
             let retailerJSON=[];
             
             for(let i=0;i<rows.length;i++){
@@ -419,7 +420,7 @@ app.post('Get/Retailers',express.json(),async (req,res)=>{
             return;
         } else{
             //the user did provide a search, use search
-            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            const rows= await conn.query('SELECT * FROM Retailer WHERE name LIKE ?',[`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
             let retailerJSON=[];
 
             for(let i=0;i<rows.length;i++){
@@ -448,7 +449,7 @@ app.post('Get/Retailers',express.json(),async (req,res)=>{
     }
 })
 
-app.post('Get/Brands',express.json(),async (req,res)=>{
+app.post('/Get/Brands',express.json(),async (req,res)=>{
     let conn;
     
     if(!req.is('application/json')){
@@ -462,7 +463,7 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
 
         if(!search){
             //get all brands here, no search provided
-            const rows= await conn.query('SQL HERE');  //<==============no search provided, just a select unique  
+            const rows= await conn.query('SELECT * FROM Brand');  //<==============no search provided, just a select unique  
             let brandJSON=[];
             
             for(let i=0;i<rows.length;i++){
@@ -479,7 +480,7 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
             return;
         } else{
             //the user did provide a search, use search
-            const rows= await conn.query('SQL HERE ?',[search]); //<===============search provided, use it as a fuzzy search
+            const rows= await conn.query('SELECT * FROM Brand WHERE name LIKE ?',[`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
             let brandJSON=[];
 
             for(let i=0;i<rows.length;i++){
@@ -507,7 +508,7 @@ app.post('Get/Brands',express.json(),async (req,res)=>{
     }
 })
 
-app.post('Get/Categories',express.json(),async (req,res)=>{
+app.post('/Get/Categories',express.json(),async (req,res)=>{
     let conn;
     
     if(!req.is('application/json')){
@@ -566,7 +567,7 @@ app.post('Get/Categories',express.json(),async (req,res)=>{
     }
 })
 
-app.post('Update/Category',express.json(),async (req,res)=>{
+app.post('/Update/Category',express.json(),async (req,res)=>{
     let conn;
 
     if(!req.is('application/json')){
@@ -632,7 +633,7 @@ app.post('Update/Category',express.json(),async (req,res)=>{
     }
 })
 
-app.post('Update/Retailer',express.json(),async (req,res)=>{
+app.post('/Update/Retailer',express.json(),async (req,res)=>{
     let conn;
 
     if(!req.is('application/json')){
@@ -698,7 +699,7 @@ app.post('Update/Retailer',express.json(),async (req,res)=>{
     }
 })
 
-app.post('Update/Brand',express.json(),async (req,res)=>{
+app.post('/Update/Brand',express.json(),async (req,res)=>{
     let conn;
 
     if(!req.is('application/json')){
@@ -764,7 +765,7 @@ app.post('Update/Brand',express.json(),async (req,res)=>{
     }
 })
 
-app.post('Remove/Brand',express.json(),async (req,res)=>{
+app.post('/Remove/Brand',express.json(),async (req,res)=>{
   let conn;
 
     if(!req.is('application/json')){
@@ -824,7 +825,7 @@ app.post('Remove/Brand',express.json(),async (req,res)=>{
   }
 })
 
-app.post('Remove/Retailer',express.json(),async (req,res)=>{
+app.post('/Remove/Retailer',express.json(),async (req,res)=>{
   let conn;
 
     if(!req.is('application/json')){
@@ -884,7 +885,7 @@ app.post('Remove/Retailer',express.json(),async (req,res)=>{
   }
 })
 
-app.post('Remove/Category',express.json(),async (req,res)=>{
+app.post('/Remove/Category',express.json(),async (req,res)=>{
   let conn;
 
     if(!req.is('application/json')){

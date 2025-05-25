@@ -418,6 +418,21 @@ Example response
     message: Error or something along the lines of inserted successfully
 }
 ```
+## Update/Preferences
+Example request
+```
+{
+    userid:
+    preferences:
+}
+```
+Example response
+```
+{
+    status: //if success add the review to the page
+    message: Error or something along the lines of inserted successfully
+}
+```
 
 ## Remove/Product
 //Remove retailer from update
