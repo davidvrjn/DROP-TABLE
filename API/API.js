@@ -773,11 +773,22 @@ app.post('Remove/Brand',express.json(),async (req,res)=>{
     }
 
   try{
-    
+    const {id,userid} =req.body;
+
+    //handle missing JSON values
+    if(!id || !userid){
+      res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+      return;
+    }
   } catch (err) {
-    
+    console.error(err);
+    fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+    res.status(500).send({ status: 'error', message: 'Error removing brand, detailed error in server_logs, please investigate server logs' });
+    return;
   } finally{
-    
+    if(conn){
+      conn.end();
+    }
   }
 })
 
