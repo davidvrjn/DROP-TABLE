@@ -4,6 +4,8 @@ const app = express();
 const mariadb = require('mariadb');
 const fs = require('fs');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
+app.use(cors());
 
 //hashing function
 async function hashString(input, saltRounds = 10) {
@@ -39,56 +41,82 @@ app.post('/Get/Products', express.json(), async (req, res) => {
     }
     try {
         conn = await pool.getConnection();
-        var WHEREQuery = "WHERE 1 = 1 " // 1 = 1 is used so that additional statements can be appended easily.
+        let where = [];
+        let values = [];
+        if(req.body['userid']){
+            const userid = req.body['userid'];
+            where.push(`W.user_id = ?`);
+            values.push(`%${search}%`);
+        }
         if (req.body['filters']) {
-            //Ensure WHERE query is inserted as a prepared statement as a whole, these cant be done individually because which params are included are variable.
             const filters = req.body['filters'];
-            //I wish i could use a switch here but multiple conditions need to be able to trigger
             if (filters['brands']) {
                 const brands = filters['brands'];
-                var brandWhere = "AND brand IN (";
-                brandWhere += `${brands.map(brand => `'${brand}'`).join(", ")}`
-                brandWhere += ") ";
-                WHEREQuery += brandWhere;
+                where.push(`B.name IN (${brands.map(() => '?').join(', ')})`);
+                values.push(...brands);
             }
             if (filters['departments']) {
                 const departments = filters['departments'];
-                var departmentWhere = "AND department IN (";
-                brandWhere += `${departments.map(department => `'${brand}'`).join(", ")}`
-                brandWhere += ") ";
-                WHEREQuery += departmentWhere;
+                where.push(`cat_name IN (${departments.map(() => '?').join(', ')})`);
+                values.push(...departments);
             }
-            //SQL person implement the retailers array, should just be a copy paste as shown above
             if (filters['retailers']) {
-
+                const retailers = filters['retailers'];
+                where.push(`R.name IN (${retailers.map(() => '?').join(', ')})`);
+                values.push(...retailers);
             }
             if (filters['prices']) {
                 const prices = filters['prices'];
-                //AND BETWEEN prices[0] AND prices[1]
+                where.push(`final_price BETWEEN ? AND ?`);
+                values.push(prices[0], prices[1]);
             }
             if (filters['rating']) {
                 const rating = filters['rating'];
-                //AND rating > this.rating, youre going to have to find out how the average rating is calculated and joined, probably a nested query
-                //This can be moved to last to make the query neater if need be.
+                where.push(`score > ?`);
+                values.push(rating);
             }
             if (filters['search']) {
                 const search = filters['search'];
-                //AND product_name = ''
+                where.push(`title LIKE ?`);
+                values.push(`%${search}%`);
             }
         }
-        var ORDERQuery = "ORDER BY Rand(), " //Used to cause random product order.
+
+        
+
+        let baseQuery = "SELECT P.id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, B.name AS brand, cat_name FROM Product AS P INNER JOIN Product_Retailer AS PR ON P.id = PR.product_id INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Brand AS B ON B.id = P.brand_id INNER JOIN Category AS C ON C.id = P.category_id LEFT JOIN Review AS RT ON RT.product_id = P.id";
+        if (where.length > 0) {
+            baseQuery += " WHERE " + where.join(" AND ");
+        }
+
+        baseQuery += " GROUP BY P.id, C.id, B.id";
+
+        let orderConditions = [];
+        const allowedFields = ["title", "final_price", "initial_price", "Discount", "Rating"];
+        const allowedOrders = ["ASC", "DESC"];
+
         if (req.body['ordering']) {
-            ORDERQuery += `${req.body['order']['field']} ${req.body['order']['order']}`
+            const orderField = req.body['ordering']['field'];
+            const orderType = req.body['ordering']['order'];
+
+            if (allowedFields.includes(orderField) && allowedOrders.includes(orderType)) {
+                orderConditions.push(`${orderField} ${orderType}`);
+            }
         }
-        var LIMITQuery = "";
+
+        let ORDERQuery = "ORDER BY RAND()";
+        if (orderConditions.length > 0) {
+            ORDERQuery += `, ${orderConditions.join(", ")}`;
+        }
+
+        baseQuery += ` ${ORDERQuery}`;
+        
         if (req.body['limit']) {
-            LIMITQuery = `LIMIT BY ${req.body['limit']}`;
+            values.push(req.body['limit']);
+            baseQuery += `LIMIT ?`;
         }
-
-
-
-        const rows = await conn.query("SELECT id, image_url, title, final_price, initial_price,");
-        //apikey will be used later to determine which selected products are wishlisted.
+        
+        const rows = await conn.query(baseQuery, values);
 
         //Retrieved products without wishlist field, that will be added later
         //product.name is from retailer entity, rename it if need be
@@ -96,15 +124,16 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         var productJSON = [];
         await rows.forEach(product => {
             productJSON.push({
-                "id": product.id,
-                "image_url": product.image_url,
-                "title": product.title,
-                "final_price": product.final_price,
-                "retailer_name": product.name,
-                "rating": product.avgRating,
-                "initial_price": product.initial_price,
-                "discount": product.discount,
-                "watchlist": false
+               "id": product.id,
+               "image_url": product.image_url,
+               "title": product.title,
+               "final_price": product.final_price,
+               "retailer_name": product.name,
+               "retailer_id": product.rID,
+               "rating": product.Rating,
+               "initial_price": product.initial_price,
+               "discount": product.discount,
+               "watchlist": false
             })
         });
 
@@ -115,7 +144,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         res.status(200).send({
             status: "success",
             data: productJSON,
-            total: productJSON.length()
+            total: productJSON.length
         })
     }
     catch (err) {
@@ -148,10 +177,6 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
 
         //Used to determine if the product is wishlisted, but optional
         var isWatchlisted = false;
-        if (req.body['apikey']) {
-            //Take the product id and retailer id and determine if that instance is in this users watchlist, 
-            //if it exists, set isWatchlisted to true. nothing else should need to be done.
-        }
 
         var rows = conn.query("SQL QUERY", ["Params"]);
         if (rows.length == 0) {
