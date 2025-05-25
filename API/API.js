@@ -764,6 +764,186 @@ app.post('Update/Brand',express.json(),async (req,res)=>{
     }
 })
 
+app.post('Remove/Brand',express.json(),async (req,res)=>{
+  let conn;
+
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+  try{
+    const {id,userid} =req.body;
+
+    //handle missing JSON values
+    if(!id || !userid){
+      res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+      return;
+    }
+
+    //validate userid
+    conn= await pool.getConnection();
+    const user_details= await conn.query('SELECT * FROM ... WHERE ...=?',[userid]); //<==============sql to get a the user
+
+    if(user_details.length===0){
+        res.status(404).send({ status: 'error', message: 'User not found' });
+        return;
+    } else if(user_details[0].role!='admin'){
+        res.status(401).send({ status: 'error', message: 'Unauthorized' });
+        return;
+    }
+
+    //validate id
+    const idVal=await conn.query('SELECT * from ... WHERE ...=?',[id]); //<===========================sql to find brand with this id
+
+    if(idVal.length===0){
+      res.status(404).send({ status: 'error', message: 'Brand not found' });
+      return;
+    }
+
+    //At this point, id and userid is valid. perform remove
+    const del=await conn.query('DELETE * FROM BrandTableName WHERE id=?',[id]);
+
+    if(del.affectedRows>0){
+      res.status(204).send({ status: 'success', message: 'Brand removed' });
+      return;
+    } else{
+      res.status(409).send({ status: 'error', message: 'Brand was not removed' });
+      return;
+    }
+    
+  } catch (err) {
+    console.error(err);
+    fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+    res.status(500).send({ status: 'error', message: 'Error removing brand, detailed error in server_logs, please investigate server logs' });
+    return;
+  } finally{
+    if(conn){
+      conn.end();
+    }
+  }
+})
+
+app.post('Remove/Retailer',express.json(),async (req,res)=>{
+  let conn;
+
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+  try{
+    const {id,userid} =req.body;
+
+    //handle missing JSON values
+    if(!id || !userid){
+      res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+      return;
+    }
+
+    //validate userid
+    conn= await pool.getConnection();
+    const user_details= await conn.query('SELECT * FROM ... WHERE ...=?',[userid]); //<==============sql to get a the user
+
+    if(user_details.length===0){
+        res.status(404).send({ status: 'error', message: 'User not found' });
+        return;
+    } else if(user_details[0].role!='admin'){
+        res.status(401).send({ status: 'error', message: 'Unauthorized' });
+        return;
+    }
+
+    //validate id
+    const idVal=await conn.query('SELECT * from ... WHERE ...=?',[id]); //<===========================sql to find retailer with this id
+
+    if(idVal.length===0){
+      res.status(404).send({ status: 'error', message: 'Retailer not found' });
+      return;
+    }
+
+    //At this point, id and userid is valid. perform remove
+    const del=await conn.query('DELETE * FROM retailerTableName WHERE id=?',[id]); //<==========sql to delete here
+
+    if(del.affectedRows>0){
+      res.status(204).send({ status: 'success', message: 'Retailer removed' });
+      return;
+    } else{
+      res.status(409).send({ status: 'error', message: 'Retailer was not removed' });
+      return;
+    }
+    
+  } catch (err) {
+    console.error(err);
+    fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+    res.status(500).send({ status: 'error', message: 'Error removing retailer, detailed error in server_logs, please investigate server logs' });
+    return;
+  } finally{
+    if(conn){
+      conn.end();
+    }
+  }
+})
+
+app.post('Remove/Category',express.json(),async (req,res)=>{
+  let conn;
+
+    if(!req.is('application/json')){
+        res.status(415).send({status: 'error', message: 'Expected application/json'});
+        return;
+    }
+
+  try{
+    const {cat_id,userid} =req.body;
+
+    //handle missing JSON values
+    if(!cat_id || !userid){
+      res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+      return;
+    }
+
+    //validate userid
+    conn= await pool.getConnection();
+    const user_details= await conn.query('SELECT * FROM ... WHERE ...=?',[userid]); //<==============sql to get a the user
+
+    if(user_details.length===0){
+        res.status(404).send({ status: 'error', message: 'User not found' });
+        return;
+    } else if(user_details[0].role!='admin'){
+        res.status(401).send({ status: 'error', message: 'Unauthorized' });
+        return;
+    }
+
+    //validate id
+    const idVal=await conn.query('SELECT * from ... WHERE ...=?',[cat_id]); //<===========================sql to find cat with this id
+
+    if(idVal.length===0){
+      res.status(404).send({ status: 'error', message: 'Category not found' });
+      return;
+    }
+
+    //At this point, id and userid is valid. perform remove
+    const del=await conn.query('DELETE * FROM CatTableName WHERE id=?',[cat_id]); //<=======sql for remove category here
+
+    if(del.affectedRows>0){
+      res.status(204).send({ status: 'success', message: 'Category removed' });
+      return;
+    } else{
+      res.status(409).send({ status: 'error', message: 'Category was not removed' });
+      return;
+    }
+    
+  } catch (err) {
+    console.error(err);
+    fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+    res.status(500).send({ status: 'error', message: 'Error removing category, detailed error in server_logs, please investigate server logs' });
+    return;
+  } finally{
+    if(conn){
+      conn.end();
+    }
+  }
+})
+
 //API CONNECT
 app.listen(port, () => {
     console.log(`API listening on localhost:${port}`);
