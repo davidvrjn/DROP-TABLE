@@ -22,7 +22,8 @@ def parse_brands():
         for idx, line in enumerate(lines, start=1):
             try:
                 name = line.split("'")[1]
-                brands[name] = idx
+                # Store brand name in lowercase for case-insensitive matching
+                brands[name.lower()] = idx
             except IndexError:
                 print(f"🔴 Error: Invalid format in line: {line}")
                 continue
@@ -55,7 +56,8 @@ def process_products(brand_map):
         for line in insert_lines:
             try:
                 brand_name = line.split("'")[1]
-                brand_id = brand_map.get(brand_name, 'NULL')
+                # Convert to lowercase for case-insensitive lookup
+                brand_id = brand_map.get(brand_name.lower(), 'NULL')
                 updated_lines.append(f"({brand_id}),")
             except IndexError:
                 print(f"🔴 Error: Invalid format in line: {line}")

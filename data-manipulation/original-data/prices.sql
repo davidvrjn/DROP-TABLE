@@ -1,4 +1,4 @@
-INSRT INTO `blank` (`initial_price`, `final_price`) VALUES
+INSERT INTO `blank` (`initial_price`, `final_price`) VALUES
 (29.99, 29.99, 'USD'),
 (19.99, 13.59, 'USD'),
 (32.49, 32.49, 'USD'),
