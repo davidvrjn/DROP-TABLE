@@ -1,57 +1,127 @@
 <header>
-      <nav class="navbar navbar-expand-lg navbar-light bg-light">
-          <div class="container">
-              <a class="navbar-brand" href="index.ejs">Price Checker</a>
-              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarNav">
-                  <ul class="navbar-nav me-auto">
-                      <li class="nav-item">
-                          <!-- Check if currentPage is 'products' and conditionally add the 'active' class AND aria-current="page" -->
-                          <a class="nav-link <% if (currentPage === 'products') { %>active<% } %>" <% if (currentPage === 'products') { %>aria-current="page"<% } %> href="index.ejs">Products</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link <% if (currentPage === 'deals') { %>active<% } %>" <% if (currentPage === 'deals') { %>aria-current="page"<% } %> href="deals.ejs">Best Deals</a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link <% if (currentPage === 'watchlist') { %>active<% } %>" <% if (currentPage === 'watchlist') { %>aria-current="page"<% } %> href="watchlist.ejs">Watchlist</a>
-                      </li>
-                       <li class="nav-item">
-                          <a class="nav-link <% if (currentPage === 'about') { %>active<% } %>" <% if (currentPage === 'about') { %>aria-current="page"<% } %> href="about.ejs">About</a>
-                      </li>
-                      <!-- Add auth links as nav items for mobile view -->
-                      <li class="nav-item d-lg-none">
-                          <a class="nav-link" href="login.ejs">Login</a>
-                      </li>
-                      <li class="nav-item d-lg-none">
-                          <a class="nav-link" href="register.ejs">Register</a>
-                      </li>
-                      <!-- Add theme toggle for mobile view -->
-                      <li class="nav-item d-lg-none mt-2 ms-3">
-                          <div class="form-check form-switch">
-                              <input class="form-check-input" type="checkbox" id="themeToggleMobile">
-                              <label class="form-check-label" for="themeToggleMobile">
-                                  <i class="bi bi-moon-stars dark-mode-icon"></i>
-                              </label>
-                          </div>
-                      </li>
-                  </ul>
-                   <div class="d-flex align-items-center">
-                      <!-- Auth links for desktop view only -->
-                      <div class="auth-links d-none d-lg-flex me-3">
-                        <a href="login.ejs" class="text-decoration-none me-3">Login</a>
-                        <a href="register.ejs" class="text-decoration-none">Register</a>
-                      </div>
-                      <!-- Theme toggle for desktop view only -->
-                      <div class="form-check form-switch me-2 d-none d-lg-block">
-                          <input class="form-check-input" type="checkbox" id="themeToggle">
-                          <label class="form-check-label" for="themeToggle">
-                              <i class="bi bi-moon-stars dark-mode-icon"></i>
-                          </label>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </nav>
-  </header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.ejs">Price Checker</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'products') { %>active<% } %>" <% if (currentPage === 'products') { %>aria-current="page"<% } %> href="index.ejs">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'deals') { %>active<% } %>" <% if (currentPage === 'deals') { %>aria-current="page"<% } %> href="deals.ejs">Best Deals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'watchlist') { %>active<% } %>" <% if (currentPage === 'watchlist') { %>aria-current="page"<% } %> href="watchlist.ejs">Watchlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'about') { %>active<% } %>" <% if (currentPage === 'about') { %>aria-current="page"<% } %> href="about.ejs">About</a>
+                    </li>
+                    <li class="nav-item" id="adminLink" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'admin') { %>active<% } %>" <% if (currentPage === 'admin') { %>aria-current="page"<% } %> href="admin.ejs">Admin</a>
+                    </li>
+                    <!-- Auth links for mobile view -->
+                    <li class="nav-item d-lg-none" id="loginLinkMobile">
+                        <a class="nav-link" href="login.ejs" id="loginBtnMobile">Login</a>
+                    </li>
+                    <li class="nav-item d-lg-none" id="registerLinkMobile">
+                        <a class="nav-link" href="register.ejs" id="registerBtnMobile">Register</a>
+                    </li>
+                    <li class="nav-item d-lg-none" id="welcomeMessageMobile" style="display: none;">
+                        <span class="nav-link" id="welcomeTextMobile"></span>
+                    </li>
+                    <li class="nav-item d-lg-none" id="logoutLinkMobile" style="display: none;">
+                        <a class="nav-link" href="#" id="logoutBtnMobile">Logout</a>
+                    </li>
+                    <!-- Theme toggle for mobile view -->
+                    <li class="nav-item d-lg-none mt-2 ms-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="themeToggleMobile">
+                            <label class="form-check-label" for="themeToggleMobile">
+                                <i class="bi bi-moon-stars dark-mode-icon"></i>
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <!-- Auth links for desktop view -->
+                    <div class="auth-links d-none d-lg-flex me-3" id="authLinks">
+                        <a href="login.ejs" class="text-decoration-none me-3" id="loginBtn">Login</a>
+                        <a href="register.ejs" class="text-decoration-none" id="registerBtn">Register</a>
+                        <span id="welcomeMessage" style="display: none;" class="text-decoration-none me-3"></span>
+                        <a href="#" class="text-decoration-none" id="logoutLink" style="display: none;">Logout</a>
+                    </div>
+                    <!-- Theme toggle for desktop view -->
+                    <div class="form-check form-switch me-2 d-none d-lg-block">
+                        <input class="form-check-input" type="checkbox" id="themeToggle">
+                        <label class="form-check-label" for="themeToggle">
+                            <i class="bi bi-moon-stars dark-mode-icon"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const logoutLink = document.getElementById('logoutLink');
+            const adminLink = document.getElementById('adminLink');
+            const loginBtnMobile = document.getElementById('loginBtnMobile');
+            const registerBtnMobile = document.getElementById('registerBtnMobile');
+            const welcomeMessageMobile = document.getElementById('welcomeMessageMobile');
+            const welcomeTextMobile = document.getElementById('welcomeTextMobile');
+            const logoutBtnMobile = document.getElementById('logoutBtnMobile');
+
+            function updateUI() {
+                if (user && user.first_name) {
+                    loginBtn.style.display = 'none';
+                    registerBtn.style.display = 'none';
+                    welcomeMessage.style.display = 'inline';
+                    welcomeMessage.textContent = `Welcome ${user.first_name}`;
+                    logoutLink.style.display = 'inline';
+                    loginBtnMobile.style.display = 'none';
+                    registerBtnMobile.style.display = 'none';
+                    welcomeMessageMobile.style.display = 'block';
+                    welcomeTextMobile.textContent = `Welcome ${user.first_name}`;
+                    logoutBtnMobile.style.display = 'block';
+                    if (user.type === 'admin') {
+                        adminLink.style.display = 'block';
+                    }
+                } else {
+                    loginBtn.style.display = 'inline';
+                    registerBtn.style.display = 'inline';
+                    welcomeMessage.style.display = 'none';
+                    logoutLink.style.display = 'none';
+                    adminLink.style.display = 'none';
+                    loginBtnMobile.style.display = 'block';
+                    registerBtnMobile.style.display = 'block';
+                    welcomeMessageMobile.style.display = 'none';
+                    logoutBtnMobile.style.display = 'none';
+                }
+            }
+
+            updateUI();
+
+            // Handle logout
+            const logoutHandler = (e) => {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                sessionStorage.removeItem('user');
+                updateUI();
+                window.location.href = 'login.ejs'; // Redirect to login after logout
+            };
+
+            logoutLink.addEventListener('click', logoutHandler);
+            if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', logoutHandler);
+
+            // Ensure theme toggle syncs with script.js (already handled by script.js)
+        });
+    </script>
+</header>
