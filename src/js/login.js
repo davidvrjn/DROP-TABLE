@@ -1,11 +1,11 @@
 /**
  * Login Script
  * Handles login functionality for the login page
- * Sends a request to /User/Login with raw password
- * Stores token and user data, redirects based on role
+ * Hashes password with SHA-256 client-side, sends to /User/Login
+ * Stores user data, redirects based on role
  */
 
-export function initLogin() {
+export function initLogin(hashSHA256) {
     const loginForm = document.getElementById('loginForm');
     const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
     const errorMessage = document.getElementById('error-message');
@@ -14,7 +14,7 @@ export function initLogin() {
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const rememberMe = document.getElementById('rememberMe').checked;
 
@@ -24,13 +24,16 @@ export function initLogin() {
                     throw new Error('Email and password are required');
                 }
 
-                // Send login request to API
+                // Hash password with SHA-256 client-side
+                const hashedPassword = await hashSHA256(password);
+
+                // Send login request to API with hashed password
                 const response = await fetch('http://localhost:3000/User/Login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email, password }),
+                    body: JSON.stringify({ email, password: hashedPassword }),
                 });
 
                 const data = await response.json();

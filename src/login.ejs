@@ -59,10 +59,19 @@
     <script type="module">
         import { initPasswordEye } from './partials/_passwordeye.js';
 
+        // SHA-256 Hashing Function
+        async function hashSHA256(message) {
+            const msgUint8 = new TextEncoder().encode(message);
+            const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+            return Array.from(new Uint8Array(hashBuffer))
+                .map(b => b.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             initPasswordEye();
             const { initLogin } = await import('./js/login.js');
-            initLogin();
+            initLogin(hashSHA256); // Pass the hash function to login.js
         });
     </script>
 </body>
