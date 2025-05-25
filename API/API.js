@@ -312,11 +312,6 @@ app.post('/User/Register',express.json(),async (req,res) =>{
             return;
         }
 
-        if(role!='user' && role!='admin'){
-            res.status(422).send({ status: 'error', message: 'Failed Validation' });
-            return;
-        }
-
         //check password
         if(password.length>72){
             res.status(422).send({ status: 'error', message: 'Failed Validation' });
@@ -332,19 +327,18 @@ app.post('/User/Register',express.json(),async (req,res) =>{
 
 
         //ATP: the 4 params are retrieved. password is length 72 or less. Check if user already exists.
-        const rows= await conn.query('SELECT email FROM User WHERE email = ?',[email]) //<==============sql query for a user here. check for a matching email
+        const rows= await conn.query('SELECT email FROM User WHERE email = ?',[`${email}`]) //<==============sql query for a user here. check for a matching email
 
         if(rows.length === 0){
-            //there is no matching email
-            
 
             //hash new password
             const new_Password=await hashString(password);
 
-            const inserted = await conn.query('INSERT INTO User(`first_name`, `last_name`, `password`, `email`, `type`) VALUES (?, ?, ?, ?, "user")',[first_name,last_name,email,new_Password]); //<=========sql for insert user here
+            const inserted = await conn.query('INSERT INTO User(`first_name`, `last_name`, `password`, `email`, `type`) VALUES (?, ?, ?, ?, "user")',[first_name,last_name,new_Password,email]); //<=========sql for insert user here
             if(inserted.affectedRows == 1){
               res.status(201).send({ status: 'success',  data: {
                 user: {
+                    id: inserted.insertID,
                     email: email,
                     first_name: first_name,
                     last_name: last_name
