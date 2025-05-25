@@ -51,8 +51,20 @@ let activeFilters = {
 
 // Pagination state
 let currentPage = 1;
-const itemsPerPage = 3; // Show 3 products per page
+const itemsPerPage = 9;
 let currentProducts = [];
+
+function sanitizeProduct(product) {
+    return {
+        ...product,
+        final_price: Number(product.final_price ?? 0),
+        initial_price:
+            product.initial_price != null
+                ? Number(product.initial_price)
+                : undefined,
+        rating: product.rating != null ? Number(product.rating) : undefined,
+    };
+}
 
 function renderProductsWithPagination(products = currentProducts) {
     const productListContainer = document.getElementById("product-list");
@@ -73,7 +85,7 @@ function renderProductsWithPagination(products = currentProducts) {
 
     // Optimize rendering by building HTML string once
     const productCardsHTML = productsToRender
-        .map((product) => createProductCardHTML(product))
+        .map((product) => createProductCardHTML(sanitizeProduct(product)))
         .join("");
     productListContainer.innerHTML = productCardsHTML;
 
@@ -102,7 +114,7 @@ function setupLoadMoreButton() {
     const loadMoreButton = document.getElementById("load-more-products");
     if (loadMoreButton) {
         loadMoreButton.addEventListener("click", () => {
-            currentPage += 3;
+            currentPage++;
             renderProductsWithPagination();
         });
     }
