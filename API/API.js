@@ -43,10 +43,11 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         conn = await pool.getConnection();
         let where = [];
         let values = [];
+        let userIdCondition = "";
         if(req.body['userid']){
             const userid = req.body['userid'];
-            where.push(`W.user_id = ?`);
-            values.push(`%${search}%`);
+            userIdCondition = "AND W.user_id = ?";
+            values.push(userid);
         }
         if (req.body['filters']) {
             const filters = req.body['filters'];
