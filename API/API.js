@@ -276,7 +276,7 @@ app.post('/User/Login', express.json(), async (req, res) => {
                     type: rows[0].type
 
                 }
-            });
+            }});
             return;
         }
 
@@ -926,7 +926,7 @@ app.post('/Remove/Category', express.json(), async (req, res) => {
     }
 })
 
-app.post('/Get/Watchlist'), express.json(), async (req, res) => {
+app.post('/Get/Watchlist', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -973,9 +973,9 @@ app.post('/Get/Watchlist'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Get/allRetailPrices'), express.json(), async (req, res) => {
+app.post('/Get/allRetailPrices', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1019,9 +1019,9 @@ app.post('/Get/allRetailPrices'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Add/ToWatchlist'), express.json(), async (req, res) => {
+app.post('/Add/ToWatchlist', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1058,9 +1058,9 @@ app.post('/Add/ToWatchlist'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Add/Review'), express.json(), async (req, res) => {
+app.post('/Add/Review', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1097,9 +1097,9 @@ app.post('/Add/Review'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Add/Product'), express.json(), async (req, res) => {
+app.post('/Add/Product', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1165,9 +1165,9 @@ app.post('/Add/Product'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Add/Category'), express.json(), async (req, res) => {
+app.post('/Add/Category', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1215,9 +1215,9 @@ app.post('/Add/Category'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Add/Retailer'), express.json(), async (req, res) => {
+app.post('/Add/Retailer', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1265,9 +1265,9 @@ app.post('/Add/Retailer'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Add/Brand'), express.json(), async (req, res) => {
+app.post('/Add/Brand', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1315,9 +1315,9 @@ app.post('/Add/Brand'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Update/Product'), express.json(), async (req, res) => {
+app.post('/Update/Product', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1391,10 +1391,10 @@ app.post('/Update/Product'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
 
-app.post('/Update/Watchlist'), express.json(), async (req, res) => {
+app.post('/Update/Watchlist', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1440,9 +1440,9 @@ app.post('/Update/Watchlist'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Remove/Product'), express.json(), async (req, res) => {
+app.post('/Remove/Product', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1488,9 +1488,9 @@ app.post('/Remove/Product'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
-app.post('/Remove/Watchlist'), express.json(), async (req, res) => {
+app.post('/Remove/Watchlist', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1536,7 +1536,7 @@ app.post('/Remove/Watchlist'), express.json(), async (req, res) => {
             conn.release();
         }
     }
-}
+})
 
 
 //API CONNECT
