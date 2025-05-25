@@ -418,16 +418,29 @@ function populateRetailerFilters(retailers) {
 
 //get brands, categories etc...
 async function fetchDistinctValues(endpoint) {
-    const res = await fetch(`http://localhost:3000/Get/${endpoint}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ search: "" }),
-    });
+    try {
+        const res = await fetch(`http://localhost:3000/Get/${endpoint}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ search: "" }),
+        });
 
-    const result = await res.json();
-    return result.data.map((item) => item[`${endpoint.slice(0, -1)}_name`]);
+        const result = await res.json();
+
+        if (!result.data || !Array.isArray(result.data)) return [];
+
+        return result.data.map((item) => {
+            if (endpoint === "Categories") return item.cat_name;
+            if (endpoint === "Retailers") return item.retailer_name;
+            if (endpoint === "Brands") return item.brand_name;
+            return item.name; // Fallback if needed
+        });
+    } catch (err) {
+        console.error(`Failed to fetch ${endpoint}:`, err);
+        return [];
+    }
 }
 
 async function populateFilters() {
@@ -492,11 +505,13 @@ function setupSortDropdown() {
                 break;
             case "newest":
                 //sort by ID (assuming newer IDs are later)
-                sortedProducts.sort((a, b) => b.id.localeCompare(a.id));
+                sortedProducts.sort((a, b) =>
+                    String(b.id).localeCompare(String(a.id))
+                );
                 break;
             default:
                 //(reset to original)
-                sortedProducts = [...fetchProducts()];
+                fetchProducts().then(renderProducts);
                 break;
         }
 
@@ -538,7 +553,7 @@ function applyFilters() {
                 maxPrice: Infinity,
             };
 
-            renderProducts(fetchProducts()); // Show all products again
+            fetchProducts().then(renderProducts); // Show all products again
         });
 
     (async () => {
@@ -630,7 +645,7 @@ function setupFilterButtons() {
                 maxPrice: Infinity,
             };
 
-            renderProducts(fetchProducts());
+            fetchProducts().then(renderProducts);
         });
     }
 }
