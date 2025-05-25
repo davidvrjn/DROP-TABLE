@@ -8,9 +8,11 @@
 export function initRegister(hashSHA256) {
     const registerForm = document.getElementById('registerForm');
     const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const fade = document.getElementById('fade');
 
     if (registerForm) {
-        registerForm.addEventListener('submit', async function(e) {
+        registerForm.addEventListener('submit', async function (e) {
             e.preventDefault();
 
             const firstName = document.getElementById('firstName').value.trim();
@@ -19,24 +21,31 @@ export function initRegister(hashSHA256) {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            // Client-side validation
-            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if (password !== confirmPassword) {
-                errorMessage.textContent = 'Passwords do not match!';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            if (!passwordRegex.test(password)) {
-                errorMessage.textContent = 'Password does not meet security requirements!';
-                errorMessage.style.display = 'block';
-                return;
-            }
-
             try {
+                // Reset UI elements
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+                fade.classList.add('hidden');
+
+                // Client-side validation
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                if (password !== confirmPassword) {
+                    errorMessage.textContent = 'Passwords do not match!';
+                    errorMessage.style.display = 'block';
+                    fade.classList.remove('hidden');
+                    return;
+                }
+                if (!passwordRegex.test(password)) {
+                    errorMessage.textContent = 'Password does not meet security requirements!';
+                    errorMessage.style.display = 'block';
+                    fade.classList.remove('hidden');
+                    return;
+                }
+
                 // Hash password with SHA-256 client-side
                 const hashedPassword = await hashSHA256(password);
 
-                // Send registration request to API with hashed password
+                // Send registration request to API
                 const response = await fetch('http://localhost:3000/User/Register', {
                     method: 'POST',
                     headers: {
@@ -46,47 +55,36 @@ export function initRegister(hashSHA256) {
                         email,
                         first_name: firstName,
                         last_name: lastName,
-                        username: `${firstName.toLowerCase()}.${lastName.toLowerCase()}`, // Generate username from name
-                        password: hashedPassword, // Send hashed password
-                        role: 'user' // Default role, adjust if selectable
+                        password: hashedPassword
                     }),
                 });
 
+                // Check if response is OK before parsing JSON
+                if (!response.created) {
+                    const text = await response.text(); // Get raw response for debugging
+                    throw new Error(`HTTP error! status: ${response.status}, body: ${text}`);
+                }
+
                 const data = await response.json();
 
-                if (response.ok) {
-                    if (data.status === 'success') {
-                        alert('Registration successful!');
-                        window.location.href = 'login.ejs';
-                    } else {
-                        errorMessage.textContent = data.message || 'Registration failed';
-                        errorMessage.style.display = 'block';
-                    }
+                if (data.status === 'success') {
+                    successMessage.textContent = 'Registration successful! Redirecting to login...';
+                    successMessage.style.display = 'block';
+                    fade.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 1500);
                 } else {
-                    let errorMsg = data.message || `Error: ${response.status}`;
-                    switch (response.status) {
-                        case 400:
-                            errorMsg = 'Bad request: Invalid input';
-                            break;
-                        case 409:
-                            errorMsg = 'Email already exists';
-                            break;
-                        case 415:
-                            errorMsg = 'Unsupported media type';
-                            break;
-                        case 422:
-                            errorMsg = 'Unprocessable entity: Validation failed';
-                            break;
-                        case 500:
-                            errorMsg = 'Server error';
-                            break;
-                    }
-                    errorMessage.textContent = errorMsg;
+                    errorMessage.textContent = data.message || 'Registration failed';
                     errorMessage.style.display = 'block';
+                    fade.classList.remove('hidden');
                 }
             } catch (error) {
-                errorMessage.textContent = 'Error: ' + error.message;
+                errorMessage.textContent = `Error: ${error.message}`;
                 errorMessage.style.display = 'block';
+                fade.classList.remove('hidden');
+                console.error('Registration error:', error); // Log to browser console
             }
         });
     }
