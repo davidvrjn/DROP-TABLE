@@ -230,12 +230,12 @@ Example response
 ```
 {
     status: "success"
-    [data]: {
+    data: [{
         retailer_name: "Amazon",
         initial_price: 1000,
         final_price: 500,
         discount: 50,
-    }
+    }]
 }
 ```
 Possible response codes:
