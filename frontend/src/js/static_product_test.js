@@ -130,11 +130,13 @@ function setupWatchlistButtons() {
                 const result = await response.json();
                 if (result.status === "success") {
                     this.classList.add("added");
+                    alert("Added to WatchList");
                 } else {
                     console.error(
                         "Failed to add to watchlist:",
                         result.message
                     );
+                    alert("Already added to WatchList!");
                 }
             } catch (err) {
                 console.error("Error adding to watchlist:", err);
