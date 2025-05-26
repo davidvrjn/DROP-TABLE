@@ -13,5 +13,7 @@
    - Processes `retailers.txt` → `retailers.sql`
 6. `6currency.py` - Price conversion
    - Processes `prices.sql` → `prices_in_zar.sql`
-7. `7product_retailers.py` - Final relationships
+7. `product_retailers.py` - Final relationships
    - Processes `merged_products.sql`, `retailers.sql`, `prices_in_zar.sql` → `product_retailers.sql`
+8. `reviews.py` - Review processing
+   - Processes `products.sql`, `reviews.json` → `reviews.sql`
