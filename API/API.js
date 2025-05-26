@@ -712,26 +712,26 @@ app.post('/Update/Brand', express.json(), async (req, res) => {
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate x_name
-        const brandVal = await conn.query('SELECT * from ... WHERE ...=?', [name]); //<================sql to get brand with this name
+        const brandVal = await conn.query('SELECT name FROM Brand WHERE name = ?', [name]); //<================sql to get brand with this name
 
         if (brandVal.length != 0) {
-            res.status(409).send({ status: 'error', message: 'Retailer already exists' });
+            res.status(409).send({ status: 'error', message: 'Brand already exists' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [id]); //<===========================sql to find brand with this id
+        const idVal = await conn.query('SELECT id FROM Brand WHERE id = ?', [id]); //<===========================sql to find brand with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Brand not found' });
@@ -739,7 +739,7 @@ app.post('/Update/Brand', express.json(), async (req, res) => {
         }
 
         //now evrything is valid. perform the update
-        const update = await conn.query('UPDATE BrandTableName SET name=? WHERE id=?', [name, id]);
+        const update = await conn.query('UPDATE Brand SET name = ? WHERE id = ?', [name, id]);
 
         if (update.affectedRows > 0) {
             res.status(200).send({ status: 'success', message: 'Brands successfully updated' });
