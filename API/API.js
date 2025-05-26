@@ -1017,7 +1017,7 @@ app.post('/Get/Watchlist', express.json(), async (req, res) => {
     }
 })
 
-app.post('/Get/allRetailPrices', express.json(), async (req, res) => {
+app.post('/Get/RetailPrices', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1034,13 +1034,13 @@ app.post('/Get/allRetailPrices', express.json(), async (req, res) => {
         }
 
         conn = await pool.getConnection();
-        const price_Details = await conn.query('SELECT * FROM ... WHERE ...=?', [product_id]);
+        const price_Details = await conn.query('SELECT initial_price, final_price, name FROM Product_Retailer INNER JOIN Retailer ON Retailer.id = Product_Retailer.retailer_id WHERE product_id = ? ORDER BY final_price', [product_id]);
 
         let priceJSON = [];
 
         for (let i = 0; i < price_Details.length; i++) {
             let temp = {
-                retailer_name: price_Details[i].retailer_name,
+                retailer_name: price_Details[i].name,
                 initial_price: price_Details[i].initial_price,
                 final_price: price_Details[i].final_price,
                 discount: price_Details[i].discount
@@ -1072,15 +1072,22 @@ app.post('/Add/ToWatchlist', express.json(), async (req, res) => {
     }
 
     try {
-        const { product_id, retailer_id, user_id } = req.body;
+        const { product_id, retailer_id, userid } = req.body;
 
-        if (!product_id || !retailer_id || !user_id) {
+        if (!product_id || !retailer_id || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const inserted = await conn.query('SQL query to insert a watchlist???', [product_id, retailer_id, user_id]); //<=========sql for insert user here
+
+        //First check if the product is not already on the watchlist
+        const watchlist = await conn.query('SELECT product_id FROM Watchlist_Item WHERE product_id = ? AND user_id = ?', [product_id, userid]);
+        if(watchlist.length != 0){
+            res.status(400).send({status: "error", message: "The product already exists on this user's watchlist"});
+            return;
+        }
+        const inserted = await conn.query('', [product_id, retailer_id, userid]); //<=========sql for insert user here
         if (inserted.affectedRows == 1) {
             res.status(201).send({ status: 'success', message: 'New Item added to Watchlist' });
             return;
