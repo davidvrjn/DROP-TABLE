@@ -308,7 +308,7 @@ Example request
     updated_at: current_time
     specifications: ,
     features:,
-    image_url: https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za,
+    image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
     retail_details:[
         {
             retailer_id: 3,
@@ -351,21 +351,21 @@ Possible response codes:
 Example request
 ```
 {
-    userid: //validation
-    productid:
-    category_id:,
-    brand_id:,
-    title:,
-    description:,
+    userid: 5,
+    productid: 12,
+    category_id: 3,
+    brand_id: 2,
+    title: "REDDRAGON 60% keyboard",
+    description: 60% mechanical keyboard with light and ergonomic design. Perfect for gamers with limited desk space.",
     updated_at: current_time //do not modify creation_time
     specifications:,
     features:,
-    image_url:
+    image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
     retail_details:[
         {
-            retailer_id:,
-            initial_price:,
-            final_price:,
+            retailer_id: 3,
+            initial_price: 2000,
+            final_price: 1400
         }
     ]
 }
@@ -403,11 +403,11 @@ Possible response codes:
 Example request
 ```
 {
-    watchlist/userid:,
-    product_id:,
-    initial_price:,
-    final_price:,
-    retailer_name:,
+    userid: 3,
+    product_id: 12,
+    initial_price: 2000,
+    final_price: 1500,
+    retailer_name: "Amazon"
 }
 ```
 Example response
@@ -424,8 +424,8 @@ Possible response codes:
 Example request
 ```
 {
-    userid:
-    preferences:
+    userid: 3,
+    preferences: "dark"
 }
 ```
 Example response
