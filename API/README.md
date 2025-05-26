@@ -127,10 +127,8 @@ Response Example
             id: 3,
             email: "a.senna@admin.compareit.co.za",
             first_name: "Ayrton",
-            username: "CompareIt_Senna,
             last_name: "Senna",
             type: "admin",
-            DOB?:, (Possibly removed)
         }
     }
 }
@@ -150,8 +148,7 @@ Example request
     email: "l.hamilton@gmail.com",
     first_name: "Lewis",
     last_name: "Hamilton",
-    password: "Red>Silver2025",
-    type: "user"
+    password: "Red>Silver2025"
 }
 ```
 Example response
@@ -163,9 +160,7 @@ Example response
             id: 44,
             email: "l.hamilton@gmail.com",
             first_name: "Lewis",
-            last_name: "Hamilton",
-            type: "user",
-            DOB?: (Possibly removed)
+            last_name: "Hamilton"
         }
     }
 }
@@ -182,7 +177,7 @@ Possible response codes:
 Example request
 ```
 {
-    search:,
+    search: "Appliances"
 }
 ```
 Example response
@@ -190,8 +185,8 @@ Example response
 {
     data: [
         {
-            retailer_name:
-            retailer_id:
+            retailer_name: "Amazon",
+            retailer_id: 3
         }
     ]
 }
