@@ -1425,60 +1425,67 @@ app.post('/Update/Product', express.json(), async (req, res) => {
     }
 
     try {
-        const { name, user_id, product_id, category_id, brand_id, title, description, update_at, specifications, features, image_url, retail_details } = req.body;
+        const { userid, product_id, category_id, brand_id, title, description, specifications, features, image_url, images, retail_details } = req.body;
 
-        if (!user_id || !name) {
+        if (!userid || !product_id || !category_id || !brand_id || !title || !description || !specifications || !features || !image_url || !images || !retail_details) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
-        conn = await pool.getConnection();
-        const updated = await conn.query('SQL query to update a product???', [name]);
-
-        // for (const detail of retail_details) {
-        //     const { retailer_id, initial_price, final_price } = detail;
-
-        //     if (!retailer_id || initial_price == null || final_price == null) {
-        //         throw new Error('Invalid retail detail entry');
-        //     }
-
-        //     await conn.query(
-        //         `INSERT INTO product_retailers (product_id, retailer_id, initial_price, final_price)
-        //      VALUES (?, ?, ?, ?)`,
-        //         [product_id, retailer_id, initial_price, final_price]
-        //     );
-        // }
-
-        // for (const detail of retail_details) {
-        //     const { retailer_id, initial_price, final_price } = detail;
-
-        //     if (!retailer_id || initial_price == null || final_price == null) {
-        //         throw new Error('Invalid retail detail entry');
-        //     }
-
-        //     values += `(${product_id}, ${retailer_id}, 'dummy link', ${initial_price}, ${final_price}),`
-        // }
-
-        // values = values.substring(0, values.length - 1);
-
-        // const retailProducts = await conn.query("INSERT INTO Product_Retailer VALUES ?", [values]) 
-
-        if (updated.affectedRows === 1) {
-            res.status(200).send({ status: 'success', message: 'Product updated successfully' });
-        } else {
-            res.status(404).send({ status: 'error', message: 'No Product found with the provided ID' });
+        const product = await conn.query('SELECT id FROM Product WHERE title = ? AND category_id = ? AND brand_id = ?', [title, category_id, brand_id]);
+        if(product.length != 0){
+            res.status(400).send({status: "error", message: "Product with matching title, category and brand already exists."});
+            return;
         }
+
+        const updated = await conn.query("UPDATE Product SET category_id = ?, brand_id = ?, title = ?, description = ?, updated_at = ?, image_url = ?, images = ?, specifications = ?, features = ? WHERE id = ?", [category_id, brand_id, title, description, new Date().toISOString().slice(0, 19).replace('T', ' '), image_url, `[${images}]`, JSON.stringify(specifications), JSON.stringify(features), product_id]);
+        if(updated.affectedRows != 1){
+            res.status(409).send({status: "error", message:"An unexpected amount of rows was updated into the database investigate immeaditely"});
+            return;
+        }
+
+        for (const detail of retail_details) {
+            var values = [];
+            const { retailer_id, initial_price, final_price } = detail;
+
+            if (!retailer_id || initial_price == null || final_price == null) {
+                res.status(400).send({status: "error", message: "product successfully added, but retail details invalid, please fix in update."});
+                return;
+            }
+
+            const exists = await conn.query("SELECT product_id FROM Product_Retailer WHERE product_id = ? AND retailer_id = ?", [product_id, retailer_id]);
+            if(exists.length != 0){
+                values.push(initial_price);
+                values.push(final_price);
+                values.push("Dummy Link");
+                values.push(product_id);
+                values.push(retailer_id);
+                
+                await conn.query("UPDATE Product_Retailer SET initial_price = ?, final_price = ?, product_url = ? WHERE product_id = ? AND retailer_id = ?", values);
+            }
+            else{
+                values.push(product_id);
+                values.push(retailer_id);
+                values.push("Dummy Link");
+                values.push(initial_price);
+                values.push(final_price);
+
+                await conn.query("INSERT INTO Product_Retailer VALUES(?,?,?,?,?)", values);
+            }
+        }
+
+        res.status(200).send({ status: 'success', message: 'Product updated successfully' });
         return;
     } catch (err) {
         console.error(err);
