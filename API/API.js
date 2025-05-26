@@ -988,7 +988,6 @@ app.post('/Get/Watchlist', express.json(), async (req, res) => {
         conn = await pool.getConnection();
         const watchlist_Details = await conn.query('SELECT W.product_id, initial_price, final_price, AVG(R.score) AS rating, title, image_url, retailer_name  FROM Watchlist_Item AS W INNER JOIN Product AS P ON W.product_id = P.id LEFT JOIN Review AS R ON R.product_ID = P.id WHERE W.user_id = ? GROUP BY W.product_id', [userid]);
         let watchlistJSON = [];
-        console.log(watchlist_Details);
         for (let i = 0; i < watchlist_Details.length; i++) {
             if(watchlist_Details[i].product_id != null){
                 let temp = {
@@ -1127,17 +1126,25 @@ app.post('/Add/Review', express.json(), async (req, res) => {
     }
 
     try {
-        const { product_id, score, user_id, message } = req.body;
+        const { product_id, score, userid, message } = req.body;
 
-        if (!product_id || !score || !user_id || !message) {
+        if (!product_id || !score || !userid || !message) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const inserted = await conn.query('SQL query to insert a Review???', [product_id, score, user_id, message]); //<=========sql for insert user here
+
+        //Check to see if this product has not already been reviewed
+        const review = await conn.query('SELECT score FROM Review WHERE user_id = ? AND product_id = ?', [userid, product_id]);
+        if(review.length != 0){
+            res.status(400).send({status: "error", message: "Review from this user already exists on the product"});
+            return;
+        }
+
+        const inserted = await conn.query('INSERT INTO Review VALUES(?,?,?,?)', [userid, product_id, score, message]); //<=========sql for insert user here
         if (inserted.affectedRows == 1) {
-            res.status(201).send({ status: 'success', message: 'New Item added to Watchlist' });
+            res.status(201).send({ status: 'success', message: 'New Item added to Review' });
             return;
         }
         //0 or 2 or more users were inserted, investigate the database immeaditely, and fix any errors
