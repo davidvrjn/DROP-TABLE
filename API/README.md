@@ -149,31 +149,28 @@ Possible response codes:
 Example request
 ```
 {
-    email:,
-    first_name:,
-    last_name:,
-    username:,
-    password:,
-    role:,
+    email: "l.hamilton@gmail.com",
+    first_name: "Lewis",
+    last_name: "Hamilton",
+    username: "7LewisHam44",
+    password: "Red>Silver2025",
+    role: "user"
 }
 ```
 Example response
 ```
 {
-    status: success or error
-    //if error
-    message:
-    //if success
+    status: "success",
     data: {
         user:{
-            id:,
-            email:,
-            first_name:,
-            username:,
-            last_name:,
-            role:,
-            watchlist_id:,
-            preferences:,
+            id: 44,
+            email: "l.hamilton@gmail.com",
+            first_name: "Lewis",
+            username: "7LewisHam44",
+            last_name: "Hamilton",
+            role: "user",
+            watchlist_id: 21,
+            preferences: "dark",
             DOB?:, (Possibly removed)
         }
     }
