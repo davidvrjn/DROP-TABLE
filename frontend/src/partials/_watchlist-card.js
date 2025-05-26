@@ -25,7 +25,7 @@ export function createWatchlistCardHTML(product) {
           </a>
           <div class="mt-auto">
             <div class="product-price-container">
-              <span class="h5 mb-0">R${product.final_price.toFixed(2)}</span>
+              <span class="h5 mb-0">R${Number(product.final_price).toFixed(2)}</span>
               ${product.discount && product.discount > 0 && product.initial_price ?
                 `<span class="text-decoration-line-through ms-1 text-muted small">R${product.initial_price.toFixed(2)}</span>`
                 : ''}

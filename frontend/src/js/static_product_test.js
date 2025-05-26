@@ -10,7 +10,7 @@ import { createProductCardHTML } from "../partials/_product-card.js";
 async function fetchProducts({
     filters = {},
     ordering = {},
-    limit = 100,
+    limit = 1000,
     userid = null,
 } = {}) {
     try {
@@ -115,14 +115,14 @@ function setupWatchlistButtons() {
 
             try {
                 const response = await fetch(
-                    "http://localhost:3000/Add/ToWatchlist",
+                    "http://localhost:3000/Add/Watchlist",
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             product_id: productId,
                             retailer_id: retailerId,
-                            user_id: userId,
+                            userid: userId,
                         }),
                     }
                 );
@@ -559,6 +559,10 @@ function applyFilters() {
 
     (async () => {
         updateActiveFilters();
+        if (activeFilters.ratings.length === 0) {
+            activeFilters.ratings = [0];
+        }
+        console.log(activeFilters);
 
         const products = await fetchProducts({
             filters: {
@@ -566,7 +570,7 @@ function applyFilters() {
                 departments: activeFilters.categories,
                 retailers: activeFilters.retailers,
                 prices: [activeFilters.minPrice, activeFilters.maxPrice],
-                rating: Math.min(...activeFilters.ratings, 0),
+                rating: Math.min(...activeFilters.ratings),
             },
         });
 
