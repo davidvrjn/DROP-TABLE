@@ -1509,26 +1509,16 @@ app.post('/Update/Watchlist', express.json(), async (req, res) => {
     }
 
     try {
-        const { user_id, product_id, initial_price, final_price, retailer_name } = req.body;
+        const { userid, product_id, initial_price, final_price, retailer_name } = req.body;
 
-        if (!user_id || !product_id || !initial_price || !final_price || !retailer_name) {
+        if (!userid || !product_id || !initial_price || !final_price || !retailer_name) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
 
-        if (user_details.length === 0) {
-            res.status(404).send({ status: 'error', message: 'User not found' });
-            return;
-        } else if (user_details[0].role != 'admin') {
-            res.status(401).send({ status: 'error', message: 'Unauthorized' });
-            return;
-        }
-
-        conn = await pool.getConnection();
-        const updated = await conn.query('SQL query to update a watchlist???', [user_id]);
+        const updated = await conn.query('UPDATE Watchlist_Item SET initial_price = ?, final_price = ?, retailer_name = ? WHERE user_id = ? AND product_id = ?', [initial_price, final_price, retailer_name, userid, product_id]);
 
         if (updated.affectedRows === 1) {
             res.status(200).send({ status: 'success', message: 'Watchlist updated successfully' });
