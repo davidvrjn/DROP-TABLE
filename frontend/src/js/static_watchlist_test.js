@@ -195,6 +195,93 @@ function showPriceChange(product) {
     }
 }
 
+function showPriceChange(product) {
+    if (!product || !product.price_change) {
+        console.error("Product or price change information not found");
+        return;
+    }
+
+    const modalTitle = document.getElementById("priceHistoryModalLabel");
+    const chartContainer = document.getElementById("priceHistoryChart");
+
+    if (modalTitle) {
+        modalTitle.textContent = `Price Information: ${product.title}`;
+    }
+
+    if (chartContainer) {
+        let priceChangeHTML =
+            '<div class="table-responsive"><table class="table">';
+        priceChangeHTML +=
+            "<thead><tr><th>Price Type</th><th>Price</th><th>Retailer</th></tr></thead><tbody>";
+
+        priceChangeHTML += `<tr>
+            <td><strong>Current Lowest Price</strong></td>
+            <td>R${product.price_change.lowest_price.toFixed(2)}</td>
+            <td>${product.price_change.lowest_retailer}</td>
+        </tr>`;
+
+        priceChangeHTML += `<tr>
+            <td><strong>Last Saved Price</strong></td>
+            <td>R${product.price_change.last_price.toFixed(2)}</td>
+            <td>${product.price_change.last_retailer}</td>
+        </tr>`;
+
+        const priceDifference =
+            product.price_change.last_price - product.price_change.lowest_price;
+        const percentageDifference =
+            (priceDifference / product.price_change.last_price) * 100;
+
+        priceChangeHTML += `<tr class="${
+            priceDifference > 0
+                ? "table-success"
+                : priceDifference < 0
+                ? "table-danger"
+                : ""
+        }">
+            <td><strong>Price Difference</strong></td>
+            <td>R${Math.abs(priceDifference).toFixed(2)} ${
+            priceDifference > 0
+                ? "cheaper"
+                : priceDifference < 0
+                ? "more expensive"
+                : "(no change)"
+        }</td>
+            <td>${(-1 * percentageDifference).toFixed(2)}%</td>
+        </tr>`;
+
+        priceChangeHTML += "</tbody></table></div>";
+        chartContainer.innerHTML = priceChangeHTML;
+    }
+
+    // Show modal
+    const modal = new bootstrap.Modal(
+        document.getElementById("priceHistoryModal")
+    );
+    modal.show();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    renderWatchlistItems();
+
+    // Dynamically inject price info right before modal opens
+    const priceModal = document.getElementById("priceHistoryModal");
+    if (priceModal) {
+        priceModal.addEventListener("show.bs.modal", (event) => {
+            const triggerButton = event.relatedTarget;
+            const productId = triggerButton.getAttribute("data-product-id");
+
+            const user =
+                localStorage.getItem("user") || sessionStorage.getItem("user");
+            const userId = JSON.parse(user)?.id;
+
+            fetchWatchlistData(userId).then((watchlistData) => {
+                const product = watchlistData.find((p) => p.id === productId);
+                showPriceChange(product);
+            });
+        });
+    }
+});
+
 // Initialize when DOM loads
 document.addEventListener("DOMContentLoaded", function () {
     renderWatchlistItems();
