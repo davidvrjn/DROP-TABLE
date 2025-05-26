@@ -571,27 +571,27 @@ app.post('/Update/Category', express.json(), async (req, res) => {
     }
 
     try {
-        const { cat_id, cat_name, userid } = req.body;
+        const { id, name, userid } = req.body;
 
-        if (!cat_id || !cat_name || !userid) {
+        if (!id || !name || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate x_name
-        const catVal = await conn.query('SELECT * from ... WHERE ...=?', [cat_name]); //<================sql to get category with this name
+        const catVal = await conn.query('SELECT cat_name FROM Category WHERE cat_name = ?', [name]); //<================sql to get category with this name
 
         if (catVal.length != 0) {
             res.status(409).send({ status: 'error', message: 'Category already exists' });
@@ -599,15 +599,15 @@ app.post('/Update/Category', express.json(), async (req, res) => {
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [cat_id]); //<===========================sql to find user with this id
+        const idVal = await conn.query('SELECT id FROM Category WHERE id = ?', [id]); //<===========================sql to find user with this id
 
         if (idVal.length === 0) {
-            res.status(404).send({ status: 'error', message: 'Category not found' });
+            res.status(404).send({ status: 'error', message: 'Category id mismatch' });
             return;
         }
 
         //now evrything is valid. perform the update
-        const update = await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?', [cat_name, cat_id]); //<========sql query for the cat update
+        const update = await conn.query('UPDATE Category SET cat_name = ? WHERE id = ?', [name, id]); //<========sql query for the cat update
 
         if (update.affectedRows > 0) {
             res.status(200).send({ status: 'success', message: 'Categories successfully updated' });
