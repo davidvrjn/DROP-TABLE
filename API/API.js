@@ -908,28 +908,28 @@ app.post('/Remove/Category', express.json(), async (req, res) => {
     }
 
     try {
-        const { cat_id, userid } = req.body;
+        const { id, userid } = req.body;
 
         //handle missing JSON values
-        if (!cat_id || !userid) {
+        if (!id || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [cat_id]); //<===========================sql to find cat with this id
+        const idVal = await conn.query('SELECT id from Category WHERE id = ?', [id]); //<===========================sql to find cat with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Category not found' });
@@ -937,14 +937,23 @@ app.post('/Remove/Category', express.json(), async (req, res) => {
         }
 
         //At this point, id and userid is valid. perform remove
-        const del = await conn.query('DELETE * FROM CatTableName WHERE id=?', [cat_id]); //<=======sql for remove category here
+        try{
+            const del = await conn.query('DELETE FROM Category WHERE id = ?', [id]);
 
-        if (del.affectedRows > 0) {
-            res.status(204).send({ status: 'success', message: 'Category removed' });
-            return;
-        } else {
-            res.status(409).send({ status: 'error', message: 'Category was not removed' });
-            return;
+            if (del.affectedRows > 0) {
+                res.status(200).send({ status: 'success', message: 'Category removed' });
+                return;
+            } else {
+                res.status(409).send({ status: 'error', message: 'Category was not removed' });
+                return;
+            }
+        }
+        //Foreign key violation
+        catch(err){
+            if(err.errno === 1451){
+                res.status(400).send({status: "error", message: "Foreign Key Violation, make sure no products reference this."});
+                return;
+            }
         }
 
     } catch (err) {
