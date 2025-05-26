@@ -193,6 +193,29 @@
                             </button>
                         </div>
 
+                        <!-- Search and Filter Bar -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                            <input type="text" class="form-control" id="brandSearch" placeholder="Search brands...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">Min Products</span>
+                                            <input type="number" class="form-control" id="brandProductCountFilter" placeholder="0" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-outline-secondary w-100" id="resetBrandFilters">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Brands Table -->
                         <div class="card">
                             <div class="card-body">
@@ -339,13 +362,14 @@
                 </div>
                 <div class="modal-body">
                     <form id="addRetailerForm">
+                        <input type="hidden" name="retailerId" value="">
                         <div class="mb-3">
                             <label for="retailerName" class="form-label">Retailer Name</label>
-                            <input type="text" class="form-control" id="retailerName" required>
+                            <input type="text" class="form-control" id="retailerName" name="retailerName" required>
                         </div>
                         <div class="mb-3">
                             <label for="retailerWebsite" class="form-label">Retailer Website</label>
-                            <input type="url" class="form-control" id="retailerWebsite" required>
+                            <input type="url" class="form-control" id="retailerWebsite" name="retailerWebsite" required>
                         </div>
                     </form>
                 </div>
@@ -367,9 +391,10 @@
                 </div>
                 <div class="modal-body">
                     <form id="addBrandForm">
+                        <input type="hidden" name="brandId" value="">
                         <div class="mb-3">
                             <label for="brandName" class="form-label">Brand Name</label>
-                            <input type="text" class="form-control" id="brandName" required>
+                            <input type="text" class="form-control" id="brandName" name="brandName" required>
                         </div>
                     </form>
                 </div>

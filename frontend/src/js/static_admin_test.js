@@ -3,6 +3,11 @@
  * This script provides functionality for the admin dashboard
  * It loads data from the API and sets up event handlers for admin operations
  * Includes robust error handling, debugging, and support for add/edit/delete
+ * Updates:
+ * - Added brand search and minimum product count filter functionality
+ * - Implemented event handlers for brand search, product count filter, and reset
+ * - Updated brand table rendering to support dynamic filtering
+ * - Fixed existing issues (as per previous fixes)
  * Fixes:
  * - TypeError: product.images is not iterable
  * - 400 Bad Request for Update/Product
@@ -14,7 +19,7 @@
  * - Fixed 400 Bad Request for Add/Category by sending 'name' instead of 'category_name'
  * - Fixed category counts by ensuring categories are loaded before products and mapping category_id correctly
  * - Fixed success message handling to accept 201 status code
- * Last updated: 12:39 AM SAST on Tuesday, May 27, 2025
+ * Last updated: 01:44 AM SAST on Tuesday, May 27, 2025
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -46,6 +51,7 @@ async function initializeAdminDashboard() {
 
     // Wire up search and filter functionality
     setupProductFilters();
+    setupBrandFilters();
 
     // Set up modal and form handlers
     setupModalHandlers();
@@ -380,36 +386,17 @@ async function loadBrands() {
         console.log("Brands API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            brands = result.data.map((brand) => ({
-                id: brand.brand_id?.toString() || "",
-                name: brand.brand_name || "Unknown",
-                productCount: brand.product_count || 0,
-            }));
-
-            tbody.innerHTML = "";
-            if (brands.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center">No brands found</td></tr>';
-                return;
-            }
-
-            brands.forEach((brand) => {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${brand.name}</td>
-                    <td>${brand.productCount}</td>
-                    <td>
-                        <div class="btn-group btn-group-sm" role="group">
-                            <button type="button" class="btn btn-outline-primary edit-brand" data-brand-id="${brand.id}">
-                                <i class="bi bi-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-outline-danger delete-brand" data-brand-id="${brand.id}">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+            brands = result.data.map((brand) => {
+                // Calculate productCount by counting products with this brand_id
+                const productCount = products.filter(p => p.brand_id === brand.brand_id?.toString()).length;
+                return {
+                    id: brand.brand_id?.toString() || "",
+                    name: brand.brand_name || "Unknown",
+                    productCount: productCount,
+                };
             });
+
+            renderBrandsTable(brands);
 
             populateBrandDropdown();
         } else {
@@ -420,6 +407,45 @@ async function loadBrands() {
         console.error("Brands fetch error:", error);
         tbody.innerHTML = `<tr><td colspan="3" class="text-center">Error loading brands: ${error.message}</td></tr>`;
     }
+}
+
+/**
+ * Renders the brands table with the provided brand data
+ * @param {Array} brandList - Array of brand objects to render
+ */
+function renderBrandsTable(brandList) {
+    const brandsTable = document.getElementById("brandsTable");
+    if (!brandsTable) {
+        console.error("Brands table not found");
+        return;
+    }
+
+    const tbody = brandsTable.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    if (brandList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center">No brands found</td></tr>';
+        return;
+    }
+
+    brandList.forEach((brand) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${brand.name}</td>
+            <td>${brand.productCount}</td>
+            <td>
+                <div class="btn-group btn-group-sm" role="group">
+                    <button type="button" class="btn btn-outline-primary edit-brand" data-brand-id="${brand.id}">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger delete-brand" data-brand-id="${brand.id}">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 // ===== DROPDOWN POPULATION FUNCTIONS =====
@@ -553,6 +579,31 @@ function setupProductFilters() {
 }
 
 /**
+ * Sets up event listeners for the brand filtering UI
+ */
+function setupBrandFilters() {
+    const brandSearch = document.getElementById("brandSearch");
+    const brandProductCountFilter = document.getElementById("brandProductCountFilter");
+    const resetBrandFilters = document.getElementById("resetBrandFilters");
+
+    if (brandSearch) {
+        brandSearch.addEventListener("input", filterBrands);
+    }
+
+    if (brandProductCountFilter) {
+        brandProductCountFilter.addEventListener("input", filterBrands);
+    }
+
+    if (resetBrandFilters) {
+        resetBrandFilters.addEventListener("click", function () {
+            if (brandSearch) brandSearch.value = "";
+            if (brandProductCountFilter) brandProductCountFilter.value = "";
+            filterBrands();
+        });
+    }
+}
+
+/**
  * Filters the products table based on search term and dropdown selections
  */
 function filterProducts() {
@@ -613,6 +664,27 @@ function filterProducts() {
         `;
         tbody.appendChild(tr);
     });
+}
+
+/**
+ * Filters the brands table based on search term and minimum product count
+ */
+function filterBrands() {
+    const brandSearch = document.getElementById("brandSearch");
+    const brandProductCountFilter = document.getElementById("brandProductCountFilter");
+
+    const searchTerm = brandSearch ? brandSearch.value.toLowerCase() : "";
+    const minProductCount = brandProductCountFilter ? parseInt(brandProductCountFilter.value, 10) || 0 : 0;
+
+    const filteredBrands = brands.filter((brand) => {
+        const matchesSearch =
+            searchTerm === "" || brand.name.toLowerCase().includes(searchTerm);
+        const matchesProductCount =
+            brand.productCount >= minProductCount;
+        return matchesSearch && matchesProductCount;
+    });
+
+    renderBrandsTable(filteredBrands);
 }
 
 /**
@@ -853,8 +925,8 @@ function setupModalHandlers() {
                     data = {
                         ...data,
                         id: formData.get("retailerId") || undefined,
-                        retailer_name: retailerName,
-                        website: website,
+                        name: retailerName,
+                        url: website,
                     };
                     endpoint = data.id ? "Update/Retailer" : "Add/Retailer";
                 } else if (entity === "Brand") {
@@ -867,7 +939,7 @@ function setupModalHandlers() {
                     data = {
                         ...data,
                         id: formData.get("brandId") || undefined,
-                        brand_name: brandName,
+                        name: brandName,
                     };
                     endpoint = data.id ? "Update/Brand" : "Add/Brand";
                 }
@@ -1186,7 +1258,7 @@ function setupModalHandlers() {
             const retailerId = e.target.closest(".delete-retailer").getAttribute("data-retailer-id");
             if(confirm("Are you sure you want to delete this retailer?")) {
                 try {
-                    const response = await fetch("http://localhost:3000/Replace/Retailer", {
+                    const response = await fetch("http://localhost:3000/Remove/Retailer", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
@@ -1197,7 +1269,7 @@ function setupModalHandlers() {
                     const result = await response.json();
                     console.log("Delete retailer response:", result);
                     if(response.status === 200 && result.status === "success") {
-                        alert(`Retailer ${retailerId} deleted successfully! Message ${result.message}`);
+                        alert(`Retailer ${retailerId} deleted successfully! Message: ${result.message}`);
                         loadRetailers();
                     } else {
                         console.error("Delete retailer error:", result.message);
@@ -1255,7 +1327,7 @@ function setupModalHandlers() {
                     const result = await response.json();
                     console.log("Delete brand response:", result);
                     if (response.status === 200 && result.status === "success") {
-                        alert(`Brand ${brandId} deleted successfully! Message ${result.message}`);
+                        alert(`Brand ${brandId} deleted successfully! Message: ${result.message}`);
                         loadBrands();
                     } else {
                         console.error("Delete brand error:", result.message);
@@ -1263,7 +1335,7 @@ function setupModalHandlers() {
                     }
                 } catch (error) {
                     console.error("Delete brand error:", error);
-                    alert("Error deleting brand: ${error.message}");
+                    alert(`Error deleting brand: ${error.message}`);
                 }
             }
         }
