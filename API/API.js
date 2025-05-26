@@ -164,7 +164,7 @@ app.post('/Get/Product/:productID/:retailerID', express.json(), async (req, res)
         const productID = req.params.productID;
         const retailerID = req.params.retailerID;
 
-        var rows = await conn.query("SELECT P.id AS id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, images, specifications, features, CASE WHEN EXISTS (SELECT 1 FROM Watchlist_Item WHERE user_id = ? AND product_id = P.id) THEN TRUE ELSE FALSE END AS watchlist FROM Product_Retailer AS PR INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Product AS P ON P.id = PR.product_id LEFT JOIN Review AS RT ON RT.product_id = PR.product_id WHERE P.id = ? AND retailer_id = ?", [`${req.body['userid'] || 0}`,`${productID}`, `${retailerID}`]);
+        var rows = await conn.query("SELECT P.id AS id, image_url, title, description, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, images, specifications, features, CASE WHEN EXISTS (SELECT 1 FROM Watchlist_Item WHERE user_id = ? AND product_id = P.id) THEN TRUE ELSE FALSE END AS watchlist FROM Product_Retailer AS PR INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Product AS P ON P.id = PR.product_id LEFT JOIN Review AS RT ON RT.product_id = PR.product_id WHERE P.id = ? AND retailer_id = ?", [`${req.body['userid'] || 0}`,`${productID}`, `${retailerID}`]);
         if (rows.length == 0) {
             res.status(404).send({
                 status: "error",
@@ -197,6 +197,7 @@ app.post('/Get/Product/:productID/:retailerID', express.json(), async (req, res)
             id: product.id,
             image_url: product.image_url,
             title: product.title,
+            description: product.description,
             final_price: product.final_price,
             retailer_name: product.name,
             rating: product.Rating,

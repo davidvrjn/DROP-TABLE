@@ -115,14 +115,14 @@ function setupWatchlistButtons() {
 
             try {
                 const response = await fetch(
-                    "http://localhost:3000/Add/ToWishlist",
+                    "http://localhost:3000/Add/ToWatchlist",
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             product_id: productId,
                             retailer_id: retailerId,
-                            watchlist: userId,
+                            user_id: userId,
                         }),
                     }
                 );
