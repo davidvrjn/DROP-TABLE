@@ -148,6 +148,117 @@ function renderProductData(product) {
     });
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const wishlistBtn = document.querySelector(".wishlist-btn");
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+    const retailerId = urlParams.get("retailerId") || 1;
+
+    wishlistBtn?.addEventListener("click", async () => {
+        const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+        const userId = JSON.parse(user || "{}").id;
+
+        if (!userId) {
+            alert("Please log in to add items to your watchlist.");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:3000/Add/Watchlist", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    retailer_id: retailerId,
+                    userid: userId,
+                }),
+            });
+
+            const result = await response.json();
+            if (result.status === "success") {
+                wishlistBtn.classList.add("btn-success");
+                wishlistBtn.innerHTML = `<i class="bi bi-heart-fill"></i> Added to Watchlist`;
+            } else {
+                console.error("Failed to add:", result.message);
+                alert("Failed to add to watchlist.");
+            }
+        } catch (error) {
+            console.error("Network error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+    const viewRetailersBtn = document.querySelector(".view-retailers-btn");
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+
+    viewRetailersBtn?.addEventListener("click", async () => {
+        if (!productId) return;
+
+        try {
+            const res = await fetch("http://localhost:3000/Get/RetailPrices", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ product_id: productId }),
+            });
+
+            const result = await res.json();
+            if (result.status === "success" && Array.isArray(result.data)) {
+                showRetailPrices(result.data);
+            } else {
+                alert("No retailer prices found.");
+            }
+        } catch (error) {
+            console.error("Error fetching retailer prices:", error);
+            alert("Failed to load retailer prices.");
+        }
+    });
+});
+
+function showRetailPrices(data) {
+    // You can customize this rendering location
+    const container = document.getElementById("retailer-prices-content") || document.body;
+
+    const html = `
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Retailer</th>
+                    <th>Initial Price</th>
+                    <th>Final Price</th>
+                    <th>Discount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${data
+                    .map(
+                        (item) => `
+                    <tr>
+                        <td>${item.retailer_name}</td>
+                        <td>R${Number(item.initial_price).toFixed(2)}</td>
+                        <td>R${Number(item.final_price).toFixed(2)}</td>
+                        <td>${item.discount}%</td>
+                    </tr>`
+                    )
+                    .join("")}
+            </tbody>
+        </table>
+    `;
+
+    container.innerHTML = html;
+
+    // If using Bootstrap modal and modal is hidden, open it
+    const modalEl = document.getElementById("retailerPricesModal");
+    if (modalEl && typeof bootstrap !== "undefined") {
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+}
+
 function showProductError(message) {
     document.getElementById("product-title").textContent = message;
     document.getElementById("product-price").textContent = "";
