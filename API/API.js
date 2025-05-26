@@ -840,10 +840,10 @@ app.post('/Remove/Retailer', express.json(), async (req, res) => {
     }
 
     try {
-        const { id, user_id } = req.body;
+        const { id, userid } = req.body;
 
         //handle missing JSON values
-        if (!id || !user_id) {
+        if (!id || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
@@ -1173,52 +1173,65 @@ app.post('/Add/Product', express.json(), async (req, res) => {
     }
 
     try {
-        const { user_id, category_id, brand_id, title, description, specifications, features, image_url, retail_details } = req.body;
+        const { userid, category_id, brand_id, title, description, specifications, features, image_url, images, retail_details } = req.body;
 
-        if (!user_id || !category_id || !brand_id || !title || !description || !specifications || !features || !image_url) {
+        if (!userid || !category_id || !brand_id || !title || !description || !specifications || !features || !image_url || !images) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const inserted = await conn.query('SQL query to insert a Review???', [user_id]); //<=========sql for insert user here
 
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
-        // for (const detail of retail_details) {
-        //     const { retailer_id, initial_price, final_price } = detail;
-
-        //     if (!retailer_id || initial_price == null || final_price == null) {
-        //         throw new Error('Invalid retail detail entry');
-        //     }
-
-        //     await conn.query(
-        //         `INSERT INTO product_retailers (product_id, retailer_id, initial_price, final_price)
-        //      VALUES (?, ?, ?, ?)`,
-        //         [product_id, retailer_id, initial_price, final_price]
-        //     );
-        // }
-
-        // for (const detail of retail_details) {
-        //     const { retailer_id, initial_price, final_price } = detail;
-
-        //     if (!retailer_id || initial_price == null || final_price == null) {
-        //         throw new Error('Invalid retail detail entry');
-        //     }
-
-        //     values += `(${product_id}, ${retailer_id}, 'dummy link', ${initial_price}, ${final_price}),`
-        // }
-
-        // values = values.substring(0, values.length - 1);
-
-        // const retailProducts = await conn.query("INSERT INTO Product_Retailer VALUES ?", [values]) 
-
-        if (inserted.affectedRows == 1) {
-            res.status(201).send({ status: 'success', message: 'New Item added to Watchlist' });
+        if (user_details.length === 0) {
+            res.status(404).send({ status: 'error', message: 'User not found' });
+            return;
+        } else if (user_details[0].type != 'admin') {
+            res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
-        else {
-            res.status(500).send({ status: 'error', message: 'Invlaid Insert into product, database errors expected, investigate and fix immeaditely' });
+
+        const product = await conn.query('SELECT id FROM Product WHERE title = ? AND category_id = ? AND brand_id = ?', [title, category_id, brand_id]);
+        if(product.length != 0){
+            res.status(400).send({status: "error", message: "Product with matching title, category and brand already exists."});
+            return;
         }
+
+        const inserted = await conn.query('INSERT INTO Product(`category_id`,`brand_id`,`title`,`description`,`created_at`,`updated_at`, `image_url`, `images`, `specifications`, `features`) VALUES(?,?,?,?,?,?,?,?,?,?)', [category_id, brand_id, title, description, new Date().toISOString().slice(0, 19).replace("T", " "), new Date().toISOString().slice(0, 19).replace("T", " "), image_url, `[${images}]`, JSON.stringify(specifications), JSON.stringify(features)]); //<=========sql for insert user here
+        if(inserted.affectedRows != 1){
+            res.status(409).send({status: "error", message:"An unexpected amount of rows was inserted into the database investigate immeaditely"});
+            return;
+        }
+        const pid = inserted.insertId;
+
+        var values = [];
+        placeholder = "";
+        for (const detail of retail_details) {
+            const { retailer_id, initial_price, final_price } = detail;
+
+            if (!retailer_id || initial_price == null || final_price == null) {
+                res.status(400).send({status: "error", message: "product successfully added, but retail details invalid, please fix in update."});
+                return;
+            }
+
+            placeholder += "(?,?,?,?,?), ";
+            values.push(pid);
+            values.push(retailer_id);
+            values.push("Dummy Link");
+            values.push(initial_price);
+            values.push(final_price);
+        }
+        if(values.length == 0){
+            res.status(200).send({status: "error", message: "product successfully added, but no retailers specified"});
+            return;
+        }
+        placeholder = placeholder.slice(0, -2);
+
+        const baseQuery = `INSERT INTO Product_Retailer VALUES ${placeholder}`
+        await conn.query(baseQuery, values) 
+
+        res.status(201).send({ status: 'success', message: 'Product inserted successfully' });
         return;
     } catch (err) {
         console.error(err);
