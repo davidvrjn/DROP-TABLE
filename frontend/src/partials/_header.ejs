@@ -19,10 +19,12 @@
                     <li class="nav-item">
                         <a class="nav-link <% if (currentPage === 'about') { %>active<% } %>" <% if (currentPage === 'about') { %>aria-current="page"<% } %> href="about.ejs">About</a>
                     </li>
-                    <li class="nav-item" id="adminLink" style="display: none;">
+                    <!-- Admin link, shown dynamically via JS -->
+                    <li class="nav-item admin-link" style="display: none;">
                         <a class="nav-link <% if (currentPage === 'admin') { %>active<% } %>" <% if (currentPage === 'admin') { %>aria-current="page"<% } %> href="admin.ejs">Admin</a>
                     </li>
-                    <li class="nav-item" id="settingsLink" style="display: none;">
+                    <!-- Settings link, shown dynamically via JS -->
+                    <li class="nav-item settings-link" style="display: none;">
                         <a class="nav-link <% if (currentPage === 'usersettings') { %>active<% } %>" <% if (currentPage === 'usersettings') { %>aria-current="page"<% } %> href="usersettings.ejs">Settings</a>
                     </li>
                     <!-- Auth links for mobile view -->
@@ -39,8 +41,12 @@
                         <a class="nav-link" href="#" id="logoutBtnMobile">Logout</a>
                     </li>
                     <!-- Settings link for mobile view -->
-                    <li class="nav-item d-lg-none" id="settingsLinkMobile" style="display: none;">
+                    <li class="nav-item d-lg-none settings-link-mobile" style="display: none;">
                         <a class="nav-link <% if (currentPage === 'usersettings') { %>active<% } %>" href="usersettings.ejs">Settings</a>
+                    </li>
+                    <!-- Admin link for mobile view -->
+                    <li class="nav-item d-lg-none admin-link-mobile" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'admin') { %>active<% } %>" href="admin.ejs">Admin</a>
                     </li>
                     <!-- Theme toggle for mobile view -->
                     <li class="nav-item d-lg-none mt-2 ms-3">
@@ -79,14 +85,15 @@
             const registerBtn = document.getElementById('registerBtn');
             const welcomeMessage = document.getElementById('welcomeMessage');
             const logoutLink = document.getElementById('logoutLink');
-            const adminLink = document.getElementById('adminLink');
-            const settingsLink = document.getElementById('settingsLink');
+            const adminLink = document.querySelector('.admin-link a');
+            const settingsLink = document.querySelector('.settings-link');
             const loginBtnMobile = document.getElementById('loginBtnMobile');
             const registerBtnMobile = document.getElementById('registerBtnMobile');
             const welcomeMessageMobile = document.getElementById('welcomeMessageMobile');
             const welcomeTextMobile = document.getElementById('welcomeTextMobile');
             const logoutBtnMobile = document.getElementById('logoutBtnMobile');
-            const settingsLinkMobile = document.getElementById('settingsLinkMobile');
+            const settingsLinkMobile = document.querySelector('.settings-link-mobile');
+            const adminLinkMobile = document.querySelector('.admin-link-mobile a');
 
             function updateUI() {
                 if (user && user.first_name) {
@@ -100,24 +107,54 @@
                     welcomeMessageMobile.style.display = 'block';
                     welcomeTextMobile.textContent = `Welcome ${user.first_name}`;
                     logoutBtnMobile.style.display = 'block';
-                    settingsLink.style.display = 'block'; // Show Settings link when logged in
-                    settingsLinkMobile.style.display = 'block'; // Show Settings link in mobile view when logged in
-                    if (user.type === 'admin') {
-                        adminLink.style.display = 'block';
+                    settingsLink.style.display = 'block';
+                    settingsLinkMobile.style.display = 'block';
+                    // Handle user.type as either a string or an array
+                    const isAdmin = user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'));
+                    if (isAdmin) {
+                        adminLink.parentElement.style.display = 'block';
+                        adminLinkMobile.parentElement.style.display = 'block';
+                    } else {
+                        console.log('User is not admin, type is:', user.type);
                     }
                 } else {
                     loginBtn.style.display = 'inline';
                     registerBtn.style.display = 'inline';
                     welcomeMessage.style.display = 'none';
                     logoutLink.style.display = 'none';
-                    adminLink.style.display = 'none';
-                    settingsLink.style.display = 'none'; // Hide Settings link when not logged in
+                    adminLink.parentElement.style.display = 'none';
+                    settingsLink.style.display = 'none';
                     loginBtnMobile.style.display = 'block';
                     registerBtnMobile.style.display = 'block';
                     welcomeMessageMobile.style.display = 'none';
                     logoutBtnMobile.style.display = 'none';
-                    settingsLinkMobile.style.display = 'none'; // Hide Settings link in mobile view when not logged in
+                    settingsLinkMobile.style.display = 'none';
+                    adminLinkMobile.parentElement.style.display = 'none';
                 }
+            }
+
+            // Handle admin link click with client-side validation
+            if (adminLink) {
+                adminLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isAdmin = user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'));
+                    if (isAdmin) {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/login';
+                    }
+                });
+            }
+            if (adminLinkMobile) {
+                adminLinkMobile.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isAdmin = user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'));
+                    if (isAdmin) {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/login';
+                    }
+                });
             }
 
             updateUI();
@@ -128,7 +165,7 @@
                 localStorage.removeItem('user');
                 sessionStorage.removeItem('user');
                 updateUI();
-                window.location.href = 'login.ejs'; // Redirect to login after logout
+                window.location.href = 'login.ejs';
             };
 
             logoutLink.addEventListener('click', logoutHandler);
