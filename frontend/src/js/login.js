@@ -73,6 +73,7 @@ export function initLogin(hashSHA256) {
 
                 if (data.status === 'success') {
                     const { user } = data.data;
+                    console.log('User object from server:', user); // Debug log
                     // Store user data
                     if (rememberMe) {
                         localStorage.setItem('user', JSON.stringify(user));
@@ -82,21 +83,21 @@ export function initLogin(hashSHA256) {
 
                     // Show success message before redirecting
                     if (successMessage && fade) {
-                        successMessage.textContent = `Login successful! Redirecting${user.type === 'admin' ? ' to admin page' : ''}...`;
+                        successMessage.textContent = `Login successful! Redirecting${user.type && (user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'))) ? ' to admin page' : ''}...`;
                         successMessage.style.display = 'block';
                         fade.classList.remove('hidden');
 
                         setTimeout(() => {
                             // Redirect based on user type
-                            if (user.type === 'admin') {
+                            if (user.type && (user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin')))) {
                                 window.location.href = '/admin';
                             } else {
-                                window.location.href = '/'; // Root route serves index.ejs
+                                window.location.href = '/';
                             }
                         }, 1500);
                     } else {
                         // If success message elements are missing, redirect immediately
-                        if (user.type === 'admin') {
+                        if (user.type && (user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin')))) {
                             window.location.href = '/admin';
                         } else {
                             window.location.href = '/';
