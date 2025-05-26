@@ -11,7 +11,10 @@
  * - Category displayed as "Unknown" for all products
  * - Simplified category handling to match reference code
  * - Fixed "Unknown" category by fetching products per category using filters.departments
- * Last updated: 12:19 AM SAST on Tuesday, May 27, 2025
+ * - Fixed 400 Bad Request for Add/Category by sending 'name' instead of 'category_name'
+ * - Fixed category counts by ensuring categories are loaded before products and mapping category_id correctly
+ * - Fixed success message handling to accept 201 status code
+ * Last updated: 12:39 AM SAST on Tuesday, May 27, 2025
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -32,8 +35,9 @@ document.addEventListener("DOMContentLoaded", function () {
  * Sets up the admin dashboard with API data and wires up event handlers
  */
 async function initializeAdminDashboard() {
-    // Load categories first to ensure availability for product mapping
+    // Load categories first to ensure they are available for product mapping
     await loadCategories();
+    // Load other data after categories
     await Promise.all([
         loadProducts(),
         loadRetailers(),
@@ -91,7 +95,7 @@ async function loadProducts() {
             if (result.status === "success" && Array.isArray(result.data)) {
                 const productsWithCategory = result.data.map(product => ({
                     ...product,
-                    category_id: category.id
+                    category_id: category.id // Assign category_id based on the category
                 }));
                 allProducts.push(...productsWithCategory);
             } else {
@@ -118,10 +122,17 @@ async function loadProducts() {
             const existingIds = new Set(allProducts.map(p => p.id));
             const uncategorizedProducts = result.data
                 .filter(product => !existingIds.has(product.id))
-                .map(product => ({
-                    ...product,
-                    category_id: "" // Mark as uncategorized
-                }));
+                .map(product => {
+                    // Try to match the product to a category based on category_id if provided by the API
+                    const productCategoryId = product.category_id?.toString();
+                    const category = productCategoryId
+                        ? categories.find(cat => cat.id === productCategoryId)
+                        : null;
+                    return {
+                        ...product,
+                        category_id: category ? category.id : "" // Use category_id if matched, else mark as uncategorized
+                    };
+                });
             allProducts.push(...uncategorizedProducts);
         }
 
@@ -228,11 +239,16 @@ async function loadCategories() {
         console.log("Categories API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            categories = result.data.map((category) => ({
-                id: category.id?.toString() || category.cat_id?.toString() || "",
-                name: category.cat_name || "Unknown",
-                productCount: category.product_count || 0,
-            }));
+            categories = result.data.map((category) => {
+                const categoryId = category.id?.toString() || category.cat_id?.toString() || "";
+                // Calculate productCount by counting products with this category_id
+                const productCount = products.filter(p => p.category_id === categoryId).length;
+                return {
+                    id: categoryId,
+                    name: category.cat_name || "Unknown",
+                    productCount: productCount,
+                };
+            });
 
             tbody.innerHTML = "";
             if (categories.length === 0) {
@@ -790,7 +806,7 @@ function setupModalHandlers() {
 
                     data = {
                         ...data,
-                        product_id: formData.get("productId") || undefined, // Changed from productid to product_id
+                        product_id: formData.get("productId") || undefined,
                         category_id: categoryId,
                         brand_id: brandId,
                         title: title,
@@ -808,16 +824,52 @@ function setupModalHandlers() {
                         retail_details: retailDetails.length ? retailDetails : undefined,
                     };
                     endpoint = data.product_id ? "Update/Product" : "Add/Product";
-                } else {
+                } else if (entity === "Category") {
+                    const categoryName = formData.get("categoryName") || "";
+                    if (!categoryName) {
+                        alert("Please enter a category name.");
+                        form.querySelector('#categoryName').focus();
+                        return;
+                    }
                     data = {
                         ...data,
-                        id: formData.get(`${entity.toLowerCase()}Id`) || undefined,
-                        [`${entity.toLowerCase()}_name`]: formData.get(`${entity.toLowerCase()}Name`) || "",
-                        ...(entity === "Retailer" && {
-                            website: formData.get("retailerWebsite") || "",
-                        }),
+                        id: formData.get("categoryId") || undefined,
+                        name: categoryName,
                     };
-                    endpoint = data.id ? `Update/${entity}` : `Add/${entity}`;
+                    endpoint = data.id ? "Update/Category" : "Add/Category";
+                } else if (entity === "Retailer") {
+                    const retailerName = formData.get("retailerName") || "";
+                    const website = formData.get("retailerWebsite") || "";
+                    if (!retailerName) {
+                        alert("Please enter a retailer name.");
+                        form.querySelector('#retailerName').focus();
+                        return;
+                    }
+                    if (!website) {
+                        alert("Please enter a retailer website.");
+                        form.querySelector('#retailerWebsite').focus();
+                        return;
+                    }
+                    data = {
+                        ...data,
+                        id: formData.get("retailerId") || undefined,
+                        retailer_name: retailerName,
+                        website: website,
+                    };
+                    endpoint = data.id ? "Update/Retailer" : "Add/Retailer";
+                } else if (entity === "Brand") {
+                    const brandName = formData.get("brandName") || "";
+                    if (!brandName) {
+                        alert("Please enter a brand name.");
+                        form.querySelector('#brandName').focus();
+                        return;
+                    }
+                    data = {
+                        ...data,
+                        id: formData.get("brandId") || undefined,
+                        brand_name: brandName,
+                    };
+                    endpoint = data.id ? "Update/Brand" : "Add/Brand";
                 }
 
                 console.log(`Saving ${entity}, endpoint: ${endpoint}, data:`, data);
@@ -831,7 +883,7 @@ function setupModalHandlers() {
                     const result = await response.json();
                     console.log(`${entity} API response:`, result);
 
-                    if (response.status === 200 && result.status === "success") {
+                    if ((response.status === 200 || response.status === 201) && result.status === "success") {
                         alert(`${entity} ${data.id || data.product_id ? "updated" : "saved"} successfully! Message: ${result.message}`);
                         const modalElement = document.getElementById(modalId);
                         if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -1134,7 +1186,7 @@ function setupModalHandlers() {
             const retailerId = e.target.closest(".delete-retailer").getAttribute("data-retailer-id");
             if(confirm("Are you sure you want to delete this retailer?")) {
                 try {
-                    const response = await fetch("http://localhost:3000/Remove/Retailer", {
+                    const response = await fetch("http://localhost:3000/Replace/Retailer", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
