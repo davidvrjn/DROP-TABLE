@@ -2,7 +2,7 @@
  * Static Admin Test Script
  * This script provides functionality for the admin dashboard
  * It loads data from the API and sets up event handlers for admin operations
- * UPDATED TO CHECK ADMIN LOGIN AND ADD WISHLIST FUNCTIONALITY WITH DOUBLE HASHING
+ * UPDATED TO CHECK ADMIN LOGIN AND ADD WISHLIST FUNCTIONALITY
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -60,7 +60,6 @@ async function loadProducts() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 userid: localStorage.getItem("userId"),
-                apikey: localStorage.getItem("apikey"), // Include apikey for wishlist check
             }),
         });
         const result = await response.json();
@@ -69,11 +68,11 @@ async function loadProducts() {
                 id: product.id,
                 name: product.title,
                 image: product.image_url,
-                category: product.category_name || "Unknown", // Adjust based on API response
-                minPrice: product.final_price,
-                maxPrice: product.initial_price,
+                category: product.category_name || "Unknown",
+                minPrice: parseFloat(product.final_price) || 0,
+                maxPrice: parseFloat(product.initial_price) || 0,
                 retailers: [product.retailer_name],
-                brand: product.brand_name || "Unknown", // Adjust based on API response
+                brand: product.brand_name || "Unknown",
                 watchlist: product.watchlist || false,
             }));
 
@@ -161,7 +160,7 @@ async function loadCategories() {
         categories = result.data.map((category) => ({
             id: category.cat_id,
             name: category.cat_name,
-            productCount: 0, // Adjust based on API response if available
+            productCount: 0,
         }));
 
         if (categories.length === 0) {
@@ -220,8 +219,8 @@ async function loadRetailers() {
         retailers = result.data.map((retailer) => ({
             id: retailer.retailer_id,
             name: retailer.retailer_name,
-            website: "#", // Adjust based on API response if available
-            productCount: 0, // Adjust based on API response if available
+            website: "#",
+            productCount: 0,
         }));
 
         if (retailers.length === 0) {
@@ -281,7 +280,7 @@ async function loadBrands() {
         brands = result.data.map((brand) => ({
             id: brand.brand_id,
             name: brand.brand_name,
-            productCount: 0, // Adjust based on API response if available
+            productCount: 0,
         }));
 
         if (brands.length === 0) {
@@ -668,7 +667,7 @@ async function setupModalHandlers() {
                                     initial_price: parseFloat(
                                         retailerPrices[i]
                                     ),
-                                    final_price: parseFloat(retailerPrices[i]), // Adjust if discount is used
+                                    final_price: parseFloat(retailerPrices[i]),
                                 });
                             }
                         }
@@ -947,9 +946,8 @@ async function setupModalHandlers() {
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
                                 userid: localStorage.getItem("userId"),
-                                apikey: localStorage.getItem("apikey"),
                                 productid: productId,
-                                retailerid: product.retailers[0], // Assuming first retailer for simplicity
+                                retailerid: product.retailers[0],
                                 action: product.watchlist ? "remove" : "add",
                             }),
                         }
@@ -967,20 +965,4 @@ async function setupModalHandlers() {
             }
         }
     });
-}
-
-// ===== UTILITY FUNCTIONS =====
-
-/**
- * Double hashes a password using bcrypt (client-side) before sending
- * @param {string} password - The plaintext password
- * @returns {Promise<string>} - The double-hashed password
- */
-async function doubleHashPassword(password) {
-    if (!password || new TextEncoder().encode(password).length > 72) {
-        throw new Error("Password must be present and less than 72 bytes");
-    }
-    const bcrypt = require("bcryptjs");
-    const firstHash = await bcrypt.hash(password, 10);
-    return await bcrypt.hash(firstHash, 10);
 }
