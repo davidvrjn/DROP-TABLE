@@ -131,7 +131,6 @@ Response Example
             last_name: "Senna",
             role: "admin",
             watchlist_id: 2,
-            preferences: "dark",
             DOB?:, (Possibly removed)
         }
     }
@@ -170,7 +169,6 @@ Example response
             last_name: "Hamilton",
             role: "user",
             watchlist_id: 21,
-            preferences: "dark",
             DOB?:, (Possibly removed)
         }
     }
@@ -419,22 +417,6 @@ Example response
 ```
 Possible response codes:
 + 200
-
-## Update/Preferences
-Example request
-```
-{
-    userid: 3,
-    preferences: "dark"
-}
-```
-Example response
-```
-{
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
-}
-```
 
 ## Remove/Product
 //Remove retailer from update
