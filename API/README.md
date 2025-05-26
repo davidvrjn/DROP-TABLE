@@ -26,7 +26,7 @@ Request example
         search: "Keyboard"
     }
     ordering:{
-        field: "Price",
+        field: "final_price",
         order: "ASC"
     }
     limit: 30
