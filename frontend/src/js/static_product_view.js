@@ -186,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 wishlistBtn.innerHTML = `<i class="bi bi-heart-fill"></i> Added to Watchlist`;
             } else {
                 console.error("Failed to add:", result.message);
-                alert("Failed to add to watchlist.");
+                alert("Already added to watchlist!.");
             }
         } catch (error) {
             console.error("Network error:", error);
@@ -269,7 +269,11 @@ function showRetailerPricesModal(retailers) {
                     <tr>
                         <td>${r.retailer_name}</td>
                         <td>R${parseFloat(r.final_price).toFixed(2)}</td>
-                        <td>${parseFloat(((r.initial_price - r.final_price)/r.initial_price)*100).toFixed(0)}%</td>
+                        <td>${parseFloat(
+                            ((r.initial_price - r.final_price) /
+                                r.initial_price) *
+                                100
+                        ).toFixed(0)}%</td>
                     </tr>`
                     )
                     .join("")}
