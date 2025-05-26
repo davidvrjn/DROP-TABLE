@@ -43,12 +43,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         conn = await pool.getConnection();
         let where = [];
         let values = [];
-        let userIdCondition = "";
-        if(req.body['userid']){
-            const userid = req.body['userid'];
-            userIdCondition = "AND W.user_id = ?";
-            values.push(userid);
-        }
+        values.push(req.body['userid'] || 0);
         if (req.body['filters']) {
             const filters = req.body['filters'];
             if (filters['brands'] && filters['brands'].length > 0) {
@@ -84,13 +79,12 @@ app.post('/Get/Products', express.json(), async (req, res) => {
         }
 
         
-
-        let baseQuery = "SELECT P.id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, B.name AS brand, cat_name FROM Product AS P INNER JOIN Product_Retailer AS PR ON P.id = PR.product_id INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Brand AS B ON B.id = P.brand_id INNER JOIN Category AS C ON C.id = P.category_id LEFT JOIN Review AS RT ON RT.product_id = P.id";
+        let baseQuery = "SELECT P.id, P.image_url, P.title, PR.final_price, PR.initial_price, R.name, R.id AS rID, ((PR.initial_price - PR.final_price)/PR.initial_price) AS Discount, AVG(RT.score) AS Rating, B.name AS brand, C.cat_name, CASE WHEN EXISTS (SELECT 1 FROM Watchlist_Item WHERE user_id = ? AND product_id = P.id) THEN TRUE ELSE FALSE END AS watchlist FROM Product AS P INNER JOIN Product_Retailer AS PR ON P.id = PR.product_id INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Brand AS B ON B.id = P.brand_id INNER JOIN Category AS C ON C.id = P.category_id LEFT JOIN Review AS RT ON RT.product_id = P.id";
         if (where.length > 0) {
             baseQuery += " WHERE " + where.join(" AND ");
         }
 
-        baseQuery += " GROUP BY P.id, C.id, B.id";
+        baseQuery += " GROUP BY P.id, C.id, B.id, R.id";
 
         let orderConditions = [];
         const allowedFields = ["title", "final_price", "initial_price", "Discount", "Rating"];
@@ -116,7 +110,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
             values.push(req.body['limit']);
             baseQuery += `LIMIT ?`;
         }
-        
+
         const rows = await conn.query(baseQuery, values);
 
         //Retrieved products without wishlist field, that will be added later
@@ -134,7 +128,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
                "rating": product.Rating,
                "initial_price": product.initial_price,
                "discount": product.discount,
-               "watchlist": false
+               "watchlist": product.watchlist
             })
         });
 
