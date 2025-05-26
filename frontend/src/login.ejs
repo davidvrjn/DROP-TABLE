@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="light">
 <head>
-    <%- include('./partials/_head.ejs', { pageTitle: 'Product Details - Price Checker' }) %>
+    <%- include('./partials/_head.ejs') %>
     <style>
         .fade {
             position: fixed;
@@ -30,69 +30,52 @@
             padding: 20px;
             border-radius: 5px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* Added for better visibility */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
     <!-- # HEADER SEGMENT # -->
-    <%- include('./partials/_header.ejs', { currentPage: 'register' }) %>
+    <%- include('./partials/_header.ejs', { currentPage: 'login' }) %>
 
     <div class="container mt-5">
         <div class="row">
             <div class="col-md-6 mx-auto">
                 <div class="card shadow-sm">
                     <div class="card-body p-5">
-                        <h1 class="display-6 fw-bold text-center mb-4">Create Account</h1>
+                        <h1 class="display-6 fw-bold text-center mb-4">Login</h1>
                         
-                        <form id="registerForm">
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="firstName" class="form-label">First Name</label>
-                                    <input type="text" class="form-control" id="firstName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="lastName" class="form-label">Last Name</label>
-                                    <input type="text" class="form-control" id="lastName" required>
-                                </div>
-                            </div>
-                            
+                        <form id="loginForm">
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
                                 <input type="email" class="form-control" id="email" required>
-                                <div class="form-text">We'll never share your email with anyone else.</div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <input type="password" class="form-control" id="password" required>
-                                <div class="form-text">
-                                    Password must be at least 8 characters and contain:
-                                    <ul class="mb-0 ps-3 mt-1">
-                                        <li>One uppercase letter</li>
-                                        <li>One lowercase letter</li>
-                                        <li>One number</li>
-                                        <li>One special character</li>
-                                    </ul>
-                                </div>
                             </div>
                             
-                            <div class="mb-3">
-                                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                                <input type="password" class="form-control" id="confirmPassword" required>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="rememberMe">
+                                <label class="form-check-label" for="rememberMe">Remember me</label>
                             </div>
                             
                             <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary">Register</button>
+                                <button type="submit" class="btn btn-primary">Login</button>
                             </div>
                             
                             <div id="error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+                            
+                            <div class="text-center mt-3">
+                                <button type="button" id="forgotPasswordBtn" class="btn btn-link text-decoration-none p-0">Forgot password?</button>
+                            </div>
                         </form>
                         
                         <hr class="my-4">
                         
                         <div class="text-center">
-                            <p>Already have an account? <a href="/login" class="text-decoration-none">Login</a></p>
+                            <p>Don't have an account? <a href="register.ejs" class="text-decoration-none">Register</a></p>
                         </div>
                     </div>
                 </div>
@@ -122,8 +105,8 @@
 
         document.addEventListener('DOMContentLoaded', async function() {
             initPasswordEye();
-            const { initRegister } = await import('./js/register.js');
-            initRegister(hashSHA256); // Pass the hash function to register.js
+            const { initLogin } = await import('./js/login.js');
+            initLogin(hashSHA256); // Pass the hash function to login.js
         });
     </script>
 </body>
