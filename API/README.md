@@ -129,7 +129,7 @@ Response Example
             first_name: "Ayrton",
             username: "CompareIt_Senna,
             last_name: "Senna",
-            role: "admin",
+            type: "admin",
             watchlist_id: 2,
             DOB?:, (Possibly removed)
         }
@@ -153,7 +153,7 @@ Example request
     last_name: "Hamilton",
     username: "7LewisHam44",
     password: "Red>Silver2025",
-    role: "user"
+    type: "user"
 }
 ```
 Example response
@@ -167,7 +167,7 @@ Example response
             first_name: "Lewis",
             username: "7LewisHam44",
             last_name: "Hamilton",
-            role: "user",
+            type: "user",
             watchlist_id: 21,
             DOB?:, (Possibly removed)
         }
