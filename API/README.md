@@ -464,15 +464,15 @@ Possible response codes:
 Example request
 ```
 {
-    id:
-    userid: //validation
+    id: 3,
+    userid: 2
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Category removed"
 }
 ```
 Possible response codes:
@@ -482,15 +482,15 @@ Possible response codes:
 Example request
 ```
 {
-    watchlist_id/userid:
-    product_id:
+    userid: 5,
+    product_id: 7
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Product removed from Watchlist deleted successfully"
 }
 ```
 Possible response codes:
