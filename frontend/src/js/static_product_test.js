@@ -10,7 +10,7 @@ import { createProductCardHTML } from "../partials/_product-card.js";
 async function fetchProducts({
     filters = {},
     ordering = {},
-    limit = 1000,
+    limit = 100,
     userid = null,
 } = {}) {
     try {
@@ -562,7 +562,6 @@ function applyFilters() {
         if (activeFilters.ratings.length === 0) {
             activeFilters.ratings = [0];
         }
-        console.log(activeFilters);
 
         const products = await fetchProducts({
             filters: {
