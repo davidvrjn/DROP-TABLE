@@ -130,7 +130,6 @@ Response Example
             username: "CompareIt_Senna,
             last_name: "Senna",
             type: "admin",
-            watchlist_id: 2,
             DOB?:, (Possibly removed)
         }
     }
@@ -168,8 +167,7 @@ Example response
             username: "7LewisHam44",
             last_name: "Hamilton",
             type: "user",
-            watchlist_id: 21,
-            DOB?:, (Possibly removed)
+            DOB?: (Possibly removed)
         }
     }
 }
@@ -207,7 +205,7 @@ Possible response codes:
 Example request
 ```
 {
-    watchlist_id:, //could be userid not fully convinced on watchlist_id
+    userid: 3
 }
 ```
 Example response
@@ -252,20 +250,20 @@ Example response
 Possible response codes:
 unknown
 
-## Add/ToWishlist
+## Add/ToWatchlist
 Example request
 ```
 {
-    product_id:
-    retailer_id: //used to get name and prices
-    watchlist/userid:
+    product_id: 3,
+    retailer_id: 2,
+    userid: 3
 }
 ```
 Example response
 ```
 {
-    status:
-    message: Error or something along the lines of inserted watchlist successfully
+    status: "success",
+    message: "New Item added to Watchlist"
 }
 ```
 Possible response codes:
@@ -275,17 +273,17 @@ Possible response codes:
 Example request
 ```
 {
-    product_id:
-    userid:
-    score:
-    message:
+    product_id: 3,
+    userid: 6,
+    score: 4,
+    message: "Product performs as expected."
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted watchlist successfully
+    status: "success",
+    message: "New Item added to Review"
 }
 ```
 Possible response codes:
