@@ -16,8 +16,7 @@ export function createProductCardHTML(product) {
       <div class="col-md-4 mb-3">
           <div class="card h-100">
               <a href="view.html?id=${product.id}&retailerId=${
-        product.retailer_id
-    }">
+        product.retailer_id}">
                   <img src="${
                       product.image_url
                   }" class="card-img-top product-thumbnail" alt="${
@@ -25,9 +24,9 @@ export function createProductCardHTML(product) {
     }">
               </a>
               <div class="card-body d-flex flex-column"> 
-                  <a href="view.html?id=${
-                      product.id
-                  }" class="text-decoration-none product-title-link">
+                  <a href="view.html?id=${product.id}&retailerId=${
+        product.retailer_id}
+                  " class="text-decoration-none product-title-link">
                       <h5 class="card-title">${product.title}</h5>  
                   </a>
                   <div class="mt-auto"> 
@@ -49,9 +48,9 @@ export function createProductCardHTML(product) {
                           }</span>  
                       </div>
                       <div class="d-flex justify-content-between align-items-center mt-2">
-                          <a href="view.html?id=${
-                              product.id
-                          }" class="btn btn-primary btn-sm text-nowrap">View Product</a>
+                          <a href="view.html?id=${product.id}&retailerId=${
+        product.retailer_id}
+        " class="btn btn-primary btn-sm text-nowrap">View Product</a>
                           ${
                               product.rating
                                   ? `
