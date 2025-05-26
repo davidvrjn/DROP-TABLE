@@ -163,7 +163,7 @@ app.post('/Get/Product/:productID/:retailerID', express.json(), async (req, res)
         conn = await pool.getConnection();
         const productID = req.params.productID;
         const retailerID = req.params.retailerID;
-
+        await conn.beginTransaction();
         var rows = await conn.query("SELECT P.id AS id, image_url, title, description, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, images, specifications, features, CASE WHEN EXISTS (SELECT 1 FROM Watchlist_Item WHERE user_id = ? AND product_id = P.id) THEN TRUE ELSE FALSE END AS watchlist FROM Product_Retailer AS PR INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Product AS P ON P.id = PR.product_id LEFT JOIN Review AS RT ON RT.product_id = PR.product_id WHERE P.id = ? AND retailer_id = ?", [`${req.body['userid'] || 0}`,`${productID}`, `${retailerID}`]);
         if (rows.length == 0) {
             res.status(404).send({
@@ -185,6 +185,7 @@ app.post('/Get/Product/:productID/:retailerID', express.json(), async (req, res)
         //Query to retrieve all reviews of selected product, retailer shouldnt be involved from what I understand.
         //Correct
         rows = await conn.query("SELECT CONCAT(first_name, ' ', last_name) AS username, score, comment FROM Review AS R INNER JOIN User AS U ON U.user_id = R.user_id WHERE product_id = ?", [`${productID}`]);
+        await conn.commit();
         rows.forEach(review => {
             allReviews.push({
                 r_Username: review.username,
@@ -1198,6 +1199,7 @@ app.post('/Add/Product', express.json(), async (req, res) => {
             return;
         }
 
+        await conn.beginTransaction();
         const inserted = await conn.query('INSERT INTO Product(`category_id`,`brand_id`,`title`,`description`,`created_at`,`updated_at`, `image_url`, `images`, `specifications`, `features`) VALUES(?,?,?,?,?,?,?,?,?,?)', [category_id, brand_id, title, description, new Date().toISOString().slice(0, 19).replace("T", " "), new Date().toISOString().slice(0, 19).replace("T", " "), image_url, `[${images}]`, JSON.stringify(specifications), JSON.stringify(features)]); //<=========sql for insert user here
         if(inserted.affectedRows != 1){
             res.status(409).send({status: "error", message:"An unexpected amount of rows was inserted into the database investigate immeaditely"});
@@ -1229,7 +1231,8 @@ app.post('/Add/Product', express.json(), async (req, res) => {
         placeholder = placeholder.slice(0, -2);
 
         const baseQuery = `INSERT INTO Product_Retailer VALUES ${placeholder}`
-        await conn.query(baseQuery, values) 
+        await conn.query(baseQuery, values);
+        await conn.commit(); 
 
         res.status(201).send({ status: 'success', message: 'Product inserted successfully' });
         return;
@@ -1449,6 +1452,7 @@ app.post('/Update/Product', express.json(), async (req, res) => {
             return;
         }
 
+        await conn.beginTransaction();
         const updated = await conn.query("UPDATE Product SET category_id = ?, brand_id = ?, title = ?, description = ?, updated_at = ?, image_url = ?, images = ?, specifications = ?, features = ? WHERE id = ?", [category_id, brand_id, title, description, new Date().toISOString().slice(0, 19).replace('T', ' '), image_url, `[${images}]`, JSON.stringify(specifications), JSON.stringify(features), product_id]);
         if(updated.affectedRows != 1){
             res.status(409).send({status: "error", message:"An unexpected amount of rows was updated into the database investigate immeaditely"});
@@ -1484,7 +1488,7 @@ app.post('/Update/Product', express.json(), async (req, res) => {
                 await conn.query("INSERT INTO Product_Retailer VALUES(?,?,?,?,?)", values);
             }
         }
-
+        await conn.commit();
         res.status(200).send({ status: 'success', message: 'Product updated successfully' });
         return;
     } catch (err) {
@@ -1547,15 +1551,15 @@ app.post('/Remove/Product', express.json(), async (req, res) => {
     }
 
     try {
-        const { user_id, product_id } = req.body;
+        const { userid, product_id } = req.body;
 
-        if (!user_id || !product_id) {
+        if (!userid || !product_id) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
@@ -1564,9 +1568,13 @@ app.post('/Remove/Product', express.json(), async (req, res) => {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
-
-        conn = await pool.getConnection();
-        const updated = await conn.query('SQL query to delete a product???', [user_id]);
+        
+        //Deleting from watchlist_item first
+        await conn.beginTransaction();
+        await conn.query("DELETE FROM Watchlist_Item WHERE product_id = ?", [product_id]);
+        await conn.query("DELETE FROM Product_Retailer WHERE product_id = ?", [product_id]);
+        const updated = await conn.query('DELETE FROM Product WHERE id = ?', [product_id]);
+        await conn.commit();
 
         if (updated.affectedRows === 1) {
             res.status(200).send({ status: 'success', message: 'Product deleted successfully' });
