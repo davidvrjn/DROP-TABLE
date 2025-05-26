@@ -27,7 +27,7 @@ Request example
     }
     ordering:{
         field: "Price",
-        order: "Ascending"
+        order: "ASC"
     }
     limit: 30
 }
@@ -35,24 +35,22 @@ Request example
 Response example
 ```
 {
-    status: "success/error",
-    //If error
-    message:
-    //if success
+    status: "success",
     data: [
         {
-            id:,
-            image_url:,
-            title:,
-            final_price:,
-            retailer_name:,
-            rating:,
-            initial_price:,
-            discount:,
+            id: 2,
+            image_url: "https://m.media-amazon.com/images/I/51Sc2182SPL._AC_SL1000_.jpg",
+            title: "Astrum KB350 USB Mini Slim Wired Keyboard",
+            final_price: 700,
+            retailer_name: "Amazon",
+            retailer_id: 3,
+            rating: 3,
+            initial_price: 1000,
+            discount: 30,
             watchlist: true
         }
     ]
-    total: 
+    total: 1
 }
 ```
 Possible response codes:
