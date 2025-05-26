@@ -114,27 +114,24 @@ Possible Response Codes:
 Request Example
 ```
 {
-    email:,
-    password:
+    email: "a.senna@admin.compareit.co.za",
+    password: "Password#19"
 }
 ```
 Response Example
 ```
 {
-    status: success or error
-    //if error
-    message:
-    //if success
+    status: "success",
     data: {
         user: {
-            id:,
-            email:,
-            first_name:,
-            username:,
-            last_name:,
-            role:,
-            watchlist_id:,
-            preferences:,
+            id: 3,
+            email: "a.senna@admin.compareit.co.za",
+            first_name: "Ayrton",
+            username: "CompareIt_Senna,
+            last_name: "Senna",
+            role: "admin",
+            watchlist_id: 2,
+            preferences: "dark",
             DOB?:, (Possibly removed)
         }
     }
