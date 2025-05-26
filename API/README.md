@@ -209,15 +209,16 @@ Example request
 Example response
 ```
 {
+    status: "success",
     data: [
         {
-            id:,
-            image_url:,
-            title:,
-            final_price:,
-            retailer_name:,
-            rating:,
-            initial_price:,
+            id: 3,
+            image_url: "https://m.media-amazon.com/images/I/61uk5YYRa+L._AC_SL1500_.jpg",
+            title: "Disney Stitch Soft Touch Light with Bluetooth Speaker",
+            final_price: 300,
+            retailer_name: "Amazon",
+            rating: 4,
+            initial_price: 750
         }
     ]
 }
@@ -225,23 +226,22 @@ Example response
 Possible response codes:
 + 200
 
-## Get/allRetailPrices
+## Get/RetailPrices
 Example request
 ```
 {
-    product_id:
+    product_id: 13
 }
 ```
 Example response
 ```
 {
-    status:
-    [message]:
+    status: "success"
     [data]: {
-        retailer_name:,
-        initial_price:,
-        final_price:,
-        discount:,
+        retailer_name: "Amazon",
+        initial_price: 1000,
+        final_price: 500,
+        discount: 50,
     }
 }
 ```
