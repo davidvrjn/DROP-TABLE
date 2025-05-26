@@ -22,6 +22,9 @@
                     <li class="nav-item" id="adminLink" style="display: none;">
                         <a class="nav-link <% if (currentPage === 'admin') { %>active<% } %>" <% if (currentPage === 'admin') { %>aria-current="page"<% } %> href="admin.ejs">Admin</a>
                     </li>
+                    <li class="nav-item" id="settingsLink" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'usersettings') { %>active<% } %>" <% if (currentPage === 'usersettings') { %>aria-current="page"<% } %> href="usersettings.ejs">Settings</a>
+                    </li>
                     <!-- Auth links for mobile view -->
                     <li class="nav-item d-lg-none" id="loginLinkMobile">
                         <a class="nav-link" href="login.ejs" id="loginBtnMobile">Login</a>
@@ -34,6 +37,10 @@
                     </li>
                     <li class="nav-item d-lg-none" id="logoutLinkMobile" style="display: none;">
                         <a class="nav-link" href="#" id="logoutBtnMobile">Logout</a>
+                    </li>
+                    <!-- Settings link for mobile view -->
+                    <li class="nav-item d-lg-none" id="settingsLinkMobile" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'usersettings') { %>active<% } %>" href="usersettings.ejs">Settings</a>
                     </li>
                     <!-- Theme toggle for mobile view -->
                     <li class="nav-item d-lg-none mt-2 ms-3">
@@ -73,11 +80,13 @@
             const welcomeMessage = document.getElementById('welcomeMessage');
             const logoutLink = document.getElementById('logoutLink');
             const adminLink = document.getElementById('adminLink');
+            const settingsLink = document.getElementById('settingsLink');
             const loginBtnMobile = document.getElementById('loginBtnMobile');
             const registerBtnMobile = document.getElementById('registerBtnMobile');
             const welcomeMessageMobile = document.getElementById('welcomeMessageMobile');
             const welcomeTextMobile = document.getElementById('welcomeTextMobile');
             const logoutBtnMobile = document.getElementById('logoutBtnMobile');
+            const settingsLinkMobile = document.getElementById('settingsLinkMobile');
 
             function updateUI() {
                 if (user && user.first_name) {
@@ -91,6 +100,8 @@
                     welcomeMessageMobile.style.display = 'block';
                     welcomeTextMobile.textContent = `Welcome ${user.first_name}`;
                     logoutBtnMobile.style.display = 'block';
+                    settingsLink.style.display = 'block'; // Show Settings link when logged in
+                    settingsLinkMobile.style.display = 'block'; // Show Settings link in mobile view when logged in
                     if (user.type === 'admin') {
                         adminLink.style.display = 'block';
                     }
@@ -100,10 +111,12 @@
                     welcomeMessage.style.display = 'none';
                     logoutLink.style.display = 'none';
                     adminLink.style.display = 'none';
+                    settingsLink.style.display = 'none'; // Hide Settings link when not logged in
                     loginBtnMobile.style.display = 'block';
                     registerBtnMobile.style.display = 'block';
                     welcomeMessageMobile.style.display = 'none';
                     logoutBtnMobile.style.display = 'none';
+                    settingsLinkMobile.style.display = 'none'; // Hide Settings link in mobile view when not logged in
                 }
             }
 
@@ -120,8 +133,6 @@
 
             logoutLink.addEventListener('click', logoutHandler);
             if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', logoutHandler);
-
-            // Ensure theme toggle syncs with script.js (already handled by script.js)
         });
     </script>
 </header>

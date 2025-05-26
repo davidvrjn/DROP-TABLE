@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <%- include('./partials/_head.ejs') %>
+    <%- include('./partials/_head.ejs', { pageTitle: 'User Settings - Price Checker' }) %>
 </head>
 <body>
+    <!-- Client-side login check -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            if (!user || !user.first_name) {
+                window.location.href = '/login.ejs';
+            }
+        });
+    </script>
+
     <!-- # HEADER SEGMENT # -->
-    <%- include('./partials/_header.ejs', { currentPage: 'settings' }) %>
+    <%- include('./partials/_header.ejs', { currentPage: 'usersettings' }) %>
 
     <div class="container mt-5">
         <div class="row">

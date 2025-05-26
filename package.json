@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "COS221 Assignment 5 Repo",
   "scripts": {
-    "dev": "parcel src/index.ejs src/view.ejs",
-    "build": "parcel build src/index.ejs src/view.ejs --dist-dir dist",
+    "dev": "parcel src/index.ejs src/login.ejs src/register.ejs src/deals.ejs src/watchlist.ejs src/about.ejs src/admin.ejs src/usersettings.ejs src/view.ejs",
+    "build": "parcel build src/index.ejs src/login.ejs src/register.ejs src/deals.ejs src/watchlist.ejs src/about.ejs src/admin.ejs src/usersettings.ejs src/view.ejs --dist-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,17 +22,10 @@
     "@parcel/transformer-sass": "^2.15.0",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.6",
-    "buffer": "^6.0.3",
-    "crypto-browserify": "^3.12.1",
     "ejs": "^3.1.10",
-    "events": "^3.3.0",
     "parcel": "^2.15.0",
     "parcel-transformer-ejs": "^1.0.1",
-    "process": "^0.11.10",
-    "sass": "^1.88.0",
-    "stream-browserify": "^3.0.0",
-    "string_decoder": "^1.3.0",
-    "vm-browserify": "^1.1.2"
+    "sass": "^1.88.0"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2"
