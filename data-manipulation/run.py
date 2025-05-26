@@ -67,9 +67,11 @@ def copyfiles():
     files_to_copy = [
         ('original-data', 'brands.sql'),
         ('original-data', 'categories.sql'),
+        ('original-data', 'users.sql'),
         ('manipulated-data', 'retailers.sql'),
         ('manipulated-data', 'product_retailers.sql'),
-        ('manipulated-data', 'merged_products.sql', 'products.sql')
+        ('manipulated-data', 'merged_products.sql', 'products.sql'),
+        ('manipulated-data','reviews.sql')
     ]
     
     for entry in files_to_copy:
@@ -97,6 +99,71 @@ def copyfiles():
     
     print("\n🎉 All operations completed successfully!")
 
+def createSQL():
+    print("\n🔵 Creating final SQL file...")
+    
+    # Define paths
+    current_dir = Path(__file__).parent
+    schema_file = current_dir / 'db-schema' / 'DROP-TABLE.sql'
+    final_statements_dir = current_dir / 'Final Statements'
+    output_file = current_dir / 'DROP-TABLE-COMPLETE.sql'
+    
+    # Define the order of data files to maintain referential integrity
+    # Order matters: tables with foreign keys should come after their referenced tables
+    data_files_order = [
+        'brands.sql',        # No foreign keys
+        'categories.sql',    # No foreign keys
+        'users.sql',         # No foreign keys
+        'retailers.sql',     # No foreign keys
+        'products.sql',      # References brands and categories
+        'product_retailers.sql', # References products and retailers
+        'reviews.sql'        # References users and products
+    ]
+    
+    try:
+        # Start with the schema
+        with open(schema_file, 'r') as f:
+            schema_content = f.read()
+        
+        # Create the output file with schema
+        with open(output_file, 'w') as out_f:
+            out_f.write(schema_content)
+            
+            # Add a separator and comment
+            out_f.write("\n\n-- --------------------------------------------------------\n")
+            out_f.write("-- Data Import\n")
+            out_f.write("-- --------------------------------------------------------\n\n")
+            
+            # Append each data file in the specified order
+            for data_file in data_files_order:
+                data_file_path = final_statements_dir / data_file
+                
+                if data_file_path.exists():
+                    print(f"✅ Adding data from {data_file}")
+                    with open(data_file_path, 'r') as f:
+                        data_content = f.read()
+                    
+                    # Add a comment indicating which data file is being added
+                    out_f.write(f"-- Data from {data_file}\n")
+                    out_f.write(data_content)
+                    out_f.write("\n\n")
+                else:
+                    print(f"🔴 Warning: {data_file} not found in Final Statements directory")
+        
+        print(f"✅ Complete SQL file created at {output_file}")
+        print("\n🎉 Database creation file is ready for import!")
+        
+        # Delete the Final Statements directory after successful SQL file creation
+        try:
+            if final_statements_dir.exists():
+                shutil.rmtree(final_statements_dir)
+                print(f"✅ Cleaned up {final_statements_dir}")
+        except Exception as e:
+            print(f"🔴 Failed to delete Final Statements directory: {str(e)}")
+        
+    except Exception as e:
+        print(f"🔴 Error creating SQL file: {str(e)}")
+
 if __name__ == "__main__":
     # Get the absolute path to the scripts folder
     # This makes the script runnable from any directory if main_runner.py is accessed
@@ -106,3 +173,4 @@ if __name__ == "__main__":
 
     run_all_scripts_in_folder(full_scripts_folder_path)
     copyfiles()
+    createSQL()

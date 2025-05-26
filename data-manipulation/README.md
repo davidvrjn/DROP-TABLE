@@ -1,5 +1,7 @@
 ## Data Manipulation Branch
 
+Simply run the `run.py` script to execute all data manipulation steps.
+
 #### Numbered Scripts (Execution Order):
 1. `1brands.py` - Brand ID mapping 
    - Processes `brands.sql` → `products_with_brand_ids.sql`
@@ -17,3 +19,11 @@
    - Processes `merged_products.sql`, `retailers.sql`, `prices_in_zar.sql` → `product_retailers.sql`
 8. `reviews.py` - Review processing
    - Processes `products.sql`, `reviews.json` → `reviews.sql`
+
+#### Final Processing:
+After all scripts are executed, the `run.py` script performs these final operations:
+
+1. `copyfiles()` - Copies all necessary SQL files to the 'Final Statements' directory
+2. `createSQL()` - Creates a complete database setup file
+   - Combines schema from `db-schema/DROP-TABLE.sql` with all data files
+   - Outputs a single comprehensive SQL file: `DROP-TABLE-COMPLETE.sql`

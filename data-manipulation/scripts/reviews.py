@@ -10,8 +10,8 @@ def generate_reviews():
     
     base_dir = Path(__file__).parent.parent
     reviews_json_path = base_dir / 'original-data' / 'reviews.json'
-    products_sql_path = base_dir / 'Final Statements' / 'products.sql'
-    output_path = base_dir / 'Final Statements' / 'reviews.sql'
+    products_sql_path = base_dir / 'manipulated-data' / 'merged_products.sql'
+    output_path = base_dir / 'manipulated-data' / 'reviews.sql'
     
     try:
         with open(reviews_json_path, 'r') as f:

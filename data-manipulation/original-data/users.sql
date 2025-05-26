@@ -1,0 +1,18 @@
+INSERT INTO user (first_name, last_name, password, email, type) VALUES
+('Admin', 'User', '$2b$10$P/RX1b1wbzzoNw8eyZemg.HANqR6RdwCv2ag.SJkBSwiOgi3FOaCW', 'admin@admin.com', 'admin'),
+('Liam', 'Smith', '$2b$10$CbMAmAkWbDYMNzg3vBVHo.Nq1vNl/EKmdELjyUvu2dw0DnvLegRPW', 'liam.smith@example.com', 'user'),
+('Emma', 'Johnson', '$2b$10$0UqV.RAuALB7FPaTAggIg.epI216x8eBNmq.PHWlq0hmrk2HK5GnC', 'emma.johnson@example.com', 'user'),
+('Noah', 'Williams', '$2b$10$yaNST6YkaCOeEOhx4H3Xhetwx1HUD2d27UtJ7Wl/t2s5nWrPic3oO', 'noah.williams@example.com', 'user'),
+('Olivia', 'Brown', '$2b$10$p1TdyVXh1CTnEgOWOe2kiORHJArhzxDnoqIwkGSM1xj19LfA8/G8m', 'olivia.brown@example.com', 'user'),
+('James', 'Jones', '$2b$10$m625SptTA5cFfysjH13J6ekKPlssJk1scWYV8.smGnthsxsPi3DM2', 'james.jones@example.com', 'user'),
+('Ava', 'Garcia', '$2b$10$W2estXcN6vf2YQO0.11j8uy/QiZ5uSBtNdKh9bD9Yu.gCqcpcPVoO', 'ava.garcia@example.com', 'user'),
+('Elijah', 'Miller', '$2b$10$m33UgGZkisiyXXiwnb2hYOfS1k1xndXZNzQHoL/cQ8l08KGyaEAv.', 'elijah.miller@example.com', 'user'),
+('Sophia', 'Davis', '$2b$10$290AXm/xxNhLWuiLVQPbKOiOFFxqSBO3c7o7t82Uzm07uWa1FpATu', 'sophia.davis@example.com', 'user'),
+('William', 'Martinez', '$2b$10$3yntJVIh1Z/3.Fq6JJL6WedIcwRito2xBEHUfJVfGwp3Jd3cdVhQi', 'will.martinez@example.com', 'user'),
+('Isabella', 'Hernandez', '$2b$10$65.xvzYKTPI1BJn6PeQyXu72lgmPJiAePIdzOych8sWapY/0olt2i', 'isabella.h@example.com', 'user'),
+('Lucas', 'Lopez', '$2b$10$rlP.5cZiA3roFega7yegDerOp467MGl0Dz5L5NPenYCgFo1zbz6Re', 'lucas.lopez@example.com', 'user'),
+('Mia', 'Gonzales', '$2b$10$I0d51FQH1f4bcxqOxdEMreM7pCDpH.JmPV5mhUR85C.I5kERSLX3O', 'mia.g@example.com', 'user'),
+('Henry', 'Willson', '$2b$10$33236lINKpRcOxW.NOcIoudAlhkYkCn9pxrwNobCV2XVuyfWkJhyK', 'henry.wilson@example.com', 'user'),
+('Charlotte', 'Anderson', '$2b$10$WJVhtvOGrheFKz63swKFO.ZboHPJQOmhdVbvzuTzvADQtGwbNqqcW', 'charlotte.a@example.com', 'user'),
+('Benjamin', 'Thomas', '$2b$10$17jh5GRw75G/zCoFx4esc.Ed6QyrGPCYVT0a9HhdzvYqo2/Ve9p86', 'benjamin.t@example.com', 'user'),
+('test', 'test', '$2b$10$oJ8nh1bPGbGPCvnEfaEQIeSip7nrmFZm6U3gPBPzKGZ4IWynNWiB2', 'test@demo.com', 'user');
