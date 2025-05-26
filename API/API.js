@@ -977,30 +977,30 @@ app.post('/Get/Watchlist', express.json(), async (req, res) => {
     }
 
     try {
-        const { user_id } = req.body;
+        const { userid } = req.body;
 
-        if (!user_id) {
+        if (!userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const watchlist_Details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]);
-
+        const watchlist_Details = await conn.query('SELECT W.product_id, initial_price, final_price, AVG(R.score) AS rating, title, image_url, retailer_name  FROM Watchlist_Item AS W INNER JOIN Product AS P ON W.product_id = P.id LEFT JOIN Review AS R ON R.product_ID = P.id WHERE W.user_id = ?', [userid]);
         let watchlistJSON = [];
 
         for (let i = 0; i < watchlist_Details.length; i++) {
-            let temp = {
-                id: watchlist_Details[i].product_id,
-                image_url: watchlist_Details[i].image_url,
-                title: watchlist_Details[i].title,
-                final_price: watchlist_Details[i].final_price,
-                retailer_name: watchlist_Details[i].retailer_name,
-                rating: watchlist_Details[i].rating,
-                initial_price: watchlist_Details[i].initial_price
+            if(watchlist_Details[i].product_id != null){
+                let temp = {
+                    id: watchlist_Details[i].product_id,
+                    image_url: watchlist_Details[i].image_url,
+                    title: watchlist_Details[i].title,
+                    final_price: watchlist_Details[i].final_price,
+                    retailer_name: watchlist_Details[i].retailer_name,
+                    rating: watchlist_Details[i].rating,
+                    initial_price: watchlist_Details[i].initial_price
+                }
+                watchlistJSON.push(temp);
             }
-
-            watchlistJSON.push(temp);
         }
 
         res.status(200).send({ status: 'success', data: watchlistJSON })
