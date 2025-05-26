@@ -29,6 +29,7 @@ export function initRegister(hashSHA256) {
 
                 // Client-side validation
                 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+                
                 if (password !== confirmPassword) {
                     errorMessage.textContent = 'Passwords do not match!';
                     errorMessage.style.display = 'block';

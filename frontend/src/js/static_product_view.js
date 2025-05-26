@@ -148,6 +148,146 @@ function renderProductData(product) {
     });
 }
 
+document.addEventListener("DOMContentLoaded", () => {
+    const wishlistBtn = document.querySelector(".wishlist-btn");
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+    const retailerId = urlParams.get("retailerId") || 1;
+
+    wishlistBtn?.addEventListener("click", async () => {
+        const user =
+            localStorage.getItem("user") || sessionStorage.getItem("user");
+        const userId = JSON.parse(user || "{}").id;
+
+        if (!userId) {
+            alert("Please log in to add items to your watchlist.");
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                "http://localhost:3000/Add/Watchlist",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        retailer_id: retailerId,
+                        userid: userId,
+                    }),
+                }
+            );
+
+            const result = await response.json();
+            if (result.status === "success") {
+                wishlistBtn.classList.add("btn-success");
+                wishlistBtn.innerHTML = `<i class="bi bi-heart-fill"></i> Added to Watchlist`;
+            } else {
+                console.error("Failed to add:", result.message);
+                alert("Failed to add to watchlist.");
+            }
+        } catch (error) {
+            console.error("Network error:", error);
+            alert("Could not connect to the server.");
+        }
+    });
+});
+
+document
+    .querySelector(".view-retailers-btn")
+    ?.addEventListener("click", async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get("id");
+
+        try {
+            const res = await fetch("http://localhost:3000/Get/RetailPrices", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ product_id: productId }),
+            });
+
+            const result = await res.json();
+
+            if (result.status === "success" && Array.isArray(result.data)) {
+                showRetailerPricesModal(result.data);
+            } else {
+                alert("No retailer prices found.");
+            }
+        } catch (err) {
+            console.error("Failed to fetch retailer prices:", err);
+            alert("Something went wrong.");
+        }
+    });
+
+function showRetailerPricesModal(retailers) {
+    // Remove existing modal if present
+    const existing = document.getElementById("retailerPricesModal");
+    if (existing) existing.remove();
+
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.id = "retailerPricesModal";
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(0,0,0,0.5)";
+    overlay.style.display = "flex";
+    overlay.style.justifyContent = "center";
+    overlay.style.alignItems = "center";
+    overlay.style.zIndex = "1000";
+
+    // Create modal container
+    const modal = document.createElement("div");
+    modal.style.background = "grey";
+    modal.style.padding = "20px";
+    modal.style.borderRadius = "10px";
+    modal.style.maxWidth = "500px";
+    modal.style.width = "90%";
+    modal.style.maxHeight = "80vh";
+    modal.style.overflowY = "auto";
+    modal.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+
+    // Modal content
+    modal.innerHTML = `
+        <h4 class="mb-3">All Retailer Prices</h4>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th style="text-align: left;">Retailer</th>
+                    <th style="text-align: left;">Price</th>
+                    <th style="text-align: left;">Discount</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${retailers
+                    .map(
+                        (r) => `
+                    <tr>
+                        <td>${r.retailer_name}</td>
+                        <td>R${parseFloat(r.final_price).toFixed(2)}</td>
+                        <td>${parseFloat(((r.initial_price - r.final_price)/r.initial_price)*100).toFixed(0)}%</td>
+                    </tr>`
+                    )
+                    .join("")}
+            </tbody>
+        </table>
+        <div style="text-align: right; margin-top: 15px;">
+            <button id="closeRetailerModal" style="padding: 6px 12px; border: none; background: #333; color: white; border-radius: 4px; cursor: pointer;">Close</button>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    document
+        .getElementById("closeRetailerModal")
+        .addEventListener("click", () => overlay.remove());
+}
+
 function showProductError(message) {
     document.getElementById("product-title").textContent = message;
     document.getElementById("product-price").textContent = "";
