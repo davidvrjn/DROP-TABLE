@@ -1311,26 +1311,33 @@ app.post('/Add/Retailer', express.json(), async (req, res) => {
     }
 
     try {
-        const { name, user_id } = req.body;
+        const { name, userid, url } = req.body;
 
-        if (!user_id || !name) {
+        if (!userid || !name || !url) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
-        conn = await pool.getConnection();
-        const inserted = await conn.query('SQL query to insert a Category???', [name]); //<=========sql for insert user here
+        //validate x_name
+        const catVal = await conn.query('SELECT name FROM Retailer WHERE name = ?', [name]); //<================sql to get category with this name
+
+        if (catVal.length != 0) {
+            res.status(409).send({ status: 'error', message: 'Retailer already exists' });
+            return;
+        }
+
+        const inserted = await conn.query('INSERT INTO Retailer(`name`, `web_page_url`) VALUES(?,?)', [name, url]); //<=========sql for insert user here
 
         if (inserted.affectedRows == 1) {
             res.status(201).send({ status: 'success', message: 'New Item added to Retailer' });
@@ -1361,26 +1368,33 @@ app.post('/Add/Brand', express.json(), async (req, res) => {
     }
 
     try {
-        const { name, user_id } = req.body;
+        const { name, userid } = req.body;
 
-        if (!user_id || !name) {
+        if (!userid || !name) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
-        conn = await pool.getConnection();
-        const inserted = await conn.query('SQL query to insert a Brand???', [name]); //<=========sql for insert user here
+        //validate x_name
+        const catVal = await conn.query('SELECT name FROM Brand WHERE name = ?', [name]); //<================sql to get category with this name
+
+        if (catVal.length != 0) {
+            res.status(409).send({ status: 'error', message: 'Brand already exists' });
+            return;
+        }
+
+        const inserted = await conn.query('INSERT INTO Brand(`name`) VALUES(?)', [name]); //<=========sql for insert user here
 
         if (inserted.affectedRows == 1) {
             res.status(201).send({ status: 'success', message: 'New Item added to Brand' });
