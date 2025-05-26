@@ -15,6 +15,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Load reviews for the product
     loadProductReviews(productId);
+    
+    // Initialize review form
+    initReviewForm();
 });
 
 /**
@@ -225,4 +228,136 @@ function updateStarRating(starsContainer, rating) {
 
     // Add new stars based on rating
     starsContainer.innerHTML = getStarRatingHTML(rating);
+}
+
+/**
+ * Initialize the review form functionality
+ */
+function initReviewForm() {
+    // Get the leave review button and modal elements
+    const leaveReviewBtn = document.querySelector('.leave-review-btn');
+    const reviewModal = document.getElementById('reviewModal');
+    
+    if (!leaveReviewBtn || !reviewModal) return;
+    
+    // Initialize Bootstrap modal
+    const modal = new bootstrap.Modal(reviewModal);
+    
+    // Show modal when leave review button is clicked
+    leaveReviewBtn.addEventListener('click', function() {
+        // Reset form
+        resetReviewForm();
+        // Show modal
+        modal.show();
+    });
+    
+    // Handle star rating selection
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const ratingInput = document.getElementById('ratingValue');
+    
+    ratingStars.forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            ratingInput.value = rating;
+            updateStarSelection(rating);
+        });
+        
+        // Add hover effect
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.getAttribute('data-rating'));
+            highlightStars(rating);
+        });
+    });
+    
+    // Reset stars when mouse leaves the container
+    const starContainer = document.querySelector('.star-rating-select');
+    if (starContainer) {
+        starContainer.addEventListener('mouseleave', function() {
+            const currentRating = parseInt(ratingInput.value);
+            updateStarSelection(currentRating);
+        });
+    }
+    
+    // Handle review submission
+    const submitReviewBtn = document.getElementById('submitReviewBtn');
+    if (submitReviewBtn) {
+        submitReviewBtn.addEventListener('click', function() {
+            submitReview();
+        });
+    }
+}
+
+/**
+ * Update star selection based on rating
+ * @param {number} rating - The selected rating
+ */
+function updateStarSelection(rating) {
+    const stars = document.querySelectorAll('.rating-star');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.remove('bi-star');
+            star.classList.add('bi-star-fill');
+        } else {
+            star.classList.remove('bi-star-fill');
+            star.classList.add('bi-star');
+        }
+    });
+}
+
+/**
+ * Highlight stars on hover
+ * @param {number} rating - The rating to highlight
+ */
+function highlightStars(rating) {
+    const stars = document.querySelectorAll('.rating-star');
+    
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.classList.remove('bi-star');
+            star.classList.add('bi-star-fill');
+        } else {
+            star.classList.remove('bi-star-fill');
+            star.classList.add('bi-star');
+        }
+    });
+}
+
+/**
+ * Reset the review form
+ */
+function resetReviewForm() {
+    const reviewForm = document.getElementById('reviewForm');
+    const ratingInput = document.getElementById('ratingValue');
+    const reviewSubmitSuccess = document.getElementById('reviewSubmitSuccess');
+    
+    if (reviewForm) reviewForm.reset();
+    if (ratingInput) ratingInput.value = 0;
+    if (reviewSubmitSuccess) reviewSubmitSuccess.classList.add('d-none');
+    
+    // Reset stars
+    updateStarSelection(0);
+    
+    // Show form elements
+    const formElements = document.querySelectorAll('#reviewForm .mb-3');
+    formElements.forEach(el => el.classList.remove('d-none'));
+    
+    // Show submit button
+    const submitBtn = document.getElementById('submitReviewBtn');
+    if (submitBtn) submitBtn.classList.remove('d-none');
+}
+
+/**
+ * Submit the review
+ */
+function submitReview() {
+    const ratingInput = document.getElementById('ratingValue');
+    const reviewText = document.getElementById('reviewText');
+    const reviewSubmitSuccess = document.getElementById('reviewSubmitSuccess');
+    
+    // Validate form - only validate the review text is present
+    if (!reviewText || !reviewText.value) {
+        alert('Please enter your review');
+        return;
+    }
 }
