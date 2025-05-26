@@ -157,7 +157,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
     }
 })
 
-app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) => {
+app.post('/Get/Product/:productID/:retailerID', express.json(), async (req, res) => {
     let conn;
     if (!req.is('application/json')) {
         res.status(415).send({
