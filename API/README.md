@@ -209,7 +209,7 @@ Example response
 }
 ```
 Possible response codes:
-unknown
++ 200
 
 ## Get/Watchlist
 Example request
@@ -235,7 +235,7 @@ Example response
 }
 ```
 Possible response codes:
-unknown
++ 200
 
 ## Get/allRetailPrices
 Example request
@@ -277,7 +277,7 @@ Example response
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 ## Add/Review
 Example request
@@ -297,7 +297,7 @@ Example response
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 
 ## Add/Product
@@ -331,7 +331,7 @@ Example response
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 ## Add/Category OR Retailer OR Brand
 Example request
@@ -349,7 +349,7 @@ Example response
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 ## Update/Product
 //Used to remove a retailer from the list
@@ -382,6 +382,8 @@ Example response
     message: 
 }
 ```
+Possible response codes:
++ 200
 
 ## Update/Category OR Retailer OR Brand
 Example request
@@ -399,6 +401,8 @@ Example response
     message: Error or something along the lines of inserted successfully
 }
 ```
+Possible response codes:
++ 200
 
 ## Update/Watchlist
 Example request
@@ -418,6 +422,9 @@ Example response
     message: Error or something along the lines of inserted successfully
 }
 ```
+Possible response codes:
++ 200
+
 ## Update/Preferences
 Example request
 ```
@@ -450,6 +457,8 @@ Example response
     message: Error or something along the lines of inserted successfully
 }
 ```
+Possible response codes:
++ 200
 
 ## Remove/Category OR Retailer OR Brand
 Example request
@@ -466,6 +475,8 @@ Example response
     message: Error or something along the lines of inserted successfully
 }
 ```
+Possible response codes:
++ 200
 
 ## Remove/Watchlist
 Example request
@@ -482,3 +493,5 @@ Example response
     message: Error or something along the lines of inserted successfully
 }
 ```
+Possible response codes:
++ 200
