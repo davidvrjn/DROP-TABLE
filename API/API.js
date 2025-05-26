@@ -68,7 +68,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
             }
             if (filters['rating']) {
                 const rating = filters['rating'];
-                where.push(`score > ?`);
+                where.push(`score >= ?`);
                 values.push(rating);
             }
             if (filters['search']) {
