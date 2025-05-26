@@ -5,7 +5,7 @@ async function fetchWatchlistData(userId) {
         const response = await fetch("http://localhost:3000/Get/Watchlist", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ watchlist_id: userId }),
+            body: JSON.stringify({ userid: userId }),
         });
 
         const result = await response.json();
@@ -69,7 +69,7 @@ function setupRemoveButtons(userId) {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            watchlist_id: userId,
+                            userid: userId,
                             product_id: productId,
                         }),
                     }
