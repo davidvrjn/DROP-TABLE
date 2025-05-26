@@ -849,18 +849,18 @@ app.post('/Remove/Retailer', express.json(), async (req, res) => {
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [id]); //<===========================sql to find retailer with this id
+        const idVal = await conn.query('SELECT id from Retailer WHERE id = ?', [id]); //<===========================sql to find retailer with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Retailer not found' });
@@ -868,14 +868,23 @@ app.post('/Remove/Retailer', express.json(), async (req, res) => {
         }
 
         //At this point, id and userid is valid. perform remove
-        const del = await conn.query('DELETE * FROM retailerTableName WHERE id=?', [id]); //<==========sql to delete here
+        try{
+            const del = await conn.query('DELETE FROM Retailer WHERE id = ?', [id]);
 
-        if (del.affectedRows > 0) {
-            res.status(204).send({ status: 'success', message: 'Retailer removed' });
-            return;
-        } else {
-            res.status(409).send({ status: 'error', message: 'Retailer was not removed' });
-            return;
+            if (del.affectedRows > 0) {
+                res.status(200).send({ status: 'success', message: 'Retailer removed' });
+                return;
+            } else {
+                res.status(409).send({ status: 'error', message: 'Retailer was not removed' });
+                return;
+            }
+        }
+        //Foreign key violation
+        catch(err){
+            if(err.errno === 1451){
+                res.status(400).send({status: "error", message: "Foreign Key Violation, make sure no products reference this."});
+                return;
+            }
         }
 
     } catch (err) {
