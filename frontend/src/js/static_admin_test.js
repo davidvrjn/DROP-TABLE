@@ -11,7 +11,7 @@
  * - Category displayed as "Unknown" for all products
  * - Simplified category handling to match reference code
  * - Fixed "Unknown" category by fetching products per category using filters.departments
- * Last updated: 10:30 PM SAST on Monday, May 26, 2025
+ * Last updated: 12:19 AM SAST on Tuesday, May 27, 2025
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -790,7 +790,7 @@ function setupModalHandlers() {
 
                     data = {
                         ...data,
-                        productid: formData.get("productId") || undefined,
+                        product_id: formData.get("productId") || undefined, // Changed from productid to product_id
                         category_id: categoryId,
                         brand_id: brandId,
                         title: title,
@@ -807,7 +807,7 @@ function setupModalHandlers() {
                         images: imageUrls.slice(1),
                         retail_details: retailDetails.length ? retailDetails : undefined,
                     };
-                    endpoint = data.productid ? "Update/Product" : "Add/Product";
+                    endpoint = data.product_id ? "Update/Product" : "Add/Product";
                 } else {
                     data = {
                         ...data,
@@ -832,7 +832,7 @@ function setupModalHandlers() {
                     console.log(`${entity} API response:`, result);
 
                     if (response.status === 200 && result.status === "success") {
-                        alert(`${entity} ${data.id || data.productid ? "updated" : "saved"} successfully! Message: ${result.message}`);
+                        alert(`${entity} ${data.id || data.product_id ? "updated" : "saved"} successfully! Message: ${result.message}`);
                         const modalElement = document.getElementById(modalId);
                         if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                             const modal = bootstrap.Modal.getInstance(modalElement);
@@ -866,11 +866,11 @@ function setupModalHandlers() {
                         }
                     } else {
                         console.error(`${entity} save error:`, result.message);
-                        alert(`Error ${data.id || data.productid ? "updating" : "saving"} ${entity}: ${result.message}`);
+                        alert(`Error ${data.id || data.product_id ? "updating" : "saving"} ${entity}: ${result.message}`);
                     }
                 } catch (error) {
                     console.error(`${entity} save error:`, error);
-                    alert(`Error ${data.id || data.productid ? "updating" : "saving"} ${entity}: ${error.message}`);
+                    alert(`Error ${data.id || data.product_id ? "updating" : "saving"} ${entity}: ${error.message}`);
                 }
             });
         } else {
