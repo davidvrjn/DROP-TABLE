@@ -1603,29 +1603,18 @@ app.post('/Remove/Watchlist', express.json(), async (req, res) => {
     }
 
     try {
-        const { user_id, product_id } = req.body;
+        const { userid, product_id } = req.body;
 
-        if (!user_id || !product_id) {
+        if (!userid || !product_id) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
-
-        if (user_details.length === 0) {
-            res.status(404).send({ status: 'error', message: 'User not found' });
-            return;
-        } else if (user_details[0].role != 'admin') {
-            res.status(401).send({ status: 'error', message: 'Unauthorized' });
-            return;
-        }
-
-        conn = await pool.getConnection();
-        const updated = await conn.query('SQL query to delete a product???', [user_id]);
+        const updated = await conn.query('DELETE FROM Watchlist_Item WHERE product_id = ? AND user_id = ?', [product_id, userid]);
 
         if (updated.affectedRows === 1) {
-            res.status(200).send({ status: 'success', message: 'Product remove from Watchlist deleted successfully' });
+            res.status(200).send({ status: 'success', message: 'Product removed from Watchlist deleted successfully' });
         } else {
             res.status(404).send({ status: 'error', message: 'No Product found with the provided ID' });
         }
