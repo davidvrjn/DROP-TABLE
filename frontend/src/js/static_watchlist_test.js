@@ -125,58 +125,165 @@ function removeFromWatchlist(productId) {
 /**
  * Setup event listeners for price history buttons
  */
-function setupPriceHistoryButtons(watchlistData) {
-    const buttons = document.querySelectorAll(".view-price-history");
-    const modal = document.getElementById("priceHistoryModal");
-
-    buttons.forEach((button) => {
-        button.addEventListener("click", function () {
-            const productId = this.getAttribute("data-product-id");
-            const product = watchlistData.find((p) => p.id === productId);
-            if (product) showPriceHistory(product);
-        });
+function setupPriceHistoryButtons() {
+  const priceHistoryButtons = document.querySelectorAll('.view-price-history');
+  const priceHistoryModal = document.getElementById('priceHistoryModal');
+  
+  if (priceHistoryModal) {
+    priceHistoryButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const productId = this.getAttribute('data-product-id');
+        showPriceChange(productId);
+      });
     });
+  }
 }
 
 /**
- * Show price history for a product
- * @param {string} productId - The ID of the product to show history for
+ * Setup event listeners for save current price buttons
  */
-function showPriceHistory(productId) {
-    const product = staticWatchlistData.find((item) => item.id === productId);
+function setupSaveCurrentPriceButtons() {
+  const saveCurrentPriceButtons = document.querySelectorAll('.save-current-price');
+  
+  saveCurrentPriceButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const productId = this.getAttribute('data-product-id');
+      saveCurrentPrice(productId);
+    });
+  });
+}
 
-    if (!product || !product.price_history) {
-        console.error("Product or price history not found");
-        return;
-    }
+/**
+ * Save the current price for a product
+ * Add in the API keys etc for updating on the wishlist
+ * @param {string} productId - The ID of the product to save price for
+ */
+function saveCurrentPrice(productId) {
 
-    const modalTitle = document.getElementById("priceHistoryModalLabel");
-    if (modalTitle) {
-        modalTitle.textContent = `Price History: ${product.title}`;
-    }
+  //rember to ask use to confirm
+  const product = staticWatchlistData.find(item => item.id === productId);
+  
+  if (!product) {
+    console.error("Product not found");
+    return;
+  }
+  
+  // Update the last saved price with the current price
+  if (!product.price_change) {
+    product.price_change = {};
+  }
+  
+  product.price_change.last_price = product.final_price;
+  product.price_change.last_retailer = product.retailer_name;
+  
+  // Re-render the watchlist to reflect changes
+  renderWatchlistItems();
+}
 
-    const chartContainer = document.getElementById("priceHistoryChart");
-
-    if (chartContainer) {
-        let historyHTML = '<div class="table-responsive"><table class="table">';
-        historyHTML +=
-            "<thead><tr><th>Date</th><th>Price</th></tr></thead><tbody>";
-
-        product.price_history.forEach((entry) => {
-            historyHTML += `<tr><td>${
-                entry.date
-            }</td><td>R${entry.price.toFixed(2)}</td></tr>`;
-        });
-
-        historyHTML += "</tbody></table></div>";
-        chartContainer.innerHTML = historyHTML;
-    }
+/**
+ * Show price change information for a product
+ * @param {string} productId - The ID of the product to show price change for
+ */
+function showPriceChange(productId) {
+  const product = staticWatchlistData.find(item => item.id === productId);
+  
+  if (!product || !product.price_change) {
+    console.error("Product or price change information not found");
+    return;
+  }
+  
+  const modalTitle = document.getElementById('priceHistoryModalLabel');
+  if (modalTitle) {
+    modalTitle.textContent = `Price Information: ${product.title}`;
+  }
+  
+  const chartContainer = document.getElementById('priceHistoryChart');
+  
+  if (chartContainer) {
+    let priceChangeHTML = '<div class="table-responsive"><table class="table">';
+    priceChangeHTML += '<thead><tr><th>Price Type</th><th>Price</th><th>Retailer</th></tr></thead><tbody>';
+    
+    // Add current lowest price row
+    priceChangeHTML += `<tr>
+      <td><strong>Current Lowest Price</strong></td>
+      <td>R${product.price_change.lowest_price.toFixed(2)}</td>
+      <td>${product.price_change.lowest_retailer}</td>
+    </tr>`;
+    
+    // Add last saved price row
+    priceChangeHTML += `<tr>
+      <td><strong>Last Saved Price</strong></td>
+      <td>R${product.price_change.last_price.toFixed(2)}</td>
+      <td>${product.price_change.last_retailer}</td>
+    </tr>`;
+    
+    // Calculate price difference and percentage
+    const priceDifference = product.price_change.last_price - product.price_change.lowest_price;
+    const percentageDifference = (priceDifference / product.price_change.last_price) * 100;
+    
+    // Add price difference row
+    priceChangeHTML += `<tr class="${priceDifference > 0 ? 'table-success' : priceDifference < 0 ? 'table-danger' : ''}">
+      <td><strong>Price Difference</strong></td>
+      <td>R${Math.abs(priceDifference).toFixed(2)} ${priceDifference > 0 ? 'cheaper' : priceDifference < 0 ? 'more expensive' : '(no change)'}</td>
+      <td>${-1 * (percentageDifference).toFixed(2)}%</td>
+    </tr>`;
+    
+    priceChangeHTML += '</tbody></table></div>';
+    chartContainer.innerHTML = priceChangeHTML;
+  }
 }
 
 // Initialize the watchlist when the DOM is loaded
-document.addEventListener("DOMContentLoaded", () => {
-    renderWatchlistItems();
+document.addEventListener('DOMContentLoaded', function() {
+  renderWatchlistItems();
 });
 
+/**
+ * Function to render watchlist items to the page
+ */
+function renderWatchlistItems() {
+  const watchlistContainer = document.getElementById('watchlist-items');
+  const emptyWatchlistElement = document.getElementById('empty-watchlist');
+  
+  if (!watchlistContainer) {
+    console.error("Watchlist container not found!");
+    return;
+  }
+  
+  // Clear existing content
+  watchlistContainer.innerHTML = '';
+  
+  // Check if watchlist has items
+  if (staticWatchlistData.length === 0) {
+    // Show empty state
+    if (emptyWatchlistElement) {
+      emptyWatchlistElement.style.display = 'block';
+    }
+    watchlistContainer.style.display = 'none';
+    return;
+  }
+  
+  // Hide empty state and show watchlist items
+  if (emptyWatchlistElement) {
+    emptyWatchlistElement.style.display = 'none';
+  }
+  watchlistContainer.style.display = 'flex';
+  
+  // Loop through the watchlist items and generate/insert HTML
+  staticWatchlistData.forEach(product => {
+    const watchlistCardHTML = createWatchlistCardHTML(product);
+    watchlistContainer.innerHTML += watchlistCardHTML;
+  });
+  
+  // Add event listeners for remove buttons
+  setupRemoveButtons();
+  
+  // Add event listeners for price history buttons
+  setupPriceHistoryButtons();
+  
+  // Add event listeners for save current price buttons
+  setupSaveCurrentPriceButtons();
+}
+
 // Export functions for potential use in other modules
-export { renderWatchlistItems, removeFromWatchlist };
+export { renderWatchlistItems, removeFromWatchlist, saveCurrentPrice };

@@ -188,7 +188,6 @@ function createReviewElement(review) {
         </div>
         <div class="review-text">${review.text}</div>
     `;
-
     return reviewElement;
 }
 
@@ -210,7 +209,6 @@ function getStarRatingHTML(rating) {
             starsHTML += '<i class="bi bi-star"></i>';
         }
     }
-
     return starsHTML;
 }
 

@@ -452,7 +452,7 @@ function filterProducts() {
     tbody.innerHTML = '';
     
     if (filteredProducts.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center">No products found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">No products found</td></tr>';
         return;
     }
     
