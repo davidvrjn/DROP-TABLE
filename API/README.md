@@ -150,7 +150,6 @@ Example request
     email: "l.hamilton@gmail.com",
     first_name: "Lewis",
     last_name: "Hamilton",
-    username: "7LewisHam44",
     password: "Red>Silver2025",
     type: "user"
 }
@@ -164,7 +163,6 @@ Example response
             id: 44,
             email: "l.hamilton@gmail.com",
             first_name: "Lewis",
-            username: "7LewisHam44",
             last_name: "Hamilton",
             type: "user",
             DOB?: (Possibly removed)
@@ -352,8 +350,8 @@ Example request
     category_id: 3,
     brand_id: 2,
     title: "REDDRAGON 60% keyboard",
-    description: 60% mechanical keyboard with light and ergonomic design. Perfect for gamers with limited desk space.",
-    specifications:,
+    description: ["60% mechanical keyboard with light and ergonomic design. Perfect for gamers with limited desk space."],
+    specifications: ,
     features:,
     image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
     images: [https://shopnow.com/Red-dragon-keyboard-x91,https://gadgethub.io/Red-dragon-keyboard-deal,https://buyit.tech/Red-dragon-keyboard-pro],
