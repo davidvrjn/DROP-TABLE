@@ -113,9 +113,6 @@ app.post('/Get/Products', express.json(), async (req, res) => {
 
         const rows = await conn.query(baseQuery, values);
 
-        //Retrieved products without wishlist field, that will be added later
-        //product.name is from retailer entity, rename it if need be
-        //If discount needs to be calculated here, tell me and I will update, otherwise calculate it with the query.
         var productJSON = [];
         await rows.forEach(product => {
             productJSON.push({
@@ -132,9 +129,6 @@ app.post('/Get/Products', express.json(), async (req, res) => {
             })
         });
 
-        //NB add later, find a way to get the user id from the apikey,
-        //and then use that, and the retailer_product to determine if it exists in the watchlist
-        //with those 3 keys, and if it does change watchlist to true
 
         res.status(200).send({
             status: "success",
@@ -157,7 +151,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
     }
 })
 
-app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) => {
+app.post('/Get/Product/:productID/:retailerID', express.json(), async (req, res) => {
     let conn;
     if (!req.is('application/json')) {
         res.status(415).send({
@@ -170,10 +164,7 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
         const productID = req.params.productID;
         const retailerID = req.params.retailerID;
 
-        //Used to determine if the product is wishlisted, but optional
-        var isWatchlisted = false;
-
-        var rows = conn.query("SELECT P.id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, B.name AS brand FROM Product_Retailer AS PR INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Product AS P ON P.id = PR.product_id LEFT JOIN Review AS RT ON RT.product_id = PR.product_id WHERE product_id = ? AND retailer_id = ?", [`${productID}`, `${retailerID}`]);
+        var rows = await conn.query("SELECT P.id AS id, image_url, title, final_price, initial_price, R.name, R.id AS rID, ((initial_price - final_price)/initial_price) AS Discount, AVG(RT.score) AS Rating, images, specifications, features, CASE WHEN EXISTS (SELECT 1 FROM Watchlist_Item WHERE user_id = ? AND product_id = P.id) THEN TRUE ELSE FALSE END AS watchlist FROM Product_Retailer AS PR INNER JOIN Retailer AS R ON R.id = PR.retailer_id INNER JOIN Product AS P ON P.id = PR.product_id LEFT JOIN Review AS RT ON RT.product_id = PR.product_id WHERE P.id = ? AND retailer_id = ?", [`${req.body['userid'] || 0}`,`${productID}`, `${retailerID}`]);
         if (rows.length == 0) {
             res.status(404).send({
                 status: "error",
@@ -189,17 +180,16 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
             return;
         }
 
-        const product = row[0];
+        const product = rows[0];
         const allReviews = [];
         //Query to retrieve all reviews of selected product, retailer shouldnt be involved from what I understand.
-        rows = conn.query("SELECT * FROM Review AS R INNER JOIN User AS U ON U.user_id = R.user_id WHERE product_id = ?", [`${productID}`]);
-        rows.foreach(review => {
+        //Correct
+        rows = await conn.query("SELECT CONCAT(first_name, ' ', last_name) AS username, score, comment FROM Review AS R INNER JOIN User AS U ON U.user_id = R.user_id WHERE product_id = ?", [`${productID}`]);
+        rows.forEach(review => {
             allReviews.push({
-                r_Id: review.id,
                 r_Username: review.username,
-                r_Rating: review.rating,
-                r_Date: review.date,
-                r_Text: review.message
+                r_Rating: review.score,
+                r_Text: review.comment
             });
         });
 
@@ -209,9 +199,13 @@ app.post('Get/Product/:productID/:retailerID', express.json(), async (req, res) 
             title: product.title,
             final_price: product.final_price,
             retailer_name: product.name,
-            rating: product.rating,
+            rating: product.Rating,
             initial_price: product.initial_price,
-            discount: product.discount,
+            discount: Math.floor((product.Discount * 100 )),
+            images: product.images,
+            watchlist: product.watchlist,
+            specifications: product.specifications,
+            features: product.features,
             reviews: allReviews
         }
 
@@ -577,27 +571,27 @@ app.post('/Update/Category', express.json(), async (req, res) => {
     }
 
     try {
-        const { cat_id, cat_name, userid } = req.body;
+        const { id, name, userid } = req.body;
 
-        if (!cat_id || !cat_name || !userid) {
+        if (!id || !name || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate x_name
-        const catVal = await conn.query('SELECT * from ... WHERE ...=?', [cat_name]); //<================sql to get category with this name
+        const catVal = await conn.query('SELECT cat_name FROM Category WHERE cat_name = ?', [name]); //<================sql to get category with this name
 
         if (catVal.length != 0) {
             res.status(409).send({ status: 'error', message: 'Category already exists' });
@@ -605,15 +599,15 @@ app.post('/Update/Category', express.json(), async (req, res) => {
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [cat_id]); //<===========================sql to find user with this id
+        const idVal = await conn.query('SELECT id FROM Category WHERE id = ?', [id]); //<===========================sql to find user with this id
 
         if (idVal.length === 0) {
-            res.status(404).send({ status: 'error', message: 'Category not found' });
+            res.status(404).send({ status: 'error', message: 'Category id mismatch' });
             return;
         }
 
         //now evrything is valid. perform the update
-        const update = await conn.query('UPDATE catTableName SET cat_name=? WHERE cat_id=?', [cat_name, cat_id]); //<========sql query for the cat update
+        const update = await conn.query('UPDATE Category SET cat_name = ? WHERE id = ?', [name, id]); //<========sql query for the cat update
 
         if (update.affectedRows > 0) {
             res.status(200).send({ status: 'success', message: 'Categories successfully updated' });
@@ -652,18 +646,18 @@ app.post('/Update/Retailer', express.json(), async (req, res) => {
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate x_name
-        const retVal = await conn.query('SELECT * from ... WHERE ...=?', [name]); //<================sql to get retailer with this name
+        const retVal = await conn.query('SELECT name FROM Retailer WHERE name = ?', [name]); //<================sql to get retailer with this name
 
         if (retVal.length != 0) {
             res.status(409).send({ status: 'error', message: 'Retailer already exists' });
@@ -671,7 +665,7 @@ app.post('/Update/Retailer', express.json(), async (req, res) => {
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [id]); //<===========================sql to find retailer with this id
+        const idVal = await conn.query('SELECT id FROM Retailer WHERE id = ?', [id]); //<===========================sql to find retailer with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Retailer not found' });
@@ -679,7 +673,7 @@ app.post('/Update/Retailer', express.json(), async (req, res) => {
         }
 
         //now evrything is valid. perform the update
-        const update = await conn.query('UPDATE RetailerTableName SET name=? WHERE id=?', [name, id]);
+        const update = await conn.query('UPDATE Retailer SET name = ? WHERE id = ?', [name, id]);
 
         if (update.affectedRows > 0) {
             res.status(200).send({ status: 'success', message: 'Retailers successfully updated' });
@@ -718,26 +712,26 @@ app.post('/Update/Brand', express.json(), async (req, res) => {
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate x_name
-        const brandVal = await conn.query('SELECT * from ... WHERE ...=?', [name]); //<================sql to get brand with this name
+        const brandVal = await conn.query('SELECT name FROM Brand WHERE name = ?', [name]); //<================sql to get brand with this name
 
         if (brandVal.length != 0) {
-            res.status(409).send({ status: 'error', message: 'Retailer already exists' });
+            res.status(409).send({ status: 'error', message: 'Brand already exists' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [id]); //<===========================sql to find brand with this id
+        const idVal = await conn.query('SELECT id FROM Brand WHERE id = ?', [id]); //<===========================sql to find brand with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Brand not found' });
@@ -745,7 +739,7 @@ app.post('/Update/Brand', express.json(), async (req, res) => {
         }
 
         //now evrything is valid. perform the update
-        const update = await conn.query('UPDATE BrandTableName SET name=? WHERE id=?', [name, id]);
+        const update = await conn.query('UPDATE Brand SET name = ? WHERE id = ?', [name, id]);
 
         if (update.affectedRows > 0) {
             res.status(200).send({ status: 'success', message: 'Brands successfully updated' });
@@ -775,44 +769,54 @@ app.post('/Remove/Brand', express.json(), async (req, res) => {
     }
 
     try {
-        const { id, user_id } = req.body;
+        const { id, userid } = req.body;
 
         //handle missing JSON values
-        if (!id || !user_id) {
+        if (!id || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [id]); //<===========================sql to find brand with this id
+        const idVal = await conn.query('SELECT id from Brand WHERE id = ?', [id]); //<===========================sql to find brand with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Brand not found' });
             return;
         }
 
-        //At this point, id and userid is valid. perform remove
-        const del = await conn.query('DELETE * FROM BrandTableName WHERE id=?', [id]);
+        //Catching a foreign key error
+        try{
+            const del = await conn.query('DELETE FROM Brand WHERE id = ?', [id]);
 
-        if (del.affectedRows > 0) {
-            res.status(204).send({ status: 'success', message: 'Brand removed' });
-            return;
-        } else {
-            res.status(409).send({ status: 'error', message: 'Brand was not removed' });
-            return;
+            if (del.affectedRows > 0) {
+                res.status(200).send({ status: 'success', message: 'Brand removed' });
+                return;
+            } else {
+                res.status(409).send({ status: 'error', message: 'Brand was not removed' });
+                return;
+            }
         }
+        //Foreign key violation
+        catch(err){
+            if(err.errno === 1451){
+                res.status(400).send({status: "error", message: "Foreign Key Violation, make sure no products reference this."});
+                return;
+            }
+        }
+        
 
     } catch (err) {
         console.error(err);
@@ -845,18 +849,18 @@ app.post('/Remove/Retailer', express.json(), async (req, res) => {
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [id]); //<===========================sql to find retailer with this id
+        const idVal = await conn.query('SELECT id from Retailer WHERE id = ?', [id]); //<===========================sql to find retailer with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Retailer not found' });
@@ -864,14 +868,23 @@ app.post('/Remove/Retailer', express.json(), async (req, res) => {
         }
 
         //At this point, id and userid is valid. perform remove
-        const del = await conn.query('DELETE * FROM retailerTableName WHERE id=?', [id]); //<==========sql to delete here
+        try{
+            const del = await conn.query('DELETE FROM Retailer WHERE id = ?', [id]);
 
-        if (del.affectedRows > 0) {
-            res.status(204).send({ status: 'success', message: 'Retailer removed' });
-            return;
-        } else {
-            res.status(409).send({ status: 'error', message: 'Retailer was not removed' });
-            return;
+            if (del.affectedRows > 0) {
+                res.status(200).send({ status: 'success', message: 'Retailer removed' });
+                return;
+            } else {
+                res.status(409).send({ status: 'error', message: 'Retailer was not removed' });
+                return;
+            }
+        }
+        //Foreign key violation
+        catch(err){
+            if(err.errno === 1451){
+                res.status(400).send({status: "error", message: "Foreign Key Violation, make sure no products reference this."});
+                return;
+            }
         }
 
     } catch (err) {
@@ -895,28 +908,28 @@ app.post('/Remove/Category', express.json(), async (req, res) => {
     }
 
     try {
-        const { cat_id, userid } = req.body;
+        const { id, userid } = req.body;
 
         //handle missing JSON values
-        if (!cat_id || !userid) {
+        if (!id || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         //validate userid
         conn = await pool.getConnection();
-        const user_details = await conn.query('SELECT * FROM ... WHERE ...=?', [userid]); //<==============sql to get a the user
+        const user_details = await conn.query('SELECT type FROM User WHERE user_id = ?', [userid]); //<==============sql to get a the user
 
         if (user_details.length === 0) {
             res.status(404).send({ status: 'error', message: 'User not found' });
             return;
-        } else if (user_details[0].role != 'admin') {
+        } else if (user_details[0].type != 'admin') {
             res.status(401).send({ status: 'error', message: 'Unauthorized' });
             return;
         }
 
         //validate id
-        const idVal = await conn.query('SELECT * from ... WHERE ...=?', [cat_id]); //<===========================sql to find cat with this id
+        const idVal = await conn.query('SELECT id from Category WHERE id = ?', [id]); //<===========================sql to find cat with this id
 
         if (idVal.length === 0) {
             res.status(404).send({ status: 'error', message: 'Category not found' });
@@ -924,14 +937,23 @@ app.post('/Remove/Category', express.json(), async (req, res) => {
         }
 
         //At this point, id and userid is valid. perform remove
-        const del = await conn.query('DELETE * FROM CatTableName WHERE id=?', [cat_id]); //<=======sql for remove category here
+        try{
+            const del = await conn.query('DELETE FROM Category WHERE id = ?', [id]);
 
-        if (del.affectedRows > 0) {
-            res.status(204).send({ status: 'success', message: 'Category removed' });
-            return;
-        } else {
-            res.status(409).send({ status: 'error', message: 'Category was not removed' });
-            return;
+            if (del.affectedRows > 0) {
+                res.status(200).send({ status: 'success', message: 'Category removed' });
+                return;
+            } else {
+                res.status(409).send({ status: 'error', message: 'Category was not removed' });
+                return;
+            }
+        }
+        //Foreign key violation
+        catch(err){
+            if(err.errno === 1451){
+                res.status(400).send({status: "error", message: "Foreign Key Violation, make sure no products reference this."});
+                return;
+            }
         }
 
     } catch (err) {
@@ -955,30 +977,30 @@ app.post('/Get/Watchlist', express.json(), async (req, res) => {
     }
 
     try {
-        const { user_id } = req.body;
+        const { userid } = req.body;
 
-        if (!user_id) {
+        if (!userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const watchlist_Details = await conn.query('SELECT * FROM ... WHERE ...=?', [user_id]);
-
+        const watchlist_Details = await conn.query('SELECT W.product_id, initial_price, final_price, AVG(R.score) AS rating, title, image_url, retailer_name  FROM Watchlist_Item AS W INNER JOIN Product AS P ON W.product_id = P.id LEFT JOIN Review AS R ON R.product_ID = P.id WHERE W.user_id = ?', [userid]);
         let watchlistJSON = [];
 
         for (let i = 0; i < watchlist_Details.length; i++) {
-            let temp = {
-                id: watchlist_Details[i].product_id,
-                image_url: watchlist_Details[i].image_url,
-                title: watchlist_Details[i].title,
-                final_price: watchlist_Details[i].final_price,
-                retailer_name: watchlist_Details[i].retailer_name,
-                rating: watchlist_Details[i].rating,
-                initial_price: watchlist_Details[i].initial_price
+            if(watchlist_Details[i].product_id != null){
+                let temp = {
+                    id: watchlist_Details[i].product_id,
+                    image_url: watchlist_Details[i].image_url,
+                    title: watchlist_Details[i].title,
+                    final_price: watchlist_Details[i].final_price,
+                    retailer_name: watchlist_Details[i].retailer_name,
+                    rating: watchlist_Details[i].rating,
+                    initial_price: watchlist_Details[i].initial_price
+                }
+                watchlistJSON.push(temp);
             }
-
-            watchlistJSON.push(temp);
         }
 
         res.status(200).send({ status: 'success', data: watchlistJSON })
@@ -995,7 +1017,7 @@ app.post('/Get/Watchlist', express.json(), async (req, res) => {
     }
 })
 
-app.post('/Get/allRetailPrices', express.json(), async (req, res) => {
+app.post('/Get/RetailPrices', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1012,13 +1034,13 @@ app.post('/Get/allRetailPrices', express.json(), async (req, res) => {
         }
 
         conn = await pool.getConnection();
-        const price_Details = await conn.query('SELECT * FROM ... WHERE ...=?', [product_id]);
+        const price_Details = await conn.query('SELECT initial_price, final_price, name FROM Product_Retailer INNER JOIN Retailer ON Retailer.id = Product_Retailer.retailer_id WHERE product_id = ? ORDER BY final_price', [product_id]);
 
         let priceJSON = [];
 
         for (let i = 0; i < price_Details.length; i++) {
             let temp = {
-                retailer_name: price_Details[i].retailer_name,
+                retailer_name: price_Details[i].name,
                 initial_price: price_Details[i].initial_price,
                 final_price: price_Details[i].final_price,
                 discount: price_Details[i].discount
@@ -1050,15 +1072,22 @@ app.post('/Add/ToWatchlist', express.json(), async (req, res) => {
     }
 
     try {
-        const { product_id, retailer_id, user_id } = req.body;
+        const { product_id, retailer_id, userid } = req.body;
 
-        if (!product_id || !retailer_id || !user_id) {
+        if (!product_id || !retailer_id || !userid) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
 
         conn = await pool.getConnection();
-        const inserted = await conn.query('SQL query to insert a watchlist???', [product_id, retailer_id, user_id]); //<=========sql for insert user here
+
+        //First check if the product is not already on the watchlist
+        const watchlist = await conn.query('SELECT product_id FROM Watchlist_Item WHERE product_id = ? AND user_id = ?', [product_id, userid]);
+        if(watchlist.length != 0){
+            res.status(400).send({status: "error", message: "The product already exists on this user's watchlist"});
+            return;
+        }
+        const inserted = await conn.query('', [product_id, retailer_id, userid]); //<=========sql for insert user here
         if (inserted.affectedRows == 1) {
             res.status(201).send({ status: 'success', message: 'New Item added to Watchlist' });
             return;
