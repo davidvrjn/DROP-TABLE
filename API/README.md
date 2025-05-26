@@ -304,21 +304,22 @@ Possible response codes:
 Example request
 ```
 {
-    userid: //validation
-    category_id:,
-    brand_id:,
-    title:,
-    description:,
+    userid: 3
+    category_id: 3,
+    brand_id: 2,
+    title: "Redragon DRAGONBORN Mechanical 60% RGB Gaming Keyboard",
+    description: "The Redragon K630 DRAGONBORN 60% RGB Mechanical Gaming Keyboard is perfect for the PC gamer
+                  who wants to have the most efficient and compact keyboard setup.",
     created_at: current_time
     updated_at: current_time
-    specifications:,
+    specifications: ,
     features:,
-    image_url:,
+    image_url: https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za,
     retail_details:[
         {
-            retailer_id:,
-            initial_price:,
-            final_price:,
+            retailer_id: 3,
+            initial_price: 843.74,
+            final_price: 649.23
         }
     ]
 }
@@ -326,8 +327,8 @@ Example request
 Example response
 ```
 {
-    status: 
-    message: 
+    status: "success", 
+    message: "Product inserted successfully"
 }
 ```
 Possible response codes:
@@ -337,15 +338,15 @@ Possible response codes:
 Example request
 ```
 {
-    x_name:
-    userid: //validation
+    name: "Appliances",
+    userid: 2
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "New Item added to Category"
 }
 ```
 Possible response codes:
@@ -378,8 +379,8 @@ Example request
 Example response
 ```
 {
-    status: 
-    message: 
+    status: "success",
+    message: "Product updated successfully"
 }
 ```
 Possible response codes:
@@ -389,16 +390,16 @@ Possible response codes:
 Example request
 ```
 {
-    x_name:
-    id:
-    userid: //validation
+    name: "Appliances",
+    id: 3,
+    userid: 4
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Categories successfully updated"
 }
 ```
 Possible response codes:
@@ -418,8 +419,8 @@ Example request
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Watchlist updated successfully"
 }
 ```
 Possible response codes:
@@ -446,15 +447,15 @@ Example response
 Example request
 ```
 {
-    id:
-    userid: //validation
+    id: 4,
+    userid: 3
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Product deleted successfully"
 }
 ```
 Possible response codes:
