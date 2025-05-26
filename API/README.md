@@ -248,7 +248,7 @@ Example response
 Possible response codes:
 unknown
 
-## Add/ToWatchlist
+## Add/Watchlist
 Example request
 ```
 {
@@ -302,6 +302,7 @@ Example request
     updated_at: current_time
     specifications: ,
     features:,
+    images: [],
     image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
     retail_details:[
         {
@@ -352,9 +353,9 @@ Example request
     title: "REDDRAGON 60% keyboard",
     description: ["60% mechanical keyboard with light and ergonomic design. Perfect for gamers with limited desk space."],
     specifications: ,
-    features:,
+    features: ["Wrist support","Mechanical Tactical (RED) switches"],
     image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
-    images: [https://shopnow.com/Red-dragon-keyboard-x91,https://gadgethub.io/Red-dragon-keyboard-deal,https://buyit.tech/Red-dragon-keyboard-pro],
+    images: ["https://shopnow.com/Red-dragon-keyboard-x91","https://gadgethub.io/Red-dragon-keyboard-deal","https://buyit.tech/Red-dragon-keyboard-pro"],
     retail_details:[
         {
             retailer_id: 3,
