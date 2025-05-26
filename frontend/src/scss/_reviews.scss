@@ -228,3 +228,31 @@
         margin-bottom: 10px;
     }
 }
+
+/* Star rating selection */
+.star-rating-select {
+    display: flex;
+    gap: 5px;
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.star-rating-select .bi-star,
+.star-rating-select .bi-star-fill {
+    cursor: pointer;
+    color: #FFD700;
+    transition: transform 0.1s ease;
+}
+
+.star-rating-select .bi-star:hover,
+.star-rating-select .bi-star-fill:hover {
+    transform: scale(1.2);
+}
+
+/* Dark mode adjustments for review modal */
+[data-bs-theme="dark"] {
+    .star-rating-select .bi-star,
+    .star-rating-select .bi-star-fill {
+        color: #FFD700;
+    }
+}
