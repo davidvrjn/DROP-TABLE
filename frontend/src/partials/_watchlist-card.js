@@ -40,11 +40,15 @@ export function createWatchlistCardHTML(product) {
               </div>
               ` : ''}
             </div>
-            <div class="mt-2">
-              <button type="button" class="btn btn-outline-secondary btn-sm view-price-history w-100" 
+            <div class="mt-2 d-flex gap-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm view-price-history flex-grow-1" 
                 data-bs-toggle="modal" data-bs-target="#priceHistoryModal" 
                 data-product-id="${product.id}">
-                <i class="bi bi-graph-up"></i> View Price History
+                <i class="bi bi-graph-up"></i> Check Price Change
+              </button>
+              <button type="button" class="btn btn-outline-success btn-sm save-current-price flex-grow-1"
+                data-product-id="${product.id}">
+                <i class="bi bi-bookmark-plus"></i> Save Current Price
               </button>
             </div>
           </div>

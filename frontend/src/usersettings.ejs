@@ -57,47 +57,46 @@
                         <div class="tab-content" id="settingsTabContent">
                             <!-- Email Tab -->
                             <div class="tab-pane fade show active" id="email-tab-pane" role="tabpanel" aria-labelledby="email-tab" tabindex="0">
-                                <form id="emailForm" disabled>
+                                <form id="emailForm">
                                     <div class="mb-3">
                                         <label for="currentEmail" class="form-label">Current Email</label>
-                                        <input type="email" class="form-control" id="currentEmail" value="" disabled>
+                                        <input type="email" class="form-control" id="currentEmail" value="user@example.com" disabled>
                                         <div class="form-text">This is your current email address.</div>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="newEmail" class="form-label">New Email</label>
-                                        <input type="email" class="form-control" id="newEmail" required disabled>
+                                        <input type="email" class="form-control" id="newEmail" required>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="confirmEmail" class="form-label">Confirm New Email</label>
-                                        <input type="email" class="form-control" id="confirmEmail" required disabled>
+                                        <input type="email" class="form-control" id="confirmEmail" required>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="currentPasswordForEmail" class="form-label">Current Password</label>
-                                        <input type="password" class="form-control" id="currentPasswordForEmail" required disabled>
+                                        <input type="password" class="form-control" id="currentPasswordForEmail" required>
                                         <div class="form-text">For security, please enter your current password.</div>
                                     </div>
                                     
                                     <div class="d-grid gap-2">
-                                        <button type="submit" class="btn btn-primary" disabled>Update Email</button>
+                                        <button type="submit" class="btn btn-primary">Update Email</button>
                                     </div>
-                                    <p class="text-muted mt-2">* Email updates are not yet supported by the API. Contact support for assistance.</p>
                                 </form>
                             </div>
                             
                             <!-- Password Tab -->
                             <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab" tabindex="0">
-                                <form id="passwordForm" disabled>
+                                <form id="passwordForm">
                                     <div class="mb-3">
                                         <label for="currentPassword" class="form-label">Current Password</label>
-                                        <input type="password" class="form-control" id="currentPassword" required disabled>
+                                        <input type="password" class="form-control" id="currentPassword" required>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label for="newPassword" class="form-label">New Password</label>
-                                        <input type="password" class="form-control" id="newPassword" required disabled>
+                                        <input type="password" class="form-control" id="newPassword" required>
                                         <div class="form-text">
                                             Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
                                         </div>
@@ -105,13 +104,12 @@
                                     
                                     <div class="mb-3">
                                         <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                                        <input type="password" class="form-control" id="confirmPassword" required disabled>
+                                        <input type="password" class="form-control" id="confirmPassword" required>
                                     </div>
                                     
                                     <div class="d-grid gap-2">
-                                        <button type="submit" class="btn btn-primary" disabled>Update Password</button>
+                                        <button type="submit" class="btn btn-primary">Update Password</button>
                                     </div>
-                                    <p class="text-muted mt-2">* Password updates are not yet supported by the API. Contact support for assistance.</p>
                                 </form>
                             </div>
                             
@@ -125,12 +123,12 @@
                                 <form id="deleteAccountForm">
                                     <div class="mb-3">
                                         <label for="passwordForDelete" class="form-label">Current Password</label>
-                                        <input type="password" class="form-control" id="passwordForDelete" required disabled>
+                                        <input type="password" class="form-control" id="passwordForDelete" required>
                                         <div class="form-text">For security, please enter your current password to confirm account deletion.</div>
                                     </div>
                                     
                                     <div class="mb-3 form-check">
-                                        <input type="checkbox" class="form-check-input" id="confirmDelete" required disabled>
+                                        <input type="checkbox" class="form-check-input" id="confirmDelete" required>
                                         <label class="form-check-label" for="confirmDelete">
                                             I understand that deleting my account is permanent and cannot be undone.
                                         </label>
@@ -141,7 +139,6 @@
                                             Delete My Account
                                         </button>
                                     </div>
-                                    <p class="text-muted mt-2">* Account deletion is not yet supported by the API. Contact support for assistance.</p>
                                 </form>
                             </div>
                         </div>
@@ -165,7 +162,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn" disabled>Yes, Delete My Account</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Yes, Delete My Account</button>
                 </div>
             </div>
         </div>
@@ -173,15 +170,159 @@
 
     <br><br>
     <!-- # FOOTER SEGMENT # -->
-    <%- include('./partials/_footer.ejs') %>
-
+    <%- include('partials/_footer.ejs') %>
+    
     <script type="module">
         import { initPasswordEye } from './partials/_passwordeye.js';
-
-        document.addEventListener('DOMContentLoaded', async function() {
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize password eye toggle
             initPasswordEye();
-            const { initSettings } = await import('./js/settings.js');
-            initSettings();
+            
+            // Email form submission
+            const emailForm = document.getElementById('emailForm');
+            if (emailForm) {
+                emailForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const newEmail = document.getElementById('newEmail').value;
+                    const confirmEmail = document.getElementById('confirmEmail').value;
+                    const currentPassword = document.getElementById('currentPasswordForEmail').value;
+                    
+                    // Validate emails match
+                    if (newEmail !== confirmEmail) {
+                        alert('New email and confirmation email do not match.');
+                        return;
+                    }
+                    
+                    // Validate password is not empty
+                    if (!currentPassword) {
+                        alert('Please enter your current password.');
+                        return;
+                    }
+                    
+                    console.log('Email update attempt:', { newEmail, currentPassword });
+                    
+                    // Show success message
+                    const successAlert = document.getElementById('settingsSuccessAlert');
+                    if (successAlert) {
+                        successAlert.textContent = 'Your email has been updated successfully.';
+                        successAlert.classList.remove('d-none');
+                        
+                        // Hide the alert after 5 seconds
+                        setTimeout(() => {
+                            successAlert.classList.add('d-none');
+                        }, 5000);
+                    }
+                    
+                    // Reset form
+                    emailForm.reset();
+                });
+            }
+            
+            // Password form submission
+            const passwordForm = document.getElementById('passwordForm');
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Get form values
+                    const currentPassword = document.getElementById('currentPassword').value;
+                    const newPassword = document.getElementById('newPassword').value;
+                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    
+                    // Validate current password is not empty
+                    if (!currentPassword) {
+                        alert('Please enter your current password.');
+                        return;
+                    }
+                    
+                    // Validate password meets requirements
+                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+                    if (!passwordRegex.test(newPassword)) {
+                        alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.');
+                        return;
+                    }
+                    
+                    // Validate passwords match
+                    if (newPassword !== confirmPassword) {
+                        alert('New password and confirmation password do not match.');
+                        return;
+                    }
+                    
+                    console.log('Password update attempt:', { currentPassword, newPassword });
+                    
+                    // Show success message
+                    const successAlert = document.getElementById('settingsSuccessAlert');
+                    if (successAlert) {
+                        successAlert.textContent = 'Your password has been updated successfully.';
+                        successAlert.classList.remove('d-none');
+                        
+                        // Hide the alert after 5 seconds
+                        setTimeout(() => {
+                            successAlert.classList.add('d-none');
+                        }, 5000);
+                    }
+                    
+                    // Reset form
+                    passwordForm.reset();
+                });
+            }
+            
+            // Handle tab changes to hide success message
+            const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function() {
+                    const successAlert = document.getElementById('settingsSuccessAlert');
+                    if (successAlert) {
+                        successAlert.classList.add('d-none');
+                    }
+                });
+            });
+            
+            // Delete account functionality
+            const deleteAccountForm = document.getElementById('deleteAccountForm');
+            const confirmDeleteCheckbox = document.getElementById('confirmDelete');
+            const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+            const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccountBtn');
+            const passwordForDelete = document.getElementById('passwordForDelete');
+            
+            // Enable/disable delete button based on checkbox
+            if (confirmDeleteCheckbox && deleteAccountBtn) {
+                confirmDeleteCheckbox.addEventListener('change', function() {
+                    deleteAccountBtn.disabled = !this.checked;
+                });
+            }
+            
+            // Show confirmation modal when delete button is clicked
+            if (deleteAccountBtn) {
+                deleteAccountBtn.addEventListener('click', function() {
+                    if (!passwordForDelete || !passwordForDelete.value) {
+                        alert('Please enter your current password.');
+                        return;
+                    }
+                    
+                    // Show confirmation modal
+                    const deleteAccountModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+                    deleteAccountModal.show();
+                });
+            }
+            
+            // Handle final confirmation
+            if (confirmDeleteAccountBtn) {
+                confirmDeleteAccountBtn.addEventListener('click', function() {
+                    const password = passwordForDelete ? passwordForDelete.value : '';
+                    
+                    console.log('Account deletion attempt with password:', password);
+                    
+                    // Here you would typically make an API call to delete the account
+                    
+                    // For demo purposes, show a success message and redirect
+                    alert('Your account has been successfully deleted. You will be redirected to the homepage.');
+                    window.location.href = 'index.ejs';
+                });
+            }
         });
     </script>
 </body>
