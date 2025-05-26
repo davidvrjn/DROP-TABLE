@@ -16,20 +16,20 @@ endpoint: http://localhost:3000/
 Request example
 ```
 {
-    userid:
+    userid: 2,
     filters: {
-        brands: [],
-        departments: [],
-        retailers: [],
-        prices: [min, max],
-        rating:,
-        search:
+        brands: ["Logitech"],
+        departments: ["Appliances"],
+        retailers: ["Amazon","Takealot"],
+        prices: [1000, 2000],
+        rating: 3,
+        search: "Keyboard"
     }
     ordering:{
-        field:,
-        order:
+        field: "Price",
+        order: "Ascending"
     }
-    limit:
+    limit: 30
 }
 ```
 Response example
