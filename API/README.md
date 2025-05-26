@@ -49,7 +49,7 @@ Response example
             rating:,
             initial_price:,
             discount:,
-            watchlist: false or true
+            watchlist: true
         }
     ]
     total: 
@@ -356,7 +356,7 @@ Example request
     specifications:,
     features:,
     image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
-    images: [],
+    images: [https://shopnow.com/Red-dragon-keyboard-x91,https://gadgethub.io/Red-dragon-keyboard-deal,https://buyit.tech/Red-dragon-keyboard-pro],
     retail_details:[
         {
             retailer_id: 3,
