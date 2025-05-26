@@ -353,10 +353,10 @@ Example request
     brand_id: 2,
     title: "REDDRAGON 60% keyboard",
     description: 60% mechanical keyboard with light and ergonomic design. Perfect for gamers with limited desk space.",
-    updated_at: current_time //do not modify creation_time
     specifications:,
     features:,
     image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
+    images: [],
     retail_details:[
         {
             retailer_id: 3,
@@ -399,7 +399,7 @@ Possible response codes:
 Example request
 ```
 {
-    userid: 3,
+    userid: 3,    
     product_id: 12,
     initial_price: 2000,
     final_price: 1500,
@@ -421,7 +421,7 @@ Possible response codes:
 Example request
 ```
 {
-    id: 4,
+    product_id: 4,
     userid: 3
 }
 ```
