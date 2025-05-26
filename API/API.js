@@ -986,9 +986,9 @@ app.post('/Get/Watchlist', express.json(), async (req, res) => {
         }
 
         conn = await pool.getConnection();
-        const watchlist_Details = await conn.query('SELECT W.product_id, initial_price, final_price, AVG(R.score) AS rating, title, image_url, retailer_name  FROM Watchlist_Item AS W INNER JOIN Product AS P ON W.product_id = P.id LEFT JOIN Review AS R ON R.product_ID = P.id WHERE W.user_id = ?', [userid]);
+        const watchlist_Details = await conn.query('SELECT W.product_id, initial_price, final_price, AVG(R.score) AS rating, title, image_url, retailer_name  FROM Watchlist_Item AS W INNER JOIN Product AS P ON W.product_id = P.id LEFT JOIN Review AS R ON R.product_ID = P.id WHERE W.user_id = ? GROUP BY W.product_id', [userid]);
         let watchlistJSON = [];
-
+        console.log(watchlist_Details);
         for (let i = 0; i < watchlist_Details.length; i++) {
             if(watchlist_Details[i].product_id != null){
                 let temp = {
@@ -1064,7 +1064,7 @@ app.post('/Get/RetailPrices', express.json(), async (req, res) => {
     }
 })
 
-app.post('/Add/ToWatchlist', express.json(), async (req, res) => {
+app.post('/Add/Watchlist', express.json(), async (req, res) => {
     let conn;
 
     if (!req.is('application/json')) {
@@ -1088,7 +1088,15 @@ app.post('/Add/ToWatchlist', express.json(), async (req, res) => {
             res.status(400).send({status: "error", message: "The product already exists on this user's watchlist"});
             return;
         }
-        const inserted = await conn.query('', [product_id, retailer_id, userid]); //<=========sql for insert user here
+
+        //Get current static data
+        const product = await conn.query('SELECT initial_price, final_price, name FROM Product_Retailer INNER JOIN Retailer ON Retailer.id = Product_Retailer.retailer_id WHERE retailer_id = ? AND product_id = ?', [retailer_id, product_id]);
+        if(product.length === 0 || product[0].initial_price == null){
+            res.status(400).send({status: "error", message: "The combination of retailer and product does not exist on the database"});
+            return;
+        }
+
+        const inserted = await conn.query('INSERT INTO Watchlist_Item VALUES(?,?,?,?,?)', [userid, product[0].name, product_id, product[0].initial_price, product[0].final_price]); //<=========sql for insert user here
         if (inserted.affectedRows == 1) {
             res.status(201).send({ status: 'success', message: 'New Item added to Watchlist' });
             return;
