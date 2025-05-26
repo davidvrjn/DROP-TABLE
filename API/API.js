@@ -127,7 +127,7 @@ app.post('/Get/Products', express.json(), async (req, res) => {
                "retailer_id": product.rID,
                "rating": product.Rating,
                "initial_price": product.initial_price,
-               "discount": product.discount,
+               "discount": Math.floor((product.Discount * 100 )),
                "watchlist": product.watchlist
             })
         });
