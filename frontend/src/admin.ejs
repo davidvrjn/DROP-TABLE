@@ -6,18 +6,7 @@
 <body>
     <!-- Client-side admin access check -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let user = null;
-            try {
-                const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
-                user = storedUser ? JSON.parse(storedUser) : null;
-            } catch (e) {
-                console.error('Error parsing user data from storage:', e);
-            }
-            if (!user || user.type !== 'admin') {
-                window.location.href = '/login.ejs';
-            }
-        });
+
     </script>
 
     <!-- # HEADER SEGMENT # -->
