@@ -160,7 +160,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const userId = JSON.parse(user || "{}").id;
 
         if (!userId) {
-            alert("Please log in to add items to your watchlist.");
+            // Replace alert with modal notification
+            if (window.showLoginNotification) {
+                window.showLoginNotification();
+            } else {
+                // Fallback if the function isn't available
+                alert("Please log in to add items to your watchlist.");
+            }
             return;
         }
 
