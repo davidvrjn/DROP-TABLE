@@ -377,3 +377,80 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// Function to show login notification modal
+function showLoginNotification(message = "Please log in to add items to your watchlist.") {
+    // Remove existing modal if present
+    const existing = document.getElementById("loginNotificationModal");
+    if (existing) existing.remove();
+
+    // Get current theme
+    const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+
+    // Create overlay
+    const overlay = document.createElement("div");
+    overlay.id = "loginNotificationModal";
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(0,0,0,0.5)";
+    overlay.style.display = "flex";
+    overlay.style.justifyContent = "center";
+    overlay.style.alignItems = "center";
+    overlay.style.zIndex = "1000";
+
+    // Create modal container
+    const modal = document.createElement("div");
+    modal.style.padding = "20px";
+    modal.style.borderRadius = "10px";
+    modal.style.maxWidth = "400px";
+    modal.style.width = "90%";
+    modal.style.textAlign = "center";
+    modal.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+    
+    // Set theme-specific styles
+    if (isDarkMode) {
+        modal.style.backgroundColor = "#212529";
+        modal.style.color = "#fff";
+        modal.style.border = "1px solid rgba(206, 147, 216, 0.15)";
+    } else {
+        modal.style.backgroundColor = "#fff";
+        modal.style.color = "#212529";
+        modal.style.border = "1px solid rgba(106, 27, 154, 0.15)";
+    }
+
+    // Modal content
+    modal.innerHTML = `
+        <div style="margin-bottom: 15px;">
+            <i class="bi bi-exclamation-circle" style="font-size: 2rem; color: ${isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)'}"></i>
+        </div>
+        <p style="margin-bottom: 20px;">${message}</p>
+        <div>
+            <button id="closeLoginModal" style="padding: 8px 16px; border: none; background: ${isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)'}; color: ${isDarkMode ? '#212529' : 'white'}; border-radius: 20px; cursor: pointer; transition: all 0.3s; margin-right: 10px;">OK</button>
+            <a href="login.html" style="padding: 8px 16px; border: 1px solid ${isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)'}; background: transparent; color: ${isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)'}; border-radius: 20px; cursor: pointer; transition: all 0.3s; text-decoration: none;">Login</a>
+        </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    // Add hover effects to buttons
+    const closeButton = document.getElementById("closeLoginModal");
+    closeButton.addEventListener('mouseover', () => {
+        closeButton.style.backgroundColor = isDarkMode ? 'rgba(206, 147, 216, 1)' : 'rgba(106, 27, 154, 1)';
+    });
+    closeButton.addEventListener('mouseout', () => {
+        closeButton.style.backgroundColor = isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)';
+    });
+
+    // Close modal when clicking the close button or outside the modal
+    closeButton.addEventListener("click", () => overlay.remove());
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) overlay.remove();
+    });
+}
+
+// Make the function globally available
+window.showLoginNotification = showLoginNotification;

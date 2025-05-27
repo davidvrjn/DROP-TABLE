@@ -9,7 +9,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
             if (!user || !user.first_name) {
-                window.location.href = '/login.ejs';
+                window.location.href = '/login.html';
             }
         });
     </script>
