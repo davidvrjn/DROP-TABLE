@@ -7,11 +7,14 @@
 // Import the function to generate product card HTML
 import { createProductCardHTML } from "../partials/_product-card.js";
 
+const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+const userId = JSON.parse(user)?.id;
+
 async function fetchProducts({
     filters = {},
     ordering = {},
     limit = 100,
-    userid = null,
+    userid = userId,
 } = {}) {
     try {
         const response = await fetch("http://localhost:3000/Get/Products", {
@@ -515,6 +518,8 @@ function setupHeroSearch() {
 }
 
 async function performSearch(query) {
+    const user = localStorage.getItem("user") || sessionStorage.getItem("user");
+    const userId = JSON.parse(user)?.id;
     const products = await fetchProducts({
         filters: {
             search: query,

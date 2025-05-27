@@ -9,6 +9,7 @@
  * @param {number} [product.rating] - The product average rating (optional).
  * @param {number} [product.initial_price] - The initial product price (optional).
  * @param {number} [product.discount] - The product discount percentage (optional).
+ * @param {number} [product.watchlist] - Whether the product is in the watchlist (0 or 1).
  * @returns {string} The HTML string for the product card.
  */
 export function createProductCardHTML(product) {
@@ -58,7 +59,7 @@ export function createProductCardHTML(product) {
               </div>
               `
                   : ""}
-              <button type="button" class="watchlist-icon" title="Add to Watchlist" data-product-id="${product.id}">
+              <button type="button" class="watchlist-icon ${product.watchlist === 1 ? 'added' : ''}" title="${product.watchlist === 1 ? 'Remove from' : 'Add to'} Watchlist" data-product-id="${product.id}" data-retailer-id="${product.retailer_id || 1}">
                 &hearts; 
               </button>
           </div>

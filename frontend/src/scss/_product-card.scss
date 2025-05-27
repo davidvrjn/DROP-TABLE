@@ -125,6 +125,10 @@
     color: $danger;
   }
 
+  &.added {
+    color: $danger;
+  }
+
   &:focus, &:focus-visible {
     outline: none;
     box-shadow: none;
