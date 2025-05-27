@@ -84,15 +84,10 @@ async function loadProducts() {
     }
 
     const tbody = productsTable.querySelector("tbody");
-    tbody.innerHTML =
-        '<tr><td colspan="6" class="text-center">Loading products...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading products...</td></tr>';
 
     try {
-        const user = JSON.parse(
-            localStorage.getItem("user") ||
-                sessionStorage.getItem("user") ||
-                "{}"
-        );
+        const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
         let allProducts = [];
 
         // Fetch products for each category to ensure category_id association
@@ -104,26 +99,20 @@ async function loadProducts() {
                     userid: user.id || user.user_id,
                     filters: { departments: [category.name] },
                     ordering: {},
-                    limit: 10000,
+                    limit: 10000
                 }),
             });
             const result = await response.json();
-            console.log(
-                `Products API response for category ${category.name}:`,
-                result
-            );
+            console.log(`Products API response for category ${category.name}:`, result);
 
             if (result.status === "success" && Array.isArray(result.data)) {
-                const productsWithCategory = result.data.map((product) => ({
+                const productsWithCategory = result.data.map(product => ({
                     ...product,
-                    category_id: category.id, // Assign category_id based on the category
+                    category_id: category.id // Assign category_id based on the category
                 }));
                 allProducts.push(...productsWithCategory);
             } else {
-                console.warn(
-                    `No products found for category ${category.name}:`,
-                    result.message
-                );
+                console.warn(`No products found for category ${category.name}:`, result.message);
             }
         }
 
@@ -135,26 +124,24 @@ async function loadProducts() {
                 userid: user.id || user.user_id,
                 filters: {},
                 ordering: {},
-                limit: 10000,
+                limit: 10000
             }),
         });
         const result = await response.json();
         console.log("Products API response (no category filter):", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            // Add uncategorized products, excluding those already fetched
-            const existingIds = new Set(allProducts.map((p) => p.id));
+            const existingIds = new Set(allProducts.map(p => p.id));
             const uncategorizedProducts = result.data
-                .filter((product) => !existingIds.has(product.id))
-                .map((product) => {
-                    // Try to match the product to a category based on category_id if provided by the API
+                .filter(product => !existingIds.has(product.id))
+                .map(product => {
                     const productCategoryId = product.category_id?.toString();
                     const category = productCategoryId
-                        ? categories.find((cat) => cat.id === productCategoryId)
+                        ? categories.find(cat => cat.id === productCategoryId)
                         : null;
                     return {
                         ...product,
-                        category_id: category ? category.id : "", // Use category_id if matched, else mark as uncategorized
+                        category_id: category ? category.id : ""
                     };
                 });
             allProducts.push(...uncategorizedProducts);
@@ -162,20 +149,32 @@ async function loadProducts() {
 
         // Remove duplicates by id
         allProducts = Array.from(
-            new Map(allProducts.map((p) => [p.id, p])).values()
+            new Map(allProducts.map(p => [p.id, p])).values()
         );
 
-        products = allProducts.map((product) => {
-            console.log("Mapping product:", product);
+        // Fetch retailer prices for each product
+        products = await Promise.all(allProducts.map(async (product) => {
             const categoryId = product.category_id?.toString() || "";
-            const category = categories.find((cat) => cat.id === categoryId);
+            const category = categories.find(cat => cat.id === categoryId);
             const categoryName = category ? category.name : "Uncategorized";
 
             if (categoryName === "Uncategorized" && categoryId) {
-                console.warn(
-                    `No category matched for product ID ${product.id}, title: ${product.title}, category_id: ${categoryId}`
-                );
+                console.warn(`No category matched for product ID ${product.id}, title: ${product.title}, category_id: ${categoryId}`);
             }
+
+            // Fetch all retailers for this product
+            const priceResponse = await fetch("http://localhost:3000/Get/RetailPrices", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_id: product.id
+                }),
+            });
+            const priceResult = await priceResponse.json();
+
+            const allRetailers = priceResult.status === "success" && Array.isArray(priceResult.data)
+                ? priceResult.data.map(item => item.retailer_name)
+                : [product.retailer_name || "Unknown"];
 
             return {
                 id: product.id?.toString() || "",
@@ -187,32 +186,23 @@ async function loadProducts() {
                 brand_id: product.brand_id?.toString() || "",
                 minPrice: parseFloat(product.final_price) || 0,
                 maxPrice: parseFloat(product.initial_price) || 0,
-                retailers: Array.isArray(product.retailer_name)
-                    ? product.retailer_name
-                    : [product.retailer_name || "Unknown"],
+                retailers: allRetailers,
                 retailer_id: product.retailer_id?.toString() || "",
                 description: product.description || "",
-                features: Array.isArray(product.features)
-                    ? product.features
-                    : [],
-                specifications:
-                    typeof product.specifications === "object" &&
-                    product.specifications
-                        ? product.specifications
-                        : {},
+                features: Array.isArray(product.features) ? product.features : [],
+                specifications: typeof product.specifications === 'object' && product.specifications
+                    ? product.specifications
+                    : {},
                 images: Array.isArray(product.images) ? product.images : [],
-                retail_details: Array.isArray(product.retail_details)
-                    ? product.retail_details
-                    : [],
+                retail_details: Array.isArray(product.retail_details) ? product.retail_details : [],
             };
-        });
+        }));
 
         console.log("Mapped products:", products);
 
         tbody.innerHTML = "";
         if (products.length === 0) {
-            tbody.innerHTML =
-                '<tr><td colspan="6" class="text-center">No products found</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center">No products found</td></tr>';
             return;
         }
 
@@ -220,28 +210,18 @@ async function loadProducts() {
             const tr = document.createElement("tr");
             tr.innerHTML = `
                 <td>
-                    <img src="${
-                        product.image || "/placeholder-image.jpg"
-                    }" alt="${
-                product.name
-            }" width="50" height="50" class="img-thumbnail">
+                    <img src="${product.image || '/placeholder-image.jpg'}" alt="${product.name}" width="50" height="50" class="img-thumbnail">
                 </td>
                 <td>${product.name}</td>
                 <td>${product.category}</td>
-                <td>R${product.minPrice.toFixed(
-                    2
-                )} - R${product.maxPrice.toFixed(2)}</td>
+                <td>R${product.minPrice.toFixed(2)} - R${product.maxPrice.toFixed(2)}</td>
                 <td>${product.retailers.join(", ")}</td>
                 <td>
                     <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary edit-product" data-product-id="${
-                            product.id
-                        }">
+                        <button type="button" class="btn btn-outline-primary edit-product" data-product-id="${product.id}">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-danger delete-product" data-product-id="${
-                            product.id
-                        }">
+                        <button type="button" class="btn btn-outline-danger delete-product" data-product-id="${product.id}">
                             <i class="bi bi-trash"></i>
                         </button>
                     </div>
