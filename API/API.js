@@ -1649,7 +1649,7 @@ app.post('/Update/User/Email', express.json(), async(req, res) => {
 
         const { email, password, new_email } = req.body;
 
-        if (!email || !password) {
+        if (!email || !password || !new_email) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
@@ -1677,6 +1677,107 @@ app.post('/Update/User/Email', express.json(), async(req, res) => {
         } else{
             await conn.query('UPDATE User Set email = ? WHERE email = ?', [new_email, email]);
             res.status(200).send({status: "success", message: "Email successfully updated"});
+        }
+    } catch (err) {
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error deleting Product from Watchlist, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally {
+        if (conn) {
+            conn.release();
+        }
+    }
+})
+
+app.post('/Update/User/Password', express.json(), async(req, res) => {
+    let conn;
+
+    if (!req.is('application/json')) {
+        res.status(415).send({ status: 'error', message: 'Expected application/json' });
+        return;
+    }
+
+    try {
+        conn = await pool.getConnection();
+
+        const {userid, password, new_password } = req.body;
+
+        if (!userid || !password || !new_password) {
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
+        }
+
+        const rows= await conn.query('SELECT password FROM User WHERE user_id = ?',[userid]) //<==============sql query for a user here
+
+        if (rows.length === 0) {
+            res.status(404).send({ status: 'error', message: 'Current user not found' });
+            return;
+        }
+
+        const storedPassword = await rows[0].password;
+
+        const match = await bcrypt.compare(password, storedPassword);
+
+        if (!match) {
+            res.status(401).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        } else{
+            const newPass = await hashString(new_password);
+            await conn.query('UPDATE User SET password = ? WHERE user_id = ?', [newPass, userid]);
+            res.status(200).send({status: "success", message: "Password successfully updated"});
+        }
+    } catch (err) {
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error deleting Product from Watchlist, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally {
+        if (conn) {
+            conn.release();
+        }
+    }
+})
+
+app.post('/Remove/User', express.json(), async(req, res) => {
+    let conn;
+
+    if (!req.is('application/json')) {
+        res.status(415).send({ status: 'error', message: 'Expected application/json' });
+        return;
+    }
+
+    try {
+        conn = await pool.getConnection();
+
+        const {userid, password} = req.body;
+
+        if (!userid || !password) {
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
+        }
+
+        const rows= await conn.query('SELECT password FROM User WHERE user_id = ?',[userid]) //<==============sql query for a user here
+
+        if (rows.length === 0) {
+            res.status(404).send({ status: 'error', message: 'Current user not found' });
+            return;
+        }
+
+        const storedPassword = await rows[0].password;
+
+        const match = await bcrypt.compare(password, storedPassword);
+
+        if (!match) {
+            res.status(401).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        } else{
+            await conn.beginTransaction();
+            await conn.query('DELETE Watchlist_Item WHERE user_id = ?', [userid]);
+            await conn.query('DELETE Review WHERE user_id = ?', [userid]);
+            await conn.query('DELETE User WHERE user_id = ?', [userid]);
+            await conn.commit();
+            res.status(200).send({status: "success", message: "Account deleted"});
         }
     } catch (err) {
         console.error(err);
