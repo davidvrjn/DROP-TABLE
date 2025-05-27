@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+
+    <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'admin' }) %>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="d-flex flex-column p-3">
+                    <h5 class="sidebar-heading">Admin Dashboard</h5>
+                    <hr>
+                    <ul class="nav nav-pills flex-column mb-auto" id="admin-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="products-tab" data-bs-toggle="pill" href="#products" role="tab" aria-controls="products" aria-selected="true">
+                                <i class="bi bi-box"></i> Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="categories-tab" data-bs-toggle="pill" href="#categories" role="tab" aria-controls="categories" aria-selected="false">
+                                <i class="bi bi-tags"></i> Categories
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="retailers-tab" data-bs-toggle="pill" href="#retailers" role="tab" aria-controls="retailers" aria-selected="false">
+                                <i class="bi bi-shop"></i> Retailers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="brands-tab" data-bs-toggle="pill" href="#brands" role="tab" aria-controls="brands" aria-selected="false">
+                                <i class="bi bi-award"></i> Brands
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 admin-content">
+                <div class="tab-content" id="admin-tab-content">
+                    <!-- Products Tab -->
+                    <div class="tab-pane fade show active" id="products" role="tabpanel" aria-labelledby="products-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Product Management</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                <i class="bi bi-plus-lg"></i> Add Product
+                            </button>
+                        </div>
+
+                        <!-- Search and Filter Bar -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                            <input type="text" class="form-control" id="productSearch" placeholder="Search products...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="categoryFilter">
+                                            <option value="">All Categories</option>
+                                            <!-- Categories will be populated by JS -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select class="form-select" id="retailerFilter">
+                                            <option value="">All Retailers</option>
+                                            <!-- Retailers will be populated by JS -->
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-outline-secondary w-100" id="resetFilters">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Products Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="productsTable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Image</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Category</th>
+                                                <th scope="col">Price Range</th>
+                                                <th scope="col">Retailers</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Products will be populated by JS -->
+                                            <tr>
+                                                <td colspan="6" class="text-center">Loading products...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <nav aria-label="Products loadmore">
+                                    <ul class="loadmore justify-content-center" id="productsloadmore">
+                                        <!-- loadmore will be populated by JS -->
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categories Tab -->
+                    <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Category Management</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                <i class="bi bi-plus-lg"></i> Add Category
+                            </button>
+                        </div>
+
+                        <!-- Categories Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="categoriesTable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Products Count</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Categories will be populated by JS -->
+                                            <tr>
+                                                <td colspan="4" class="text-center">Loading categories...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Retailers Tab -->
+                    <div class="tab-pane fade" id="retailers" role="tabpanel" aria-labelledby="retailers-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Retailer Management</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRetailerModal">
+                                <i class="bi bi-plus-lg"></i> Add Retailer
+                            </button>
+                        </div>
+
+                        <!-- Retailers Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="retailersTable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Website</th>
+                                                <th scope="col">Products Count</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Retailers will be populated by JS -->
+                                            <tr>
+                                                <td colspan="4" class="text-center">Loading retailers...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Brands Tab -->
+                    <div class="tab-pane fade" id="brands" role="tabpanel" aria-labelledby="brands-tab">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2>Brand Management</h2>
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBrandModal">
+                                <i class="bi bi-plus-lg"></i> Add Brand
+                            </button>
+                        </div>
+
+                        <!-- Search and Filter Bar -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                            <input type="text" class="form-control" id="brandSearch" placeholder="Search brands...">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text">Min Products</span>
+                                            <input type="number" class="form-control" id="brandProductCountFilter" placeholder="0" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-outline-secondary w-100" id="resetBrandFilters">Reset</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Brands Table -->
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="brandsTable">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Products Count</th>
+                                                <th scope="col">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Brands will be populated by JS -->
+                                            <tr>
+                                                <td colspan="3" class="text-center">Loading brands...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addProductForm">
+                        <input type="hidden" name="productId" value="">
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="productName" class="form-label">Product Name</label>
+                                <input type="text" class="form-control" id="productName" name="productName" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="productCategory" class="form-label">Category</label>
+                                <select class="form-select" id="productCategory" name="productCategory" required>
+                                    <option value="">Select Category</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="productBrand" class="form-label">Brand</label>
+                                <select class="form-select" id="productBrand" name="productBrand" required>
+                                    <option value="">Select Brand</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="productImageUrl" class="form-label">Image URLs (one per line)</label>
+                                <textarea class="form-control" id="productImageUrl" name="productImageUrl" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="productDescription" class="form-label">Description</label>
+                                <textarea class="form-control" id="productDescription" name="productDescription" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="productKeyFeatures" class="form-label">Key Features (one per line)</label>
+                                <textarea class="form-control" id="productKeyFeatures" name="productKeyFeatures" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Retailer Prices</label>
+                                <div id="retailerPricesContainer">
+                                    <!-- Dynamic retailer rows will be added here -->
+                                </div>
+                                <button type="button" class="btn btn-outline-primary mt-2" id="addRetailerBtn">
+                                    <i class="bi bi-plus-lg"></i> Add Retailer
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label">Specifications</label>
+                                <div id="specificationsContainer">
+                                    <!-- Dynamic specification rows will be added here -->
+                                </div>
+                                <button type="button" class="btn btn-outline-primary mt-2" id="addSpecBtn">
+                                    <i class="bi bi-plus-lg"></i> Add Specification
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveProductBtn">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addCategoryForm">
+                        <input type="hidden" name="categoryId" value="">
+                        <div class="mb-3">
+                            <label for="categoryName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="categoryName" name="categoryName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveCategoryBtn">Save Category</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Retailer Modal -->
+    <div class="modal fade" id="addRetailerModal" tabindex="-1" aria-labelledby="addRetailerModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRetailerModalLabel">Add New Retailer</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addRetailerForm">
+                        <input type="hidden" name="retailerId" value="">
+                        <div class="mb-3">
+                            <label for="retailerName" class="form-label">Retailer Name</label>
+                            <input type="text" class="form-control" id="retailerName" name="retailerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="retailerWebsite" class="form-label">Retailer Website</label>
+                            <input type="url" class="form-control" id="retailerWebsite" name="retailerWebsite" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveRetailerBtn">Save Retailer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Brand Modal -->
+    <div class="modal fade" id="addBrandModal" tabindex="-1" aria-labelledby="addBrandModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBrandModalLabel">Add New Brand</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBrandForm">
+                        <input type="hidden" name="brandId" value="">
+                        <div class="mb-3">
+                            <label for="brandName" class="form-label">Brand Name</label>
+                            <input type="text" class="form-control" id="brandName" name="brandName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveBrandBtn">Save Brand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+    <!-- # FOOTER SEGMENT # -->
+    <%- include('./partials/_footer.ejs') %>
+
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>

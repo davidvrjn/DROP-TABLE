@@ -1,0 +1,108 @@
+//*//*//*//*//*//*//*//*//*//*//*//*//*//* FILTER BAR STYLING //*//*//*//*//*//*//*//*//*//*//*//*//*//*
+
+// Filter Sidebar Styles
+.filters-container {
+  background-color: #fff;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.filter-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e9ecef;
+
+  &:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+.filter-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+// Common styles for scrollable option containers
+.filter-options,
+.brand-options,
+.category-options {
+  overflow-y: auto;
+  border-radius: 0.25rem;
+}
+
+.filter-options {
+  max-height: 200px;
+  
+  .form-check {
+    margin-bottom: 0.5rem;
+  }
+}
+
+.brand-options,
+.category-options {
+  max-height: 150px;
+  border: 1px solid rgba(0,0,0,.125);
+  padding: 0.5rem;
+  
+  &:empty::before {
+    color: #6c757d;
+    font-style: italic;
+    display: block;
+    text-align: center;
+  }
+}
+
+.brand-options:empty::before {
+  content: "Loading brands...";
+}
+
+.category-options:empty::before {
+  content: "Loading categories...";
+}
+
+.stars {
+  color: #ffc107; 
+  letter-spacing: -2px;
+}
+
+.rating-count {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.price-slider {
+  padding: 0.5rem 0;
+  
+  .range-slider {
+    position: relative;
+    height: 2rem;
+  }
+  
+  .form-range {
+    position: absolute;
+    width: 100%;
+    pointer-events: none;
+    
+    &::-webkit-slider-thumb,
+    &::-moz-range-thumb {
+      pointer-events: auto;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767.98px) {
+  .filters-container {
+    display: block; 
+  }
+  
+  // Hide only the sidebar version, not the offcanvas version
+  .col-md-3 .filters-container {
+    display: none;
+  }
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+  
+    <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'about' }) %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="card shadow-sm mb-5">
+                    <div class="card-body p-5">
+                        <h1 class="display-5 fw-bold text-center mb-4">About CompareIt</h1>
+                        
+                        <div class="mb-5">
+                            <h2 class="h4 fw-bold">Our Mission</h2>
+                            <p>CompareIt helps you find the best deals across multiple retailers in South Africa. We compare prices for you so you never miss out on savings.</p>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="h4 fw-bold">How It Works</h2>
+                            <div class="row mt-4 g-4">
+                                <div class="col-md-4 text-center">
+                                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                                        <i class="bi bi-search"></i>
+                                    </div>
+                                    <h3 class="h5">Search</h3>
+                                    <p class="text-muted">Find products across multiple retailers</p>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                                        <i class="bi bi-bar-chart"></i>
+                                    </div>
+                                    <h3 class="h5">Compare</h3>
+                                    <p class="text-muted">See prices from different stores side by side</p>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="feature-icon bg-primary bg-gradient text-white rounded-circle mb-3">
+                                        <i class="bi bi-heart"></i>
+                                    </div>
+                                    <h3 class="h5">Track</h3>
+                                    <p class="text-muted">Add items to your watchlist for price alerts</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-5">
+                            <h2 class="h4 fw-bold">Our Features</h2>
+                            <ul class="list-group list-group-flush mt-3">
+                                <li class="list-group-item d-flex">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                    <div>
+                                        <strong>Price Comparison</strong>
+                                        <p class="mb-0 text-muted">Compare prices across major South African retailers</p>
+                                    </div>
+                                </li>
+                                <li class="list-group-item d-flex">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                    <div>
+                                        <strong>Search and Filter</strong>
+                                        <p class="mb-0 text-muted">Have control on finding the specific products for you</p>
+                                    </div>
+                                </li>
+                                <li class="list-group-item d-flex">
+                                    <i class="bi bi-check-circle-fill text-success me-3"></i>
+                                    <div>
+                                        <strong>Watchlist</strong>
+                                        <p class="mb-0 text-muted">Save products to track price changes</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="mb-5" id="retailers-container">
+                        </div>
+                        
+                        <div class="text-center mt-5">
+                            <a href="index.ejs" class="btn btn-primary btn-lg px-4 me-md-2">Start Comparing Prices</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- # FOOTER SEGMENT # -->
+    <%- include('partials/_footer.ejs') %>
+    
+    <script type="module" src="./js/about.js"></script>
+</body>

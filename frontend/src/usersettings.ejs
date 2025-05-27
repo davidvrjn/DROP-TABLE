@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+    <!-- Client-side login check -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            if (!user || !user.first_name) {
+                window.location.href = '/login.html';
+            }
+        });
+    </script>
+
+    <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'usersettings' }) %>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 mx-auto">
+                <div class="card shadow-sm">
+                    <div class="card-body p-5">
+                        <h1 class="display-6 fw-bold mb-4">Account Settings</h1>
+                        
+                        <!-- Role Display -->
+                        <div id="roleMessage" class="alert alert-info mb-4" style="display: none;">
+                            <!-- Populated by settings.js -->
+                        </div>
+                        
+                        <!-- Success Alert (hidden by default) -->
+                        <div class="alert alert-success d-none" id="settingsSuccessAlert" role="alert">
+                            Your settings have been updated successfully.
+                        </div>
+                        
+                        <!-- Tabs -->
+                        <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="email-tab" data-bs-toggle="tab" data-bs-target="#email-tab-pane" type="button" role="tab" aria-controls="email-tab-pane" aria-selected="true">
+                                    <i class="bi bi-envelope me-2"></i>Email
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password-tab-pane" type="button" role="tab" aria-controls="password-tab-pane" aria-selected="false">
+                                    <i class="bi bi-lock me-2"></i>Password
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="delete-account-tab" data-bs-toggle="tab" data-bs-target="#delete-account-tab-pane" type="button" role="tab" aria-controls="delete-account-tab-pane" aria-selected="false">
+                                    <i class="bi bi-trash me-2"></i>Delete Account
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="settingsTabContent">
+                            <!-- Email Tab -->
+                            <div class="tab-pane fade show active" id="email-tab-pane" role="tabpanel" aria-labelledby="email-tab" tabindex="0">
+                                <form id="emailForm">
+                                    <div class="mb-3">
+                                        <label for="currentEmail" class="form-label">Current Email</label>
+                                        <input type="email" class="form-control" id="currentEmail" value="user@example.com" disabled>
+                                        <div class="form-text">This is your current email address.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="newEmail" class="form-label">New Email</label>
+                                        <input type="email" class="form-control" id="newEmail" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirmEmail" class="form-label">Confirm New Email</label>
+                                        <input type="email" class="form-control" id="confirmEmail" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="currentPasswordForEmail" class="form-label">Current Password</label>
+                                        <input type="password" class="form-control" id="currentPasswordForEmail" required>
+                                        <div class="form-text">For security, please enter your current password.</div>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">Update Email</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Password Tab -->
+                            <div class="tab-pane fade" id="password-tab-pane" role="tabpanel" aria-labelledby="password-tab" tabindex="0">
+                                <form id="passwordForm">
+                                    <div class="mb-3">
+                                        <label for="currentPassword" class="form-label">Current Password</label>
+                                        <input type="password" class="form-control" id="currentPassword" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="newPassword" class="form-label">New Password</label>
+                                        <input type="password" class="form-control" id="newPassword" required>
+                                        <div class="form-text">
+                                            Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirmPassword" required>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-primary">Update Password</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Delete Account Tab -->
+                            <div class="tab-pane fade" id="delete-account-tab-pane" role="tabpanel" aria-labelledby="delete-account-tab" tabindex="0">
+                                <div class="alert alert-danger mb-4">
+                                    <h5 class="alert-heading"><i class="bi bi-exclamation-triangle-fill me-2"></i>Warning</h5>
+                                    <p>Deleting your account is permanent and cannot be undone. All your data, including your watchlist and saved preferences, will be permanently removed.</p>
+                                </div>
+                                
+                                <form id="deleteAccountForm">
+                                    <div class="mb-3">
+                                        <label for="passwordForDelete" class="form-label">Current Password</label>
+                                        <input type="password" class="form-control" id="passwordForDelete" required>
+                                        <div class="form-text">For security, please enter your current password to confirm account deletion.</div>
+                                    </div>
+                                    
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="confirmDelete" required>
+                                        <label class="form-check-label" for="confirmDelete">
+                                            I understand that deleting my account is permanent and cannot be undone.
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-danger" id="deleteAccountBtn" disabled>
+                                            Delete My Account
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Confirm Account Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you absolutely sure you want to delete your account? This action cannot be undone.</p>
+                    <p>All your data will be permanently removed from our system.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Yes, Delete My Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+    <!-- # FOOTER SEGMENT # -->
+    <%- include('partials/_footer.ejs') %>
+    
+    <script type="module">
+        import { initPasswordEye } from './partials/_passwordeye.js';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            initPasswordEye();
+        });
+
+        import { initSettings } from './js/settings.js';
+        
+    </script>
+</body>
+</html>

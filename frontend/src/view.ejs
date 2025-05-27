@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <%- include('./partials/_head.ejs') %>
+</head>
+<body>
+    <!-- # HEADER SEGMENT # -->
+    <%- include('./partials/_header.ejs', { currentPage: 'view' }) %>
+
+    <div class="container mt-4">
+        <div class="product-view">
+            <a href="index.ejs" class="back-button">
+                <i class="bi bi-arrow-left"></i> Back to Products
+            </a>
+            
+            <div class="product-view-container card">
+                <!-- Top Section: Image and Product Info -->
+                <div class="product-top-section">
+                    <!-- Left Column: Product Image -->
+                    <div class="product-image-column">
+                        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators" id="carousel-indicators">
+                                <!-- Indicators will be added dynamically -->
+                                <button type="button" data-bs-target="#productCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                            </div>
+                            <div class="carousel-inner">
+                                <!-- Carousel items will be loaded dynamically -->
+                                <div class="carousel-item active">
+                                    <div class="d-flex justify-content-center align-items-center" style="height: 300px;">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column: Product Details -->
+                    <div class="product-info-column">
+                        <h1 class="product-title" id="product-title">Loading product...</h1>
+                        <div class="product-price mb-3" id="product-price">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                        <div id= "retailer-name" class="text-muted mt-1">
+                            Loading...
+                        </div>
+                        
+                        <div class="product-rating mb-3" id="product-rating">
+                            <div class="rating-stars">
+                                <i class="bi bi-star-fill"></i>
+                                <span class="rating-value"></span>
+                                <span class="rating-count">()</span>
+                            </div>
+                        </div>
+                        
+                        <div class="product-actions">
+                            <button class="btn btn-outline-danger wishlist-btn">
+                                <i class="bi bi-heart"></i> Add to Watchlist
+                            </button>
+                            <button class="btn btn-primary view-retailers-btn">
+                                View all retailer prices <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description Section -->
+                <div class="product-description-section card">
+                    <div class="card-body">
+                        <h3 class="card-title">Description</h3>
+                        <p id="product-description">Loading product description...</p>
+                    </div>
+                </div>
+                
+                <!-- Bottom Section: Specs and Features in a row -->
+                <div class="product-info-row">
+                    <!-- Specifications -->
+                    <div class="product-specs card">
+                        <div class="card-body">
+                            <h3 class="card-title">Specifications</h3>
+                            <div class="specs-grid" id="product-specs">
+                                <!-- Specs will be loaded dynamically -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Features -->
+                    <div class="product-features card">
+                        <div class="card-body">
+                            <h3 class="card-title">Key Features</h3>
+                            <ul id="product-features">
+                                <!-- Features will be loaded dynamically -->
+                                <div class="text-center py-3">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <%- include('./partials/_reviews.ejs') %>
+            </div>
+        </div>
+    </div>
+
+    <!-- # FOOTER SEGMENT # -->
+    <%- include('partials/_footer.ejs') %>
+    
+    <script type="module" src="./js/view.js"></script>
+    <script type="module" src="./js/review.js"></script>
+</body>
+</html>

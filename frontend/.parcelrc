@@ -1,0 +1,7 @@
+{
+  "extends": "@parcel/config-default",
+  "transformers": {
+    "*.ejs": ["parcel-transformer-ejs", "@parcel/transformer-html"],
+    "*.html": ["@parcel/transformer-html"]
+  }
+}

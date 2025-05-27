@@ -1,0 +1,34 @@
+// Deals badge styling
+.deals-badge {
+  position: absolute;
+  top: -15px;
+  right: 20px;
+  background-color: #ff3d71;
+  color: white;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  transform: rotate(5deg);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  animation: pulse 2s infinite;
+}
+
+// Light mode deals badge
+html[data-bs-theme="light"] .deals-badge {
+  background-color: #e91e63;
+}
+
+// Pulse animation for the badge
+@keyframes pulse {
+  0% {
+    transform: rotate(5deg) scale(1);
+  }
+  50% {
+    transform: rotate(5deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(5deg) scale(1);
+  }
+}
