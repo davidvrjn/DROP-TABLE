@@ -1,29 +1,8 @@
 /**
- * Static Admin Test Script
+ * Admin Test Script
  * This script provides functionality for the admin dashboard
  * It loads data from the API and sets up event handlers for admin operations
  * Includes robust error handling, debugging, and support for add/edit/delete
- * Updates:
- * - Aligned data mapping with api.js response structure (cat_name, retailer_name, brand_name, count)
- * - Fixed product count calculations using API-provided count fields
- * - Ensured loadCategories is called first to populate categories before other data
- * - Improved retailer handling with web_page_url and correct retailer_id mapping
- * - Enhanced error handling for API responses (404, 409, etc.)
- * - Fixed Bootstrap modal handling with fallback for undefined bootstrap
- * - Addressed category validation and "Unknown" category issues
- * - Ensured API endpoint consistency with api.js
- * Fixes:
- * - TypeError: product.images is not iterable
- * - 400 Bad Request for Update/Product
- * - ReferenceError: bootstrap is not defined
- * - Category validation error despite selection
- * - Category displayed as "Unknown" for all products
- * - Simplified category handling to match reference code
- * - Fixed "Unknown" category by fetching products per category using filters.departments
- * - Fixed 400 Bad Request for Add/Category by sending 'name' instead of 'category_name'
- * - Fixed category counts by ensuring categories are loaded before products and mapping category_id correctly
- * - Fixed success message handling to accept 201 status code
- * Last updated: 08:13 AM SAST on Tuesday, May 27, 2025
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -191,11 +170,43 @@ async function loadProducts() {
                 );
                 const priceResult = await priceResponse.json();
 
-                const allRetailers =
+                // Map retailer IDs to names and store retailer details with proper IDs
+                const retailDetails =
                     priceResult.status === "success" &&
                     Array.isArray(priceResult.data)
-                        ? priceResult.data.map((item) => item.retailer_name)
-                        : [product.retailer_name || "Unknown"];
+                        ? priceResult.data.map((item) => {
+                              const retailer = retailers.find(
+                                  (r) =>
+                                      r.id === item.retailer_id?.toString() ||
+                                      r.name.toLowerCase() ===
+                                          item.retailer_name?.toLowerCase()
+                              );
+                              if (!retailer) {
+                                  console.warn(
+                                      `Retailer not found for retailer_id: ${item.retailer_id}, retailer_name: ${item.retailer_name}`
+                                  );
+                              }
+                              return {
+                                  retailer_id: retailer
+                                      ? retailer.id
+                                      : item.retailer_id?.toString() || "",
+                                  initial_price:
+                                      parseFloat(item.initial_price) || 0,
+                                  final_price:
+                                      parseFloat(item.final_price) || 0,
+                              };
+                          })
+                        : [];
+
+                // Get retailer names for display
+                const allRetailers = retailDetails
+                    .map((detail) => {
+                        const retailer = retailers.find(
+                            (r) => r.id === detail.retailer_id
+                        );
+                        return retailer ? retailer.name : "Unknown";
+                    })
+                    .filter((name) => name !== "Unknown");
 
                 return {
                     id: product.id?.toString() || "",
@@ -205,10 +216,20 @@ async function loadProducts() {
                     category_id: categoryId,
                     brand: product.brand || "Unknown",
                     brand_id: product.brand_id?.toString() || "",
-                    minPrice: parseFloat(product.final_price) || 0,
-                    maxPrice: parseFloat(product.initial_price) || 0,
-                    retailers: allRetailers,
-                    retailer_id: product.retailer_id?.toString() || "",
+                    minPrice:
+                        retailDetails.length > 0
+                            ? Math.min(
+                                  ...retailDetails.map((rd) => rd.final_price)
+                              )
+                            : parseFloat(product.final_price) || 0,
+                    maxPrice:
+                        retailDetails.length > 0
+                            ? Math.max(
+                                  ...retailDetails.map((rd) => rd.initial_price)
+                              )
+                            : parseFloat(product.initial_price) || 0,
+                    retailers: allRetailers.length > 0 ? allRetailers : ["Unknown"],
+                    retailer_id: "", // Deprecated, not used for display
                     description: product.description || "",
                     features: Array.isArray(product.features)
                         ? product.features
@@ -219,9 +240,7 @@ async function loadProducts() {
                             ? product.specifications
                             : {},
                     images: Array.isArray(product.images) ? product.images : [],
-                    retail_details: Array.isArray(product.retail_details)
-                        ? product.retail_details
-                        : [],
+                    retail_details: retailDetails,
                 };
             })
         );
@@ -1194,34 +1213,26 @@ function setupModalHandlers() {
                             }
                         }
                         const retailDetails = [];
-                        const retailerIds = formData.getAll("retailerId[]");
-                        const retailerPrices =
-                            formData.getAll("retailerPrice[]");
-                        const retailerDiscounts =
-                            formData.getAll("retailerDiscount[]");
-                        for (
-                            let i = 0;
-                            i <
-                            Math.min(retailerIds.length, retailerPrices.length);
-                            i++
-                        ) {
-                            if (retailerIds[i] && retailerPrices[i]) {
-                                const initialPrice = parseFloat(
-                                    retailerPrices[i]
-                                );
-                                const discount =
-                                    parseFloat(retailerDiscounts[i]) || 0;
-                                const finalPrice =
-                                    initialPrice * (1 - discount / 100);
-                                retailDetails.push({
-                                    retailer_id: retailerIds[i],
-                                    initial_price: initialPrice,
-                                    final_price: Number.isFinite(finalPrice)
-                                        ? finalPrice
-                                        : initialPrice,
-                                });
-                            }
-                        }
+const retailerIds = formData.getAll("retailerId[]");
+const retailerPrices = formData.getAll("retailerPrice[]");
+const retailerDiscounts = formData.getAll("retailerDiscount[]");
+for (let i = 0; i < Math.min(retailerIds.length, retailerPrices.length); i++) {
+    if (retailerIds[i] && retailerPrices[i]) {
+        const retailer = retailers.find((r) => r.id === retailerIds[i]);
+        if (!retailer) {
+            console.warn(`Retailer not found for ID: ${retailerIds[i]}`);
+            continue; // Skip invalid retailers
+        }
+        const initialPrice = parseFloat(retailerPrices[i]);
+        const discount = parseFloat(retailerDiscounts[i]) || 0;
+        const finalPrice = initialPrice * (1 - discount / 100);
+        retailDetails.push({
+            retailer_id: retailer.id, // Use validated retailer ID
+            initial_price: initialPrice,
+            final_price: Number.isFinite(finalPrice) ? finalPrice : initialPrice,
+        });
+    }
+}
                         const imageUrls =
                             formData
                                 .get("productImageUrl")
@@ -1585,46 +1596,37 @@ function setupModalHandlers() {
 
                 form.querySelector("#productKeyFeatures").value = features;
                 if (retailerPricesContainer) {
-                    retailerPricesContainer.innerHTML = "";
-
-                    try {
-                        const res = await fetch(
-                            "http://localhost:3000/Get/RetailPrices",
-                            {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ product_id: productId }),
-                            }
-                        );
-
-                        const result = await res.json();
-
-                        if (
-                            result.status === "success" &&
-                            Array.isArray(result.data)
-                        ) {
-                            for (const retail of result.data) {
-                                const newRow = document.createElement("div");
-                                newRow.className =
-                                    "row mb-2 retailer-price-row";
-
-                                const discount =
-                                    retail.initial_price > 0 &&
-                                    retail.final_price
-                                        ? (
-                                              (1 -
-                                                  retail.final_price /
-                                                      retail.initial_price) *
-                                              100
-                                          ).toFixed(0)
-                                        : 0;
-
-                                newRow.innerHTML = `
+    retailerPricesContainer.innerHTML = "";
+    try {
+        const res = await fetch("http://localhost:3000/Get/RetailPrices", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ product_id: productId }),
+        });
+        const result = await res.json();
+        if (result.status === "success" && Array.isArray(result.data)) {
+            for (const retail of result.data) {
+                const retailer = retailers.find(
+                    (r) =>
+                        r.id === retail.retailer_id?.toString() ||
+                        r.name.toLowerCase() === retail.retailer_name?.toLowerCase()
+                );
+                if (!retailer) {
+                    console.warn(
+                        `Retailer not found for retailer_id: ${retail.retailer_id}, retailer_name: ${retail.retailer_name}`
+                    );
+                    continue;
+                }
+                const newRow = document.createElement("div");
+                newRow.className = "row mb-2 retailer-price-row";
+                const discount =
+                    retail.initial_price > 0 && retail.final_price
+                        ? ((1 - retail.final_price / retail.initial_price) * 100).toFixed(0)
+                        : 0;
+                newRow.innerHTML = `
                     <div class="col-md-5 col-5">
                         <select class="form-select retailer-select" name="retailerId[]">
-                            <option value=${retail.retailer_name}>${
-                                    retail.retailer_name
-                                }</option>
+                            <option value="">Select Retailer</option>
                         </select>
                     </div>
                     <div class="col-md-4 col-4">
@@ -1645,32 +1647,25 @@ function setupModalHandlers() {
                         <button type="button" class="btn btn-outline-danger remove-retailer"><i class="bi bi-trash"></i></button>
                     </div>
                 `;
-
-                                retailerPricesContainer.appendChild(newRow);
-
-                                const select =
-                                    newRow.querySelector(".retailer-select");
-                                await populateRetailerDropdown();
-                                if (select && retail.retailer_id) {
-                                    select.value = retail.retailer_id;
-                                }
-
-                                newRow
-                                    .querySelector(".remove-retailer")
-                                    .addEventListener("click", () => {
-                                        newRow.remove();
-                                    });
-                            }
-                        } else {
-                            console.error(
-                                "Failed to fetch retailer prices:",
-                                result.message
-                            );
-                        }
-                    } catch (error) {
-                        console.error("Error fetching retailer prices:", error);
-                    }
+                retailerPricesContainer.appendChild(newRow);
+                await populateRetailerDropdown(); // Ensure dropdown is populated
+                const select = newRow.querySelector(".retailer-select");
+                if (select && retailer.id) {
+                    select.value = retailer.id; // Set to retailer ID
+                } else {
+                    console.warn(`Unable to set retailer ID: ${retailer.id}`);
                 }
+                newRow.querySelector(".remove-retailer").addEventListener("click", () => {
+                    newRow.remove();
+                });
+            }
+        } else {
+            console.error("Failed to fetch retailer prices:", result.message);
+        }
+    } catch (error) {
+        console.error("Error fetching retailer prices:", error);
+    }
+}
 
                 const specificationsContainer = document.getElementById(
                     "specificationsContainer"
