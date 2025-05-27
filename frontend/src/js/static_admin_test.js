@@ -53,6 +53,9 @@ async function initializeAdminDashboard() {
         loadBrands()
     ]);
 
+    // Populate filter dropdowns after all data is loaded to ensure the latest data is reflected
+    populateFilterDropdowns();
+
     // Wire up search and filter functionality
     setupProductFilters();
     setupBrandFilters();
@@ -472,7 +475,7 @@ function renderBrandsTable(brandList) {
 // ===== DROPDOWN POPULATION FUNCTIONS =====
 
 /**
- * Populates filter dropdowns with unique values from product data
+ * Populates filter dropdowns with unique values directly from categories and retailers arrays
  */
 function populateFilterDropdowns() {
     const categoryFilter = document.getElementById("categoryFilter");
@@ -481,11 +484,11 @@ function populateFilterDropdowns() {
         categoryFilter.innerHTML = "";
         categoryFilter.appendChild(firstOption);
 
-        const uniqueCategories = [...new Set(products.map((product) => product.category))].sort();
-        uniqueCategories.forEach((category) => {
+        // Use the categories array directly to ensure the dropdown has the latest categories
+        categories.sort((a, b) => a.name.localeCompare(b.name)).forEach((category) => {
             const option = document.createElement("option");
-            option.value = category;
-            option.textContent = category;
+            option.value = category.name;
+            option.textContent = category.name;
             categoryFilter.appendChild(option);
         });
     }
@@ -496,11 +499,11 @@ function populateFilterDropdowns() {
         retailerFilter.innerHTML = "";
         retailerFilter.appendChild(firstOption);
 
-        const uniqueRetailers = [...new Set(products.flatMap((product) => product.retailers))].sort();
-        uniqueRetailers.forEach((retailer) => {
+        // Use the retailers array directly to ensure the dropdown has the latest retailers
+        retailers.sort((a, b) => a.name.localeCompare(b.name)).forEach((retailer) => {
             const option = document.createElement("option");
-            option.value = retailer;
-            option.textContent = retailer;
+            option.value = retailer.name;
+            option.textContent = retailer.name;
             retailerFilter.appendChild(option);
         });
     }
