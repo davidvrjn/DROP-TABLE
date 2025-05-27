@@ -1,0 +1,487 @@
+/* Variables for reuse */
+$light-purple: rgba(106, 27, 154, 0.05);
+$medium-purple: rgba(106, 27, 154, 0.1);
+$dark-purple: rgba(106, 27, 154, 0.9);
+$border-purple: rgba(106, 27, 154, 0.15);
+$button-border: rgba(106, 27, 154, 0.5);
+$text-dark: rgba(0, 0, 0, 0.8);
+
+$light-purple-dark: rgba(206, 147, 216, 0.05);
+$medium-purple-dark: rgba(206, 147, 216, 0.1);
+$dark-purple-dark: rgba(206, 147, 216, 0.9);
+$border-purple-dark: rgba(206, 147, 216, 0.15);
+$button-border-dark: rgba(206, 147, 216, 0.5);
+$text-light: rgba(255, 255, 255, 0.8);
+
+/* Product view specific styles */
+.product-view {
+    padding: 20px 0;
+}
+
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+    padding: 8px 15px;
+    border: 1px solid $button-border;
+    border-radius: 20px;
+    color: $dark-purple;
+    background-color: transparent;
+
+    &:hover {
+        color: #fff;
+        background-color: $dark-purple;
+        border-color: $dark-purple;
+    }
+}
+
+.product-view-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-bottom: 40px;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Top section with image and product info */
+.product-top-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 20px;
+}
+
+/* Common card section styles */
+%card-section {
+    padding: 0;
+    border-radius: 10px;
+    background-color: $light-purple;
+    overflow: hidden;
+}
+
+%card-body {
+    padding: 20px;
+}
+
+%card-title {
+    color: $dark-purple;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Description section */
+.product-description-section {
+    @extend %card-section;
+    margin-bottom: 20px;
+    
+    .card-body {
+        @extend %card-body;
+    }
+    
+    .card-title {
+        @extend %card-title;
+        margin-bottom: 10px;
+    }
+    
+    p {
+        line-height: 1.6;
+        color: $text-dark;
+        margin: 0;
+    }
+}
+
+/* Bottom row with specs and features */
+.product-info-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    align-items: start;
+    
+    > div {
+        margin: 0;
+        height: auto;
+    }
+    
+    .card-body {
+        @extend %card-body;
+    }
+    
+    .card-title {
+        @extend %card-title;
+        margin-bottom: 15px;
+    }
+}
+
+/* Product image column styling */
+.product-image-column {
+  border: 2px solid $dark-purple;
+  border-radius: 10px;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .product-image-column {
+  border-color: $dark-purple-dark;
+  background-color: #2b2b2b;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Carousel container */
+#productCarousel {
+  height: 350px;
+  display: flex;
+  flex-direction: column;
+}
+
+.carousel-inner {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+[data-bs-theme="dark"] .carousel-inner {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.carousel-item img {
+  max-height: 300px;
+  object-fit: contain;
+}
+
+/* Carousel controls with better visibility */
+.carousel-control-prev,
+.carousel-control-next {
+  width: 10%;
+  opacity: 0.9;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(106, 27, 154, 0.9);
+  border-radius: 50%;
+  padding: 18px;
+  background-size: 50%;
+}
+
+/* Carousel indicators with better visibility */
+.carousel-indicators {
+  position: relative;
+  bottom: 0;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.carousel-indicators [data-bs-target] {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(106, 27, 154, 0.5);
+}
+
+.carousel-indicators .active {
+  background-color: rgba(106, 27, 154, 1);
+  transform: scale(1.3);
+}
+
+/* Carousel styles */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+}
+
+.carousel-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &.active {
+        opacity: 1;
+    }
+}
+
+.carousel-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+    width: 10%;
+    opacity: 0.8;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(106, 27, 154, 0.7);
+    border-radius: 50%;
+    padding: 15px;
+    background-size: 50%;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: -20px;
+    margin: 0;
+    justify-content: center;
+    padding: 0;
+    z-index: 5;
+    background-color: transparent;
+    border-radius: 0;
+    width: 100%;
+    left: 0;
+    transform: none;
+    
+    [data-bs-target] {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: rgba(187, 103, 239, 0.7);
+        border: none;
+        margin: 0 4px;
+        opacity: 1;
+        transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+    }
+    
+    .active {
+        background-color: rgb(178, 76, 241);
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+.carousel-indicator-label {
+    display: none;
+}
+
+/* Product specs and features */
+.product-specs, 
+.product-features {
+    @extend %card-section;
+}
+
+.specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.spec-item {
+    background-color: $medium-purple;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: 1px solid $border-purple;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    strong {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: $dark-purple;
+    }
+
+    span {
+        color: $text-dark;
+    }
+}
+
+/* Product actions */
+.product-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+
+    .wishlist-btn {
+        color: $dark-purple;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        border: 2px solid $dark-purple;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        i {
+            font-size: 1.2em;
+        }
+
+        &:hover {
+            background-color: $dark-purple;
+            color: #fff;
+            border-color: $dark-purple;
+        }
+
+        // Active state (Added to Watchlist)
+        &.btn-success {
+            background-color: $dark-purple; // Use theme's dark purple for active state
+            color: #fff; // White text/icon for active state
+            border-color: $dark-purple;
+
+            &:hover {
+                background-color: lighten($dark-purple, 10%); // Slightly lighter purple on hover for active state
+                border-color: lighten($dark-purple, 10%);
+            }
+        }
+    }
+}
+
+.product-features {
+    ul {
+        padding-left: 20px;
+        margin-bottom: 0;
+    }
+    
+    li {
+        margin-bottom: 8px;
+        color: $text-dark;
+    }
+}
+
+/* Rating styles */
+.product-rating {
+    display: flex;
+    align-items: center;
+}
+
+.rating-stars {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    
+    .bi-star-fill {
+        color: #FFD700;
+        font-size: 1.2rem;
+    }
+}
+
+.rating-value {
+    font-weight: 600;
+    font-size: 1rem;
+    color: rgba(0, 0, 0, 0.9);
+}
+
+.rating-count {
+    font-size: 0.9rem;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .product-top-section,
+    .product-info-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .specs-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-actions {
+        flex-direction: column;
+    }
+}
+
+/* Dark mode styles */
+[data-bs-theme="dark"] {
+    .wishlist-btn{
+        color: #fff;
+    }
+    .carousel-indicators {
+        [data-bs-target] {
+            background-color: rgba(206, 147, 216, 0.7);
+        }
+
+        .active {
+            background-color: rgba(206, 147, 216, 1);
+        }
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(206, 147, 216, 0.8);
+    }
+
+    .back-button {
+        border-color: $button-border-dark;
+        color: $dark-purple-dark;
+
+        &:hover {
+            color: #212529;
+            background-color: $dark-purple-dark;
+            border-color: $dark-purple-dark;
+        }
+    }
+
+    .product-specs, 
+    .product-features,
+    .product-description-section {
+        background-color: $light-purple-dark;
+    }
+    
+    .product-description-section p,
+    .product-features li,
+    .spec-item span {
+        color: $text-light;
+    }
+    
+    .product-info-row .card-title,
+    .product-description-section .card-title,
+    .spec-item strong {
+        color: $dark-purple-dark;
+    }
+
+    .spec-item {
+        background-color: $medium-purple-dark;
+        border-color: $border-purple-dark;
+    }
+    
+    .product-retailer {
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .rating-value {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .rating-count {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+/* Product info column styling */
+.product-info-column {
+  .product-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 2.3rem;
+    max-height: 11rem; /* 5 lines at 1.5rem line-height */
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+  }
+}

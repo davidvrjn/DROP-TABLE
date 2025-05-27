@@ -1,0 +1,129 @@
+//*//*//*//*//*//*//*//*//*//*//*//*//*//* NAVBAR STYLING //*//*//*//*//*//*//*//*//*//*//*
+
+// Variables for reuse
+$dark-text-color: rgba(255, 255, 255, 0.9);
+$dark-text-hover: white;
+$dark-bg-hover: rgba(255, 255, 255, 0.08);
+$dark-bg-active: rgba(255, 255, 255, 0.12);
+
+$light-text-color: #4a148c;
+$light-text-hover: #6a1b9a;
+$light-bg-hover: rgba(74, 20, 140, 0.08);
+$light-bg-active: rgba(74, 20, 140, 0.12);
+
+// Base navbar styling (dark theme)
+.navbar {
+  background-color: $navbar-bg-dark !important;
+  padding: 0.5rem 1.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+// Brand/logo styling
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.4rem;
+  color: $dark-text-hover !important;
+  letter-spacing: 0.3px;
+  
+  &:hover {
+    color: $dark-text-color !important;
+  }
+}
+
+// Nav links styling
+.navbar .nav-link {
+  color: $dark-text-color !important;
+  font-weight: 500;
+  padding: 0.4rem 0.8rem;
+  margin: 0 0.2rem;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  
+  &:hover, &:focus {
+    color: $dark-text-hover !important;
+    background-color: $dark-bg-hover;
+  }
+  
+  &.active {
+    color: $dark-text-hover !important;
+    background-color: $dark-bg-active;
+  }
+}
+
+// Dark mode toggle and icon
+.form-check-input[type="checkbox"] {
+  cursor: pointer;
+  
+  &:checked {
+    background-color: #ce93d8;
+    border-color: #ce93d8;
+  }
+}
+
+.dark-mode-icon {
+  color: $dark-text-color;
+  margin-left: 0.5rem;
+}
+
+// Auth links styling
+.auth-links {
+  display: flex;
+  align-items: center;
+
+  a {
+    color: $dark-text-color !important;
+    font-weight: 500;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: $dark-text-hover !important;
+    }
+  }
+}
+
+// Light theme overrides
+html[data-bs-theme="light"] {
+  .navbar {
+    background-color: $navbar-bg-light !important;
+  }
+  
+  .navbar-brand {
+    color: $light-text-color !important;
+    
+    &:hover {
+      color: $light-text-hover !important;
+    }
+  }
+  
+  .navbar .nav-link {
+    color: $light-text-color !important;
+    
+    &:hover, &:focus {
+      color: $light-text-hover !important;
+      background-color: $light-bg-hover;
+    }
+    
+    &.active {
+      color: $light-text-hover !important;
+      background-color: $light-bg-active;
+    }
+  }
+  
+  .dark-mode-icon {
+    color: $light-text-color;
+  }
+  
+  .auth-links {
+    a {
+      color: $light-text-color !important;
+      
+      &:hover {
+        color: $light-text-hover !important;
+      }
+    }
+    
+    .text-white {
+      color: $light-text-color !important;
+    }
+  }
+}

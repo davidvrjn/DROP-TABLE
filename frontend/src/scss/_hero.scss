@@ -1,0 +1,89 @@
+//*//*//*//*//*//*//*//*//*//*//*//*//*//* HERO SECTION STYLING //*//*//*//*//*//*//*//*//*//*//*//*//*//*
+
+// Hero section styles
+.hero-section {
+  background-color: $hero-bg-dark;
+  color: white;
+  padding: 2rem 0; 
+  border-radius: 1rem; 
+  margin: 1.5rem auto 1.5rem;
+  max-width: 100%;
+  width: 90%;
+}
+
+.hero-title {
+  font-size: 2rem; 
+  font-weight: 600;
+}
+
+.hero-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.search-container {
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+// Search input base styles (dark theme)
+.search-input {
+  background-color: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: white;
+  padding-left: 1rem;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  &:focus {
+    background-color: rgba(0, 0, 0, 0.3);
+    box-shadow: none;
+    color: white;
+  }
+}
+
+// Search button base styles (dark theme)
+.search-btn {
+  background-color: #9c4dcc;
+  color: white;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  
+  &:hover {
+    background-color: #b366d9;
+  }
+}
+
+// Light theme overrides
+[data-bs-theme="light"] {
+  .hero-section {
+    background-color: $hero-bg-light;
+    color: #4a148c;
+  }
+  
+  .search-input {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #4a148c;
+    
+    &::placeholder {
+      color: rgba(74, 20, 140, 0.6);
+    }
+    
+    &:focus {
+      background-color: rgba(255, 255, 255, 0.5);
+      color: #4a148c;
+    }
+  }
+  
+  .search-btn {
+    background-color: #8e24aa;
+    
+    &:hover {
+      background-color: #9c27b0;
+    }
+  }
+}

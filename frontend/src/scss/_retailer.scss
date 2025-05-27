@@ -1,0 +1,104 @@
+// Common display flex properties
+%flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-icon {
+  @extend %flex-center;
+  width: 4rem;
+  height: 4rem;
+  font-size: 2rem;
+  background-color: rgba(106, 27, 154, 0.15);
+  border-radius: 50%;
+  margin: 0 auto 1rem;
+}
+
+.retailer-logo {
+  background-color: rgba(108, 117, 125, 0.1);
+  border-radius: 0.25rem;
+  height: 100%;
+  @extend %flex-center;
+  font-weight: 500;
+}
+
+// Retailer animation styling
+.retailer-animation-container {
+  margin-bottom: 3rem;
+  overflow: hidden;
+}
+
+.retailer-animation-wrapper {
+  position: relative;
+  overflow: hidden;
+  height: 60px;
+  background-color: rgba(108, 117, 125, 0.05);
+  border-radius: 0.5rem;
+}
+
+.retailer-animation {
+  display: flex;
+  position: absolute;
+  animation: scrollRetailers 35s linear infinite;
+  white-space: nowrap;
+  width: max-content;
+  align-items: center;
+}
+
+.retailer-item {
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: #6a1b9a;
+  background-color: rgba(106, 27, 154, 0.08);
+  border-radius: 0.25rem;
+  margin: 0 0.5rem;
+}
+
+.retailer-separator {
+  color: rgba(106, 27, 154, 0.4);
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+}
+
+.retailer-animation-placeholder {
+  @extend %flex-center;
+  height: 100%;
+  color: #6c757d;
+  font-style: italic;
+}
+
+// Animation keyframes
+@keyframes scrollRetailers {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+// Dark mode adjustments
+[data-bs-theme="dark"] {
+  .feature-icon {
+    background-color: rgba(206, 147, 216, 0.15);
+  }
+
+  .retailer-logo {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .retailer-item {
+    color: #ce93d8;
+    background-color: rgba(206, 147, 216, 0.1);
+  }
+  
+  .retailer-separator {
+    color: rgba(206, 147, 216, 0.4);
+  }
+  
+  .retailer-animation-wrapper {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}

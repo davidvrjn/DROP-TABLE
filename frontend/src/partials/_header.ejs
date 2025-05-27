@@ -1,0 +1,175 @@
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="index.ejs">CompareIt</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'products') { %>active<% } %>" <% if (currentPage === 'products') { %>aria-current="page"<% } %> href="index.ejs">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'deals') { %>active<% } %>" <% if (currentPage === 'deals') { %>aria-current="page"<% } %> href="deals.ejs">Best Deals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'watchlist') { %>active<% } %>" <% if (currentPage === 'watchlist') { %>aria-current="page"<% } %> href="watchlist.ejs">Watchlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <% if (currentPage === 'about') { %>active<% } %>" <% if (currentPage === 'about') { %>aria-current="page"<% } %> href="about.ejs">About</a>
+                    </li>
+                    <!-- Admin link, shown dynamically via JS -->
+                    <li class="nav-item admin-link" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'admin') { %>active<% } %>" <% if (currentPage === 'admin') { %>aria-current="page"<% } %> href="admin.ejs">Admin</a>
+                    </li>
+                    <!-- Settings link, shown dynamically via JS -->
+                    <li class="nav-item settings-link" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'usersettings') { %>active<% } %>" <% if (currentPage === 'usersettings') { %>aria-current="page"<% } %> href="usersettings.ejs">Settings</a>
+                    </li>
+                    <!-- Auth links for mobile view -->
+                    <li class="nav-item d-lg-none" id="loginLinkMobile">
+                        <a class="nav-link" href="login.ejs" id="loginBtnMobile">Login</a>
+                    </li>
+                    <li class="nav-item d-lg-none" id="registerLinkMobile">
+                        <a class="nav-link" href="register.ejs" id="registerBtnMobile">Register</a>
+                    </li>
+                    <li class="nav-item d-lg-none" id="welcomeMessageMobile" style="display: none;">
+                        <span class="nav-link" id="welcomeTextMobile"></span>
+                    </li>
+                    <li class="nav-item d-lg-none" id="logoutLinkMobile" style="display: none;">
+                        <a class="nav-link" href="#" id="logoutBtnMobile">Logout</a>
+                    </li>
+                    <!-- Settings link for mobile view -->
+                    <li class="nav-item d-lg-none settings-link-mobile" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'usersettings') { %>active<% } %>" href="usersettings.ejs">Settings</a>
+                    </li>
+                    <!-- Admin link for mobile view -->
+                    <li class="nav-item d-lg-none admin-link-mobile" style="display: none;">
+                        <a class="nav-link <% if (currentPage === 'admin') { %>active<% } %>" href="admin.ejs">Admin</a>
+                    </li>
+                    <!-- Theme toggle for mobile view -->
+                    <li class="nav-item d-lg-none mt-2 ms-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="themeToggleMobile">
+                            <label class="form-check-label" for="themeToggleMobile">
+                                <i class="bi bi-moon-stars dark-mode-icon"></i>
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <!-- Auth links for desktop view -->
+                    <div class="auth-links d-none d-lg-flex me-3" id="authLinks">
+                        <a href="login.ejs" class="text-decoration-none me-3" id="loginBtn">Login</a>
+                        <a href="register.ejs" class="text-decoration-none" id="registerBtn">Register</a>
+                        <span id="welcomeMessage" style="display: none;" class="text-decoration-none me-3"></span>
+                        <a href="#" class="text-decoration-none" id="logoutLink" style="display: none;">Logout</a>
+                    </div>
+                    <!-- Theme toggle for desktop view -->
+                    <div class="form-check form-switch me-2 d-none d-lg-block">
+                        <input class="form-check-input" type="checkbox" id="themeToggle">
+                        <label class="form-check-label" for="themeToggle">
+                            <i class="bi bi-moon-stars dark-mode-icon"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+            const loginBtn = document.getElementById('loginBtn');
+            const registerBtn = document.getElementById('registerBtn');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            const logoutLink = document.getElementById('logoutLink');
+            const adminLink = document.querySelector('.admin-link a');
+            const settingsLink = document.querySelector('.settings-link');
+            const loginBtnMobile = document.getElementById('loginBtnMobile');
+            const registerBtnMobile = document.getElementById('registerBtnMobile');
+            const welcomeMessageMobile = document.getElementById('welcomeMessageMobile');
+            const welcomeTextMobile = document.getElementById('welcomeTextMobile');
+            const logoutBtnMobile = document.getElementById('logoutBtnMobile');
+            const settingsLinkMobile = document.querySelector('.settings-link-mobile');
+            const adminLinkMobile = document.querySelector('.admin-link-mobile a');
+
+            function updateUI() {
+                if (user && user.first_name) {
+                    loginBtn.style.display = 'none';
+                    registerBtn.style.display = 'none';
+                    welcomeMessage.style.display = 'inline';
+                    welcomeMessage.textContent = `Welcome ${user.first_name}`;
+                    logoutLink.style.display = 'inline';
+                    loginBtnMobile.style.display = 'none';
+                    registerBtnMobile.style.display = 'none';
+                    welcomeMessageMobile.style.display = 'block';
+                    welcomeTextMobile.textContent = `Welcome ${user.first_name}`;
+                    logoutBtnMobile.style.display = 'block';
+                    settingsLink.style.display = 'block';
+                    settingsLinkMobile.style.display = 'block';
+                    // Handle user.type as either a string or an array
+                    const isAdmin = user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'));
+                    if (isAdmin) {
+                        adminLink.parentElement.style.display = 'block';
+                        adminLinkMobile.parentElement.style.display = 'block';
+                    } else {
+                        console.log('User is not admin, type is:', user.type);
+                    }
+                } else {
+                    loginBtn.style.display = 'inline';
+                    registerBtn.style.display = 'inline';
+                    welcomeMessage.style.display = 'none';
+                    logoutLink.style.display = 'none';
+                    adminLink.parentElement.style.display = 'none';
+                    settingsLink.style.display = 'none';
+                    loginBtnMobile.style.display = 'block';
+                    registerBtnMobile.style.display = 'block';
+                    welcomeMessageMobile.style.display = 'none';
+                    logoutBtnMobile.style.display = 'none';
+                    settingsLinkMobile.style.display = 'none';
+                    adminLinkMobile.parentElement.style.display = 'none';
+                }
+            }
+
+            // Handle admin link click with client-side validation
+            if (adminLink) {
+                adminLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isAdmin = user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'));
+                    if (isAdmin) {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/login';
+                    }
+                });
+            }
+            if (adminLinkMobile) {
+                adminLinkMobile.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const isAdmin = user.type === 'admin' || (Array.isArray(user.type) && user.type.includes('admin'));
+                    if (isAdmin) {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/login';
+                    }
+                });
+            }
+
+            updateUI();
+
+            // Handle logout
+            const logoutHandler = (e) => {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                sessionStorage.removeItem('user');
+                updateUI();
+                window.location.href = 'login.ejs';
+            };
+
+            logoutLink.addEventListener('click', logoutHandler);
+            if (logoutBtnMobile) logoutBtnMobile.addEventListener('click', logoutHandler);
+        });
+    </script>
+</header>
