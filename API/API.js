@@ -1447,7 +1447,7 @@ app.post('/Update/Product', express.json(), async (req, res) => {
             return;
         }
 
-        const product = await conn.query('SELECT id FROM Product WHERE title = ? AND category_id = ? AND brand_id = ?', [title, category_id, brand_id]);
+        const product = await conn.query('SELECT id FROM Product WHERE title = ? AND category_id = ? AND brand_id = ? AND id != ?', [title, category_id, brand_id, product_id]);
         if(product.length != 0){
             res.status(400).send({status: "error", message: "Product with matching title, category and brand already exists."});
             return;
@@ -1620,6 +1620,60 @@ app.post('/Remove/Watchlist', express.json(), async (req, res) => {
             res.status(404).send({ status: 'error', message: 'No Product found with the provided ID' });
         }
         return;
+    } catch (err) {
+        console.error(err);
+        fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
+        res.status(500).send({ status: 'error', message: 'Error deleting Product from Watchlist, detailed error in server_logs, please investigate server logs' });
+        return;
+    } finally {
+        if (conn) {
+            conn.release();
+        }
+    }
+})
+
+app.post('/Update/User/Email', express.json(), async(req, res) => {
+    let conn;
+
+    if (!req.is('application/json')) {
+        res.status(415).send({ status: 'error', message: 'Expected application/json' });
+        return;
+    }
+
+    try {
+        conn = await pool.getConnection();
+
+        const { email, password, new_email } = req.body;
+
+        if (!email || !password) {
+            res.status(400).send({ status: 'error', message: 'Required parameters missing' });
+            return;
+        }
+
+        const rows= await conn.query('SELECT email, password FROM User WHERE email = ?',[`${email}`]) //<==============sql query for a user here
+
+        if (rows.length === 0) {
+            res.status(404).send({ status: 'error', message: 'Current email not found' });
+            return;
+        }
+
+        let regex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+        if (!regex.test(new_email)) {
+            res.status(422).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        }
+
+        const storedPassword = await rows[0].password;
+
+        const match = await bcrypt.compare(password, storedPassword);
+
+        if (!match) {
+            res.status(401).send({ status: 'error', message: 'Failed Validation' });
+            return;
+        } else{
+            await conn.query('UPDATE User Set email = ? WHERE email = ?', [new_email, email]);
+            res.status(200).send({status: "success", message: "Email successfully updated"});
+        }
     } catch (err) {
         console.error(err);
         fs.appendFileSync(`error.log`, `${new Date().toLocaleString()} - ${err.stack}\n`);
