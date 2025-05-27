@@ -398,7 +398,7 @@ app.post('/Get/Retailers', express.json(), async (req, res) => {
 
         if (!search) {
             //get all retailers here, no search provided
-            const rows = await conn.query('SELECT name, R.id AS id, web_page_url, COUNT(*) AS retailerCount FROM Retailer AS R LEFT JOIN Product_Retailer AS PR ON PR.retailer_id = R.id GROUP BY R.id');  //<==============no search provided, just a select unique  
+            const rows = await conn.query('SELECT name, R.id AS id, web_page_url, COUNT(PR.retailer_id) AS retailerCount FROM Retailer AS R LEFT JOIN Product_Retailer AS PR ON PR.retailer_id = R.id GROUP BY R.id');  //<==============no search provided, just a select unique  
             let retailerJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
@@ -417,7 +417,7 @@ app.post('/Get/Retailers', express.json(), async (req, res) => {
             return;
         } else {
             //the user did provide a search, use search
-            const rows = await conn.query('SELECT name, R.id AS id, web_page_url, COUNT(*) AS retailerCount FROM Retailer AS R LEFT JOIN Product_Retailer AS PR ON PR.retailer_id = R.id WHERE name LIKE ? GROUP BY R.id', [`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
+            const rows = await conn.query('SELECT name, R.id AS id, web_page_url, COUNT(PR.retailer_id) AS retailerCount FROM Retailer AS R LEFT JOIN Product_Retailer AS PR ON PR.retailer_id = R.id WHERE name LIKE ? GROUP BY R.id', [`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
             let retailerJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
