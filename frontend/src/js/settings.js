@@ -183,9 +183,11 @@ export function initSettings() {
     if (deleteAccountBtn) {
         deleteAccountBtn.addEventListener("click", function () {
             if (!passwordForDelete || !passwordForDelete.value) {
-                showError("Please enter your current password.");
+                alert("Please enter your current password.");
                 return;
             }
+
+            // Show confirmation modal
             const deleteAccountModal = new bootstrap.Modal(
                 document.getElementById("deleteAccountModal")
             );
@@ -217,11 +219,20 @@ export function initSettings() {
                     // Clear storage and redirect
                     localStorage.removeItem("user");
                     sessionStorage.removeItem("user");
+                    console.log(
+                        "Account deletion attempt with password:",
+                        password
+                    );
+
+                    alert(
+                        "Your account has been successfully deleted. You will be redirected to the homepage."
+                    );
+
                     setTimeout(() => {
                         window.location.href = "/index.ejs";
                     }, 2000);
                 } else {
-                    showError(result.message || "Failed to delete account.");
+                    alert(result.message || "Failed to delete account.");
                 }
             } catch (err) {
                 showError("Error deleting account. Please try again later.");
@@ -234,10 +245,11 @@ export function initSettings() {
     const tabs = document.querySelectorAll('button[data-bs-toggle="tab"]');
     tabs.forEach((tab) => {
         tab.addEventListener("shown.bs.tab", function () {
+            const successAlert = document.getElementById(
+                "settingsSuccessAlert"
+            );
             if (successAlert) {
                 successAlert.classList.add("d-none");
-                successAlert.classList.remove("alert-danger");
-                successAlert.classList.add("alert-success");
             }
         });
     });
