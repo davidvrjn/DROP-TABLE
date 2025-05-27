@@ -299,7 +299,7 @@ async function loadCategories() {
 /**
  * Renders retailers table with API data
  * Also populates retailer dropdowns in the product form
- * Updated to ensure accurate product counts using API-provided count field
+ * Updated to use 'url' from API, display valid URLs as links, and show "No website" for missing/invalid URLs
  */
 async function loadRetailers() {
     const retailersTable = document.getElementById("retailersTable");
@@ -313,11 +313,22 @@ async function loadRetailers() {
 
     try {
         const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+        if (!user || !(user.id || user.user_id)) {
+            console.error("User not found for retailers fetch");
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">Error: User not logged in</td></tr>';
+            return;
+        }
+
         const response = await fetch("http://localhost:3000/Get/Retailers", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ search: "", userid: user.id || user.user_id }),
         });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
+        }
+
         const result = await response.json();
         console.log("Retailers API response:", result);
 
@@ -328,7 +339,7 @@ async function loadRetailers() {
                 return {
                     id: retailer.retailer_id?.toString() || "",
                     name: retailer.retailer_name || "Unknown",
-                    website: retailer.web_page_url || "#",
+                    website: retailer.url || "", // Map 'url' from API to 'website'
                     productCount: productCount,
                 };
             });
@@ -341,9 +352,14 @@ async function loadRetailers() {
 
             retailers.forEach((retailer) => {
                 const tr = document.createElement("tr");
+                // Validate URL and render appropriately
+                const isValidUrl = retailer.website && /^https?:\/\/.+/.test(retailer.website);
+                const websiteDisplay = isValidUrl
+                    ? `<a href="${retailer.website}" target="_blank">${retailer.website}</a>`
+                    : "No website";
                 tr.innerHTML = `
                     <td>${retailer.name}</td>
-                    <td><a href="${retailer.website}" target="_blank">${retailer.website}</a></td>
+                    <td>${websiteDisplay}</td>
                     <td>${retailer.productCount}</td>
                     <td>
                         <div class="btn-group btn-group-sm" role="group">
@@ -361,8 +377,8 @@ async function loadRetailers() {
 
             populateRetailerDropdown();
         } else {
-            console.error("Retailers API error:", result.message);
-            tbody.innerHTML = `<tr><td colspan="4" class="text-center">Error loading retailers: ${result.message}</td></tr>`;
+            console.error("Retailers API error:", result.message || "Invalid response");
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center">Error loading retailers: ${result.message || "Invalid response"}</td></tr>`;
         }
     } catch (error) {
         console.error("Retailers fetch error:", error);
@@ -694,6 +710,8 @@ function filterBrands() {
 
 /**
  * Sets up event handlers for all modals and forms
+ * Updated to fix modal dimming/freezing, ensure retailer data reloads, and correct syntax errors
+ * Ensures all relevant data is refreshed after adding any entity
  */
 function setupModalHandlers() {
     // Wire up the "Add Retailer" button in product form
@@ -728,9 +746,13 @@ function setupModalHandlers() {
                 populateRetailerDropdown();
 
                 const removeBtn = newRow.querySelector(".remove-retailer");
-                removeBtn.addEventListener("click", function () {
-                    newRow.remove();
-                });
+                if (removeBtn) {
+                    removeBtn.addEventListener("click", function () {
+                        newRow.remove();
+                    });
+                } else {
+                    console.error("Remove retailer button not found in new row");
+                }
             } else {
                 console.error("Retailer prices container not found");
             }
@@ -821,6 +843,7 @@ function setupModalHandlers() {
                 const formData = new FormData(form);
                 const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
                 let data = { userid: user.id || user.user_id };
+                let finalEndpoint = endpoint;
 
                 if (entity === "Product") {
                     const specifications = [];
@@ -900,7 +923,7 @@ function setupModalHandlers() {
                         images: imageUrls.slice(1),
                         retail_details: retailDetails.length ? retailDetails : [],
                     };
-                    endpoint = data.product_id ? "Update/Product" : "Add/Product";
+                    finalEndpoint = data.product_id ? "Update/Product" : "Add/Product";
                 } else if (entity === "Category") {
                     const categoryName = formData.get("categoryName") || "";
                     if (!categoryName) {
@@ -913,7 +936,7 @@ function setupModalHandlers() {
                         id: formData.get("categoryId") || undefined,
                         name: categoryName,
                     };
-                    endpoint = data.id ? "Update/Category" : "Add/Category";
+                    finalEndpoint = data.id ? "Update/Category" : "Add/Category";
                 } else if (entity === "Retailer") {
                     const retailerName = formData.get("retailerName") || "";
                     const website = formData.get("retailerWebsite") || "";
@@ -933,7 +956,7 @@ function setupModalHandlers() {
                         name: retailerName,
                         url: website,
                     };
-                    endpoint = data.id ? "Update/Retailer" : "Add/Retailer";
+                    finalEndpoint = data.id ? "Update/Retailer" : "Add/Retailer";
                 } else if (entity === "Brand") {
                     const brandName = formData.get("brandName") || "";
                     if (!brandName) {
@@ -946,13 +969,13 @@ function setupModalHandlers() {
                         id: formData.get("brandId") || undefined,
                         name: brandName,
                     };
-                    endpoint = data.id ? "Update/Brand" : "Add/Brand";
+                    finalEndpoint = data.id ? "Update/Brand" : "Add/Brand";
                 }
 
-                console.log(`Saving ${entity}, endpoint: ${endpoint}, data:`, data);
+                console.log(`Saving ${entity}, endpoint: ${finalEndpoint}, data:`, data);
 
                 try {
-                    const response = await fetch(`http://localhost:3000/${endpoint}`, {
+                    const response = await fetch(`http://localhost:3000/${finalEndpoint}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(data),
@@ -962,36 +985,46 @@ function setupModalHandlers() {
 
                     if ((response.status === 200 || response.status === 201) && result.status === "success") {
                         alert(`${entity} ${data.id || data.product_id ? "updated" : "saved"} successfully! Message: ${result.message}`);
+
+                        // Close the modal and clean up
                         const modalElement = document.getElementById(modalId);
-                        if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
-                            const modal = bootstrap.Modal.getInstance(modalElement);
-                            if (modal) {
-                                modal.hide();
+                        if (modalElement) {
+                            try {
+                                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                                    const modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+                                    modal.hide();
+                                } else {
+                                    console.warn("Bootstrap not available, using fallback to close modal");
+                                    modalElement.classList.remove('show');
+                                    modalElement.style.display = 'none';
+                                    modalElement.setAttribute('aria-hidden', 'true');
+                                }
+                            } catch (modalError) {
+                                console.error("Error closing modal:", modalError);
                             }
-                        } else if (modalElement) {
-                            modalElement.classList.remove('show');
-                            modalElement.style.display = 'none';
-                            modalElement.setAttribute('aria-hidden', 'true');
                             document.body.classList.remove('modal-open');
+                            document.body.style.overflow = '';
+                            document.body.style.paddingRight = '';
                             const backdrop = document.querySelector('.modal-backdrop');
                             if (backdrop) backdrop.remove();
+                        } else {
+                            console.error("Modal element not found:", modalId);
                         }
+
+                        // Reset form and clear ID field
                         form.reset();
                         idField.value = "";
 
-                        switch (entity) {
-                            case "Product":
-                                await loadProducts();
-                                break;
-                            case "Category":
-                                await loadCategories();
-                                break;
-                            case "Retailer":
-                                await loadRetailers();
-                                break;
-                            case "Brand":
-                                await loadBrands();
-                                break;
+                        // Refresh all relevant data to ensure consistency
+                        try {
+                            await loadCategories();
+                            await loadRetailers();
+                            await loadBrands();
+                            await loadProducts(); // Ensure products are reloaded last to reflect all changes
+                            populateFilterDropdowns(); // Update filters with the latest product data
+                        } catch (refreshError) {
+                            console.error(`Error refreshing ${entity} data:`, refreshError);
+                            alert(`Error refreshing ${entity} data: ${refreshError.message}`);
                         }
                     } else {
                         console.error(`${entity} save error:`, result.message);
@@ -1373,6 +1406,12 @@ function setupModalHandlers() {
                         if (specificationsContainer) specificationsContainer.innerHTML = "";
                     }
                 }
+                // Ensure body is scrollable and clean up modal artifacts
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
             });
         }
     });
