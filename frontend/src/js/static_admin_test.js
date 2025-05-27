@@ -4,11 +4,14 @@
  * It loads data from the API and sets up event handlers for admin operations
  * Includes robust error handling, debugging, and support for add/edit/delete
  * Updates:
- * - Added brand search and minimum product count filter functionality
- * - Implemented event handlers for brand search, product count filter, and reset
- * - Updated brand table rendering to support dynamic filtering
- * - Updated loadRetailers to use web_page_url and calculate productCount from products
- * - Fixed existing issues (as per previous fixes)
+ * - Aligned data mapping with api.js response structure (cat_name, retailer_name, brand_name, count)
+ * - Fixed product count calculations using API-provided count fields
+ * - Ensured loadCategories is called first to populate categories before other data
+ * - Improved retailer handling with web_page_url and correct retailer_id mapping
+ * - Enhanced error handling for API responses (404, 409, etc.)
+ * - Fixed Bootstrap modal handling with fallback for undefined bootstrap
+ * - Addressed category validation and "Unknown" category issues
+ * - Ensured API endpoint consistency with api.js
  * Fixes:
  * - TypeError: product.images is not iterable
  * - 400 Bad Request for Update/Product
@@ -20,7 +23,7 @@
  * - Fixed 400 Bad Request for Add/Category by sending 'name' instead of 'category_name'
  * - Fixed category counts by ensuring categories are loaded before products and mapping category_id correctly
  * - Fixed success message handling to accept 201 status code
- * Last updated: 02:13 AM SAST on Tuesday, May 27, 2025
+ * Last updated: 08:13 AM SAST on Tuesday, May 27, 2025
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -143,7 +146,7 @@ async function loadProducts() {
             allProducts.push(...uncategorizedProducts);
         }
 
-        // Remove duplicates by id (in case of overlaps)
+        // Remove duplicates by id
         allProducts = Array.from(
             new Map(allProducts.map(p => [p.id, p])).values()
         );
@@ -152,9 +155,9 @@ async function loadProducts() {
             console.log("Mapping product:", product);
             const categoryId = product.category_id?.toString() || "";
             const category = categories.find(cat => cat.id === categoryId);
-            const categoryName = category ? category.name : "Unknown";
+            const categoryName = category ? category.name : "Uncategorized";
 
-            if (categoryName === "Unknown" && categoryId) {
+            if (categoryName === "Uncategorized" && categoryId) {
                 console.warn(`No category matched for product ID ${product.id}, title: ${product.title}, category_id: ${categoryId}`);
             }
 
@@ -164,7 +167,7 @@ async function loadProducts() {
                 image: product.image_url || "",
                 category: categoryName,
                 category_id: categoryId,
-                brand: product.brand_name || "Unknown",
+                brand: product.brand || "Unknown",
                 brand_id: product.brand_id?.toString() || "",
                 minPrice: parseFloat(product.final_price) || 0,
                 maxPrice: parseFloat(product.initial_price) || 0,
@@ -246,16 +249,11 @@ async function loadCategories() {
         console.log("Categories API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            categories = result.data.map((category) => {
-                const categoryId = category.id?.toString() || category.cat_id?.toString() || "";
-                // Calculate productCount by counting products with this category_id
-                const productCount = products.filter(p => p.category_id === categoryId).length;
-                return {
-                    id: categoryId,
-                    name: category.cat_name || "Unknown",
-                    productCount: productCount,
-                };
-            });
+            categories = result.data.map((category) => ({
+                id: category.id?.toString() || "",
+                name: category.cat_name || "Unknown",
+                productCount: parseInt(category.count, 10) || 0,
+            }));
 
             tbody.innerHTML = "";
             if (categories.length === 0) {
@@ -318,16 +316,12 @@ async function loadRetailers() {
         console.log("Retailers API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            retailers = result.data.map((retailer) => {
-                // Calculate productCount by counting products associated with this retailer
-                const productCount = products.filter(p => p.retailer_id === retailer.retailer_id?.toString()).length;
-                return {
-                    id: retailer.retailer_id?.toString() || "",
-                    name: retailer.retailer_name || "Unknown",
-                    website: retailer.web_page_url || "#", // Use web_page_url from DB if available
-                    productCount: productCount,
-                };
-            });
+            retailers = result.data.map((retailer) => ({
+                id: retailer.retailer_id?.toString() || "",
+                name: retailer.retailer_name || "Unknown",
+                website: retailer.web_page_url || "#",
+                productCount: parseInt(retailer.count, 10) || 0,
+            }));
 
             tbody.innerHTML = "";
             if (retailers.length === 0) {
@@ -391,15 +385,11 @@ async function loadBrands() {
         console.log("Brands API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            brands = result.data.map((brand) => {
-                // Calculate productCount by counting products with this brand_id
-                const productCount = products.filter(p => p.brand_id === brand.brand_id?.toString()).length;
-                return {
-                    id: brand.brand_id?.toString() || "",
-                    name: brand.brand_name || "Unknown",
-                    productCount: productCount,
-                };
-            });
+            brands = result.data.map((brand) => ({
+                id: brand.brand_id?.toString() || "",
+                name: brand.brand_name || "Unknown",
+                productCount: parseInt(brand.count, 10) || 0,
+            }));
 
             renderBrandsTable(brands);
 
@@ -891,14 +881,14 @@ function setupModalHandlers() {
                         specifications: specifications.length ? specifications.reduce((obj, spec) => {
                             obj[spec.name] = spec.value;
                             return obj;
-                        }, {}) : undefined,
+                        }, {}) : {},
                         features: formData.get("productKeyFeatures")
                             ?.split("\n")
                             .map(feature => feature.trim())
                             .filter(feature => feature) || [],
                         image_url: imageUrls[0] || "",
                         images: imageUrls.slice(1),
-                        retail_details: retailDetails.length ? retailDetails : undefined,
+                        retail_details: retailDetails.length ? retailDetails : [],
                     };
                     endpoint = data.product_id ? "Update/Product" : "Add/Product";
                 } else if (entity === "Category") {
@@ -981,16 +971,16 @@ function setupModalHandlers() {
 
                         switch (entity) {
                             case "Product":
-                                loadProducts();
+                                await loadProducts();
                                 break;
                             case "Category":
-                                loadCategories();
+                                await loadCategories();
                                 break;
                             case "Retailer":
-                                loadRetailers();
+                                await loadRetailers();
                                 break;
                             case "Brand":
-                                loadBrands();
+                                await loadBrands();
                                 break;
                         }
                     } else {
@@ -1129,7 +1119,6 @@ function setupModalHandlers() {
                     }
                 } else {
                     console.error("Bootstrap is not defined. Ensure Bootstrap JS is loaded.");
-                    alert("Error: Unable to open product modal. Please ensure Bootstrap is loaded.");
                     modalElement.classList.add('show');
                     modalElement.style.display = 'block';
                     modalElement.setAttribute('aria-hidden', 'false');
@@ -1158,7 +1147,7 @@ function setupModalHandlers() {
                     console.log("Delete product response:", result);
                     if (response.status === 200 && result.status === "success") {
                         alert(`Product ${productId} deleted successfully! Message: ${result.message}`);
-                        loadProducts();
+                        await loadProducts();
                     } else {
                         console.error("Delete product error:", result.message);
                         alert(`Error deleting product: ${result.message}`);
@@ -1171,20 +1160,19 @@ function setupModalHandlers() {
         } else if (e.target.closest(".edit-category")) {
             const categoryId = e.target.closest(".edit-category").getAttribute("data-category-id");
             const category = categories.find((c) => c.id === categoryId);
-            if(category) {
+            if (category) {
                 const form = document.getElementById("addCategoryForm");
                 const modalTitle = document.getElementById("addCategoryModalLabel");
-                if(form && modalTitle) {
+                if (form && modalTitle) {
                     modalTitle.textContent = "Edit Category";
                     form.querySelector('[name="categoryId"]').value = category.id;
                     form.querySelector('#categoryName').value = category.name;
                     const modalEl = document.getElementById("addCategoryModal");
-                    if(modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                         const modal = new bootstrap.Modal(modalEl);
                         modal.show();
                     } else {
                         console.error("Bootstrap is not defined or modal not found.");
-                        alert("Error: Unable to open category modal.");
                         modalEl.classList.add('show');
                         modalEl.style.display = 'block';
                         modalEl.setAttribute('aria-hidden', 'false');
@@ -1195,6 +1183,7 @@ function setupModalHandlers() {
                     }
                 } else {
                     console.error("Category form or modal title not found");
+                    alert("Error: Category form not found");
                 }
             } else {
                 console.error("Category not found for ID:", categoryId);
@@ -1202,7 +1191,7 @@ function setupModalHandlers() {
             }
         } else if (e.target.closest(".delete-category")) {
             const categoryId = e.target.closest(".delete-category").getAttribute("data-category-id");
-            if(confirm("Are you sure you want to delete this category?")) {
+            if (confirm("Are you sure you want to delete this category?")) {
                 try {
                     const response = await fetch("http://localhost:3000/Remove/Category", {
                         method: "POST",
@@ -1214,9 +1203,9 @@ function setupModalHandlers() {
                     });
                     const result = await response.json();
                     console.log("Delete category response:", result);
-                    if(response.status === 200 && result.status === "success") {
+                    if (response.status === 200 && result.status === "success") {
                         alert(`Category ${categoryId} deleted successfully! Message: ${result.message}`);
-                        loadCategories();
+                        await loadCategories();
                     } else {
                         console.error("Delete category error:", result.message);
                         alert(`Error deleting category: ${result.message}`);
@@ -1232,21 +1221,20 @@ function setupModalHandlers() {
             if (retailer) {
                 const form = document.getElementById("addRetailerForm");
                 const modalTitle = document.getElementById("addRetailerModalLabel");
-                if(form && modalTitle) {
+                if (form && modalTitle) {
                     modalTitle.textContent = "Edit Retailer";
                     form.querySelector('[name="retailerId"]').value = retailer.id;
                     form.querySelector('#retailerName').value = retailer.name;
                     form.querySelector('#retailerWebsite').value = retailer.website;
                     const modalElement = document.getElementById("addRetailerModal");
-                    if(modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                         const modal = new bootstrap.Modal(modalElement);
                         modal.show();
                     } else {
                         console.error("Bootstrap is not defined or modal not found for retailer.");
-                        alert("Error: Unable to open retailer modal.");
                         modalElement.classList.add('show');
                         modalElement.style.display = 'block';
-                        modalElement.setAttribute('aria-hidden', 'true');
+                        modalElement.setAttribute('aria-hidden', 'false');
                         document.body.classList.add('modal-open');
                         const backdrop = document.createElement('div');
                         backdrop.className = 'modal-backdrop fade show';
@@ -1254,6 +1242,7 @@ function setupModalHandlers() {
                     }
                 } else {
                     console.error("Retailer form or modal title not found");
+                    alert("Error: Retailer form not found");
                 }
             } else {
                 console.error("Retailer not found for ID:", retailerId);
@@ -1261,7 +1250,7 @@ function setupModalHandlers() {
             }
         } else if (e.target.closest(".delete-retailer")) {
             const retailerId = e.target.closest(".delete-retailer").getAttribute("data-retailer-id");
-            if(confirm("Are you sure you want to delete this retailer?")) {
+            if (confirm("Are you sure you want to delete this retailer?")) {
                 try {
                     const response = await fetch("http://localhost:3000/Remove/Retailer", {
                         method: "POST",
@@ -1273,14 +1262,14 @@ function setupModalHandlers() {
                     });
                     const result = await response.json();
                     console.log("Delete retailer response:", result);
-                    if(response.status === 200 && result.status === "success") {
+                    if (response.status === 200 && result.status === "success") {
                         alert(`Retailer ${retailerId} deleted successfully! Message: ${result.message}`);
-                        loadRetailers();
+                        await loadRetailers();
                     } else {
                         console.error("Delete retailer error:", result.message);
                         alert(`Error deleting retailer: ${result.message}`);
                     }
-                } catch(error) {
+                } catch (error) {
                     console.error("Delete retailer error:", error);
                     alert(`Error deleting retailer: ${error.message}`);
                 }
@@ -1288,20 +1277,19 @@ function setupModalHandlers() {
         } else if (e.target.closest(".edit-brand")) {
             const brandId = e.target.closest(".edit-brand").getAttribute("data-brand-id");
             const brand = brands.find((b) => b.id === brandId);
-            if(brand) {
+            if (brand) {
                 const form = document.getElementById("addBrandForm");
                 const modalTitle = document.getElementById("addBrandModalLabel");
-                if(form && modalTitle) {
+                if (form && modalTitle) {
                     modalTitle.textContent = "Edit Brand";
                     form.querySelector('[name="brandId"]').value = brand.id;
                     form.querySelector('#brandName').value = brand.name;
                     const modalElement = document.getElementById("addBrandModal");
-                    if(modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    if (modalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
                         const modal = new bootstrap.Modal(modalElement);
                         modal.show();
                     } else {
                         console.error("Bootstrap is not defined or modal not found for brand.");
-                        alert("Error: Unable to open brand modal.");
                         modalElement.classList.add('show');
                         modalElement.style.display = 'block';
                         modalElement.setAttribute('aria-hidden', 'false');
@@ -1312,6 +1300,7 @@ function setupModalHandlers() {
                     }
                 } else {
                     console.error("Brand form or modal title not found");
+                    alert("Error: Brand form not found");
                 }
             } else {
                 console.error("Brand not found for ID:", brandId);
@@ -1319,7 +1308,7 @@ function setupModalHandlers() {
             }
         } else if (e.target.closest(".delete-brand")) {
             const brandId = e.target.closest(".delete-brand").getAttribute("data-brand-id");
-            if(confirm("Are you sure you want to delete this brand?")) {
+            if (confirm("Are you sure you want to delete this brand?")) {
                 try {
                     const response = await fetch("http://localhost:3000/Remove/Brand", {
                         method: "POST",
@@ -1333,7 +1322,7 @@ function setupModalHandlers() {
                     console.log("Delete brand response:", result);
                     if (response.status === 200 && result.status === "success") {
                         alert(`Brand ${brandId} deleted successfully! Message: ${result.message}`);
-                        loadBrands();
+                        await loadBrands();
                     } else {
                         console.error("Delete brand error:", result.message);
                         alert(`Error deleting brand: ${result.message}`);
