@@ -48,15 +48,11 @@
     background-color: #f8f9fa;
   }
   
-  .product-image-cell {
-    width: 60px;
-    height: 60px;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
+  .img-thumbnail {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
   }
   
   .actions-cell {
