@@ -458,13 +458,14 @@ app.post('/Get/Brands', express.json(), async (req, res) => {
 
         if (!search) {
             //get all brands here, no search provided
-            const rows = await conn.query('SELECT * FROM Brand');  //<==============no search provided, just a select unique  
+            const rows = await conn.query('SELECT name, B.id AS id, COUNT(Product.brand_id) AS brandCount FROM Brand AS B INNER JOIN Product ON Product.brand_id = B.id GROUP BY B.id, B.name');  //<==============no search provided, just a select unique  
             let brandJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let temp = {
                     brand_name: rows[i].name,
-                    brand_id: rows[i].id
+                    brand_id: rows[i].id,
+                    count: BigInt(rows[i].brandCount).toString()
                 }
 
                 brandJSON.push(temp);
