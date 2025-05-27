@@ -710,10 +710,19 @@ function filterBrands() {
 
 /**
  * Sets up event handlers for all modals and forms
- * Updated to fix modal dimming/freezing, ensure retailer data reloads, and correct syntax errors
- * Ensures all relevant data is refreshed after adding any entity
+ * Updated to add new entities statically to frontend arrays and re-render tables directly
+ * Ensures immediate UI updates without API fetch, with database sync on page reload
+ * Includes robust error handling, detailed logging, and modal cleanup
+ * Addresses logout issue by redirecting to login page on invalid user
+ * Last updated: 03:15 PM SAST on Tuesday, May 27, 2025
  */
 function setupModalHandlers() {
+    // Initialize global arrays if not defined
+    window.products = window.products || [];
+    window.categories = window.categories || [];
+    window.retailers = window.retailers || [];
+    window.brands = window.brands || [];
+
     // Wire up the "Add Retailer" button in product form
     const addRetailerBtn = document.getElementById("addRetailerBtn");
     if (addRetailerBtn) {
@@ -735,20 +744,21 @@ function setupModalHandlers() {
                         </div>
                     </div>
                     <div class="col-md-2 col-2">
-                        <input type="number" class="form-control retailer-discount" name="retailerDiscount[]" min="0" max="100" placeholder="Discount %">
+                        <input type="number" class="form-control retailer-discount" name="retailerDiscount[]" min="0" max="100" placeholder="0">
                     </div>
                     <div class="col-md-1 col-1">
-                        <button type="button" class="btn btn-outline-danger remove-retailer"><i class="bi bi-trash"></i></button>
+                        <button type="button" class="btn btn-secondary remove-btn" data-type="remove-retailer"><i class="bi bi-trash"></i></button>
                     </div>
                 `;
                 retailerPricesContainer.appendChild(newRow);
 
                 populateRetailerDropdown();
 
-                const removeBtn = newRow.querySelector(".remove-retailer");
+                const removeBtn = newRow.querySelector("button[data-type='remove-retailer']");
                 if (removeBtn) {
-                    removeBtn.addEventListener("click", function () {
+                    removeBtn.addEventListener("click", () => {
                         newRow.remove();
+                        console.log('Retailer row removed');
                     });
                 } else {
                     console.error("Remove retailer button not found in new row");
@@ -758,7 +768,7 @@ function setupModalHandlers() {
             }
         });
     } else {
-        console.error("Add retailer button not found");
+        console.error('Add retailer button not found');
     }
 
     // Wire up the "Add Specification" button in product form
@@ -770,22 +780,27 @@ function setupModalHandlers() {
                 const newRow = document.createElement("div");
                 newRow.className = "row mb-2 spec-row";
                 newRow.innerHTML = `
-                    <div class="col-5">
+                    <div class="col-md-5">
                         <input type="text" class="form-control" placeholder="Name" name="specName[]">
                     </div>
-                    <div class="col-6">
+                    <div class="col-md-6">
                         <input type="text" class="form-control" placeholder="Value" name="specValue[]">
                     </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-outline-danger remove-spec"><i class="bi bi-trash"></i></button>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-secondary remove-btn" data-type="remove-spec"><i class="bi bi-trash"></i></button>
                     </div>
                 `;
                 specificationsContainer.appendChild(newRow);
 
-                const removeBtn = newRow.querySelector(".remove-spec");
-                removeBtn.addEventListener("click", function () {
-                    newRow.remove();
-                });
+                const removeBtn = newRow.querySelector("button[data-type='remove-spec']");
+                if (removeBtn) {
+                    removeBtn.addEventListener("click", () => {
+                        newRow.remove();
+                        console.log('Specification row removed');
+                    });
+                } else {
+                    console.error("Remove specification button not found in new row");
+                }
             } else {
                 console.error("Specifications container not found");
             }
@@ -801,28 +816,180 @@ function setupModalHandlers() {
             formId: "addProductForm",
             modalId: "addProductModal",
             endpoint: "Add/Product",
+            tableId: "productsTable",
+            renderFunc: renderProductsTable
         },
         saveCategoryBtn: {
             entity: "Category",
             formId: "addCategoryForm",
             modalId: "addCategoryModal",
             endpoint: "Add/Category",
+            tableId: "categoriesTable",
+            renderFunc: renderCategoriesTable
         },
         saveRetailerBtn: {
             entity: "Retailer",
             formId: "addRetailerForm",
             modalId: "addRetailerModal",
             endpoint: "Add/Retailer",
+            tableId: "retailersTable",
+            renderFunc: renderRetailersTable
         },
         saveBrandBtn: {
             entity: "Brand",
             formId: "addBrandForm",
             modalId: "addBrandModal",
             endpoint: "Add/Brand",
+            tableId: "brandsTable",
+            renderFunc: renderBrandsTable
         },
     };
 
-    Object.entries(saveButtons).forEach(([btnId, { entity, formId, modalId, endpoint }]) => {
+    // Render functions to update tables directly from arrays
+    function renderProductsTable() {
+        const tbody = document.querySelector("#productsTable tbody");
+        if (!tbody) {
+            console.error("Products table body not found");
+            return;
+        }
+        tbody.innerHTML = "";
+        if (products.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center">No products found</td></tr>`;
+            return;
+        }
+
+        products.forEach(product => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><img src="${product.image || '/placeholder-image.jpg'}" alt="${product.name}" width="30" height="30" class="img-thumbnail"></td>
+                <td>${product.name}</td>
+                <td>${product.category}</td>
+                <td>R${product.minPrice.toFixed(2)} - R${product.maxPrice.toFixed(2)}</td>
+                <td>${product.retailers.join(", ")}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary edit-product" data-product-id="${product.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger delete-product" data-product-id="${product.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        console.log("Rendered products table with", products.length, "products");
+    }
+
+    function renderCategoriesTable() {
+        const tbody = document.querySelector("#categoriesTable tbody");
+        if (!tbody) {
+            console.error("Categories table body not found");
+            return;
+        }
+
+        tbody.innerHTML = "";
+        if (categories.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center">No categories found</td></tr>`;
+            return;
+        }
+
+        categories.forEach(category => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${category.name}</td>
+                <td>${category.productCount}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary edit-category" data-category-id="${category.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger delete-category" data-category-id="${category.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        console.log("Rendered categories table with", categories.length, "categories");
+    }
+
+    function renderRetailersTable() {
+        const tbody = document.querySelector("#retailersTable tbody");
+        if (!tbody) {
+            console.error("Retailers table body not found");
+            return;
+        }
+
+        tbody.innerHTML = "";
+        if (retailers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center">No retailers found</td></tr>`;
+            return;
+        }
+
+        retailers.forEach(retailer => {
+            const isValidUrl = retailer.website && /^https?:\/\/.+/.test(retailer.website);
+            const websiteDisplay = isValidUrl
+                ? `<a href="${retailer.website}" target="_blank">${retailer.website}</a>`
+                : "No website";
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${retailer.name}</td>
+                <td>${websiteDisplay}</td>
+                <td>${retailer.productCount}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary edit-retailer" data-retailer-id="${retailer.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger delete-retailer" data-retailer-id="${retailer.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        console.log("Rendered retailers table with", retailers.length, "retailers");
+    }
+
+    function renderBrandsTable() {
+        const tbody = document.querySelector("#brandsTable tbody");
+        if (!tbody) {
+            console.error("Brands table body not found");
+            return;
+        }
+
+        tbody.innerHTML = "";
+        if (brands.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" class="text-center">No brands found</td></tr>`;
+            return;
+        }
+
+        brands.forEach(brand => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${brand.name}</td>
+                <td>${brand.productCount}</td>
+                <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary edit-brand" data-brand-id="${brand.id}">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-danger delete-brand" data-brand-id="${brand.id}">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        console.log("Rendered brands table with", brands.length, "brands");
+    }
+
+    Object.entries(saveButtons).forEach(([btnId, { entity, formId, modalId, endpoint, tableId, renderFunc }]) => {
         const btn = document.getElementById(btnId);
         const form = document.getElementById(formId);
         if (btn && form) {
@@ -842,6 +1009,11 @@ function setupModalHandlers() {
 
                 const formData = new FormData(form);
                 const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+                if (!user.id && !user.user_id) {
+                    alert("User session expired. Please log in again.");
+                    window.location.href = "/login.html";
+                    return;
+                }
                 let data = { userid: user.id || user.user_id };
                 let finalEndpoint = endpoint;
 
@@ -975,16 +1147,142 @@ function setupModalHandlers() {
                 console.log(`Saving ${entity}, endpoint: ${finalEndpoint}, data:`, data);
 
                 try {
-                    const response = await fetch(`http://localhost:3000/${finalEndpoint}`, {
+                    const saveResponse = await fetch(`http://localhost:3000/${finalEndpoint}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(data),
                     });
-                    const result = await response.json();
-                    console.log(`${entity} API response:`, result);
+                    const saveResult = await saveResponse.json();
+                    console.log(`${entity} save API response:`, saveResult);
 
-                    if ((response.status === 200 || response.status === 201) && result.status === "success") {
-                        alert(`${entity} ${data.id || data.product_id ? "updated" : "saved"} successfully! Message: ${result.message}`);
+                    if ((saveResponse.status === 200 || saveResponse.status === 201) && saveResult.status === "success") {
+                        alert(`${entity} ${data.id || data.product_id ? "updated" : "saved"} successfully! Message: ${saveResult.message}`);
+
+                        // Add or update entity statically in frontend arrays
+                        if (entity === "Product" && !data.product_id) {
+                            const newProductId = saveResult.data?.product_id?.toString() || Date.now().toString();
+                            const category = categories.find(cat => cat.id === data.category_id) || { name: "Uncategorized" };
+                            const retailerNames = data.retail_details.map(detail => {
+                                const retailer = retailers.find(r => r.id === detail.retailer_id);
+                                return retailer ? retailer.name : "Unknown";
+                            });
+                            products.push({
+                                id: newProductId,
+                                name: data.title,
+                                image: data.image_url,
+                                category: category.name,
+                                category_id: data.category_id,
+                                brand: brands.find(b => b.id === data.brand_id)?.name || "Unknown",
+                                brand_id: data.brand_id,
+                                minPrice: Math.min(...data.retail_details.map(d => d.final_price)),
+                                maxPrice: Math.max(...data.retail_details.map(d => d.initial_price)),
+                                retailers: retailerNames,
+                                retailer_id: data.retail_details[0]?.retailer_id || "",
+                                description: data.description,
+                                features: data.features,
+                                specifications: data.specifications,
+                                images: data.images,
+                                retail_details: data.retail_details,
+                            });
+                            console.log("Added product statically:", products[products.length - 1]);
+                            renderProductsTable();
+                            populateFilterDropdowns();
+                        } else if (entity === "Category" && !data.id) {
+                            const newCategoryId = saveResult.data?.id?.toString() || Date.now().toString();
+                            categories.push({
+                                id: newCategoryId,
+                                name: data.name,
+                                productCount: 0,
+                            });
+                            console.log("Added category statically:", categories[categories.length - 1]);
+                            renderCategoriesTable();
+                            populateCategoryDropdown();
+                        } else if (entity === "Retailer" && !data.id) {
+                            const newRetailerId = saveResult.data?.id?.toString() || Date.now().toString();
+                            retailers.push({
+                                id: newRetailerId,
+                                name: data.name,
+                                website: data.url,
+                                productCount: 0,
+                            });
+                            console.log("Added retailer statically:", retailers[retailers.length - 1]);
+                            renderRetailersTable();
+                            populateRetailerDropdown();
+                        } else if (entity === "Brand" && !data.id) {
+                            const newBrandId = saveResult.data?.id?.toString() || Date.now().toString();
+                            brands.push({
+                                id: newBrandId,
+                                name: data.name,
+                                productCount: 0,
+                            });
+                            console.log("Added brand statically:", brands[brands.length - 1]);
+                            renderBrandsTable();
+                            populateBrandDropdown();
+                        } else if (entity === "Product" && data.product_id) {
+                            const index = products.findIndex(p => p.id === data.product_id);
+                            if (index !== -1) {
+                                const category = categories.find(cat => cat.id === data.category_id) || { name: "Uncategorized" };
+                                const retailerNames = data.retail_details.map(detail => {
+                                    const retailer = retailers.find(r => r.id === detail.retailer_id);
+                                    return retailer ? retailer.name : "Unknown";
+                                });
+                                products[index] = {
+                                    ...products[index],
+                                    name: data.title,
+                                    image: data.image_url,
+                                    category: category.name,
+                                    category_id: data.category_id,
+                                    brand: brands.find(b => b.id === data.brand_id)?.name || "Unknown",
+                                    brand_id: data.brand_id,
+                                    minPrice: Math.min(...data.retail_details.map(d => d.final_price)),
+                                    maxPrice: Math.max(...data.retail_details.map(d => d.initial_price)),
+                                    retailers: retailerNames,
+                                    retailer_id: data.retail_details[0]?.retailer_id || "",
+                                    description: data.description,
+                                    features: data.features,
+                                    specifications: data.specifications,
+                                    images: data.images,
+                                    retail_details: data.retail_details,
+                                };
+                                console.log("Updated product:", products[index]);
+                                renderProductsTable();
+                                populateFilterDropdowns();
+                            }
+                        } else if (entity === "Category" && data.id) {
+                            const index = categories.findIndex(c => c.id === data.id);
+                            if (index !== -1) {
+                                categories[index] = {
+                                    ...categories[index],
+                                    name: data.name,
+                                };
+                                console.log("Updated category:", categories[index]);
+                                renderCategoriesTable();
+                                populateCategoryDropdown();
+                            }
+                        } else if (entity === "Retailer" && data.id) {
+                            const index = retailers.findIndex(r => r.id === data.id);
+                            if (index !== -1) {
+                                retailers[index] = {
+                                    ...retailers[index],
+                                    name: data.name,
+                                    website: data.url,
+                                };
+                                console.log("Updated retailer:", retailers[index]);
+                                renderRetailersTable();
+                                populateRetailerDropdown();
+                            }
+                        } else if (entity === "Brand" && data.id) {
+                            const index = brands.findIndex(b => b.id === data.id);
+                            if (index !== -1) {
+                                brands[index] = {
+                                    ...brands[index],
+                                    name: data.name,
+                                };
+                                console.log("Updated brand:", brands[index]);
+                                renderBrandsTable();
+                                populateBrandDropdown();
+                            }
+                        }
 
                         // Close the modal and clean up
                         const modalElement = document.getElementById(modalId);
@@ -1005,8 +1303,11 @@ function setupModalHandlers() {
                             document.body.classList.remove('modal-open');
                             document.body.style.overflow = '';
                             document.body.style.paddingRight = '';
-                            const backdrop = document.querySelector('.modal-backdrop');
-                            if (backdrop) backdrop.remove();
+                            const backdrops = document.querySelectorAll('.modal-backdrop');
+                            backdrops.forEach(backdrop => backdrop.remove());
+                            modalElement.removeAttribute('aria-modal');
+                            modalElement.setAttribute('aria-hidden', 'true');
+                            console.log(`Modal ${modalId} closed and cleaned up`);
                         } else {
                             console.error("Modal element not found:", modalId);
                         }
@@ -1014,21 +1315,15 @@ function setupModalHandlers() {
                         // Reset form and clear ID field
                         form.reset();
                         idField.value = "";
-
-                        // Refresh all relevant data to ensure consistency
-                        try {
-                            await loadCategories();
-                            await loadRetailers();
-                            await loadBrands();
-                            await loadProducts(); // Ensure products are reloaded last to reflect all changes
-                            populateFilterDropdowns(); // Update filters with the latest product data
-                        } catch (refreshError) {
-                            console.error(`Error refreshing ${entity} data:`, refreshError);
-                            alert(`Error refreshing ${entity} data: ${refreshError.message}`);
+                        if (entity === "Product") {
+                            const retailerPricesContainer = document.getElementById("retailerPricesContainer");
+                            const specificationsContainer = document.getElementById("specificationsContainer");
+                            if (retailerPricesContainer) retailerPricesContainer.innerHTML = "";
+                            if (specificationsContainer) specificationsContainer.innerHTML = "";
                         }
                     } else {
-                        console.error(`${entity} save error:`, result.message);
-                        alert(`Error ${data.id || data.product_id ? "updating" : "saving"} ${entity}: ${result.message}`);
+                        console.error(`${entity} save error:`, saveResult.message);
+                        alert(`Error ${data.id || data.product_id ? "updating" : "saving"} ${entity}: ${saveResult.message}`);
                     }
                 } catch (error) {
                     console.error(`${entity} save error:`, error);
@@ -1046,6 +1341,7 @@ function setupModalHandlers() {
         if (!user || !(user.id || user.user_id)) {
             console.error("User not found for operation");
             alert("User ID not found. Please log in again.");
+            window.location.href = "/login.html";
             return;
         }
 
@@ -1109,7 +1405,7 @@ function setupModalHandlers() {
                         if (select && retail.retailer_id) {
                             select.value = retail.retailer_id;
                         }
-                        newRow.querySelector(".remove-retailer").addEventListener("click", function() {
+                        newRow.querySelector(".remove-retailer").addEventListener("click", function () {
                             newRow.remove();
                         });
                     });
@@ -1190,7 +1486,8 @@ function setupModalHandlers() {
                     console.log("Delete product response:", result);
                     if (response.status === 200 && result.status === "success") {
                         alert(`Product ${productId} deleted successfully! Message: ${result.message}`);
-                        await loadProducts();
+                        products = products.filter(p => p.id !== productId);
+                        renderProductsTable();
                     } else {
                         console.error("Delete product error:", result.message);
                         alert(`Error deleting product: ${result.message}`);
@@ -1248,7 +1545,9 @@ function setupModalHandlers() {
                     console.log("Delete category response:", result);
                     if (response.status === 200 && result.status === "success") {
                         alert(`Category ${categoryId} deleted successfully! Message: ${result.message}`);
-                        await loadCategories();
+                        categories = categories.filter(p => p.id !== categoryId);
+                        renderCategoriesTable();
+                        populateCategoryDropdown();
                     } else {
                         console.error("Delete category error:", result.message);
                         alert(`Error deleting category: ${result.message}`);
@@ -1307,7 +1606,9 @@ function setupModalHandlers() {
                     console.log("Delete retailer response:", result);
                     if (response.status === 200 && result.status === "success") {
                         alert(`Retailer ${retailerId} deleted successfully! Message: ${result.message}`);
-                        await loadRetailers();
+                        retailers = retailers.filter(r => r.id !== retailerId);
+                        renderRetailersTable();
+                        populateRetailerDropdown();
                     } else {
                         console.error("Delete retailer error:", result.message);
                         alert(`Error deleting retailer: ${result.message}`);
@@ -1365,7 +1666,9 @@ function setupModalHandlers() {
                     console.log("Delete brand response:", result);
                     if (response.status === 200 && result.status === "success") {
                         alert(`Brand ${brandId} deleted successfully! Message: ${result.message}`);
-                        await loadBrands();
+                        brands = brands.filter(b => b.id !== brandId);
+                        renderBrandsTable();
+                        populateBrandDropdown();
                     } else {
                         console.error("Delete brand error:", result.message);
                         alert(`Error deleting brand: ${result.message}`);
@@ -1378,18 +1681,19 @@ function setupModalHandlers() {
         }
     });
 
-    // Reset modal fields when modals are hidden
+    // Reset modal fields on hide
     const modals = [
         { id: "addProductModal", labelId: "addProductModalLabel", title: "Add New Product", formId: "addProductForm" },
-        { id: "addCategoryModal", labelId: "addCategoryModalLabel", title: "Add New Category", formId: "addCategoryForm" },
-        { id: "addRetailerModal", labelId: "addRetailerModalLabel", title: "Add New Retailer", formId: "addRetailerForm" },
-        { id: "addBrandModal", labelId: "addBrandModalLabel", title: "Add New Brand", formId: "addBrandForm" },
+        { id: "addCategoryModal", labelId: "addCategoryModalLabel", title: "Add Category", formId: "addCategoryForm" },
+        { id: "addRetailerModal", labelId: "addRetailerModalLabel", title: "Add Retailer", formId: "addRetailerForm" },
+        { id: "addBrandModal", labelId: "addBrandModalLabel", title: "Add Brand", formId: "addBrandForm" },
     ];
 
     modals.forEach(({ id, labelId, title, formId }) => {
         const modalEl = document.getElementById(id);
         if (modalEl) {
             modalEl.addEventListener("hidden.bs.modal", function () {
+                console.log(`Resetting modal ${id}`);
                 const modalTitle = document.getElementById(labelId);
                 const form = document.getElementById(formId);
                 if (modalTitle) {
@@ -1406,12 +1710,14 @@ function setupModalHandlers() {
                         if (specificationsContainer) specificationsContainer.innerHTML = "";
                     }
                 }
-                // Ensure body is scrollable and clean up modal artifacts
                 document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
+                document.body.style.overflow = 'auto';
                 document.body.style.paddingRight = '';
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) backdrop.remove();
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => backdrop.remove());
+                modalEl.removeAttribute('aria-modal');
+                modalEl.setAttribute('aria-hidden', 'true');
+                console.log(`Modal ${id} fully reset`);
             });
         }
     });
