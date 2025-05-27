@@ -16,8 +16,14 @@ export function createWatchlistCardHTML(product) {
   return `
     <div class="col-md-4 mb-3">
       <div class="card h-100 watchlist-card">
-        <a href="view.html?id=${product.id}" class="text-decoration-none">
-          <img src="${product.image_url}" class="card-img-top product-thumbnail" alt="${product.title}">
+        <a href="view.html?id=${product.id}" class="product-image-container">
+          <div class="image-loading-spinner"></div>
+          <div class="image-alt-text" data-alt-text="${product.title}"></div>
+          <img src="${product.image_url}" 
+               class="card-img-top product-thumbnail" 
+               alt="${product.title}"
+               onload="this.classList.add('loaded'); this.parentNode.querySelector('.image-loading-spinner').style.display='none';"
+               onerror="handleImageError(this)">
         </a>
         <div class="card-body d-flex flex-column">
           <a href="view.html?id=${product.id}" class="text-decoration-none product-title-link">
