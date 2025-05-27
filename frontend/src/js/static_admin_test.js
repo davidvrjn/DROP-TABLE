@@ -1689,6 +1689,22 @@ function setupModalHandlers() {
             const productId = e.target
                 .closest(".edit-product")
                 .getAttribute("data-product-id");
+
+            const detailedProductRes = await fetch(
+                `http://localhost:3000/Get/Product/${productId}/1`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ userid: 1 }),
+                }
+            ); // You may want to dynamically get retailerID
+            const detailedProduct = await detailedProductRes.json();
+            if (detailedProduct.status !== "success" || !detailedProduct.data) {
+                console.error("Failed to fetch detailed product info");
+                return;
+            }
+            const productData = detailedProduct.data;
+
             console.log("Edit product clicked, ID:", productId);
             const product = products.find((p) => p.id.toString() === productId);
             if (product) {
@@ -1704,23 +1720,31 @@ function setupModalHandlers() {
                 }
                 modalTitle.textContent = "Edit Product";
                 form.querySelector('[name="productId"]').value = product.id;
-                form.querySelector("#productName").value = product.name || "";
+
                 form.querySelector("#productCategory").value =
                     product.category_id || "";
                 form.querySelector("#productBrand").value =
-                    product.brand_id || "";
-                const imageUrls = [
-                    product.image || "",
-                    ...(Array.isArray(product.images) ? product.images : []),
-                ].filter((url) => url);
-                form.querySelector("#productImageUrl").value =
-                    imageUrls.join("\n");
-                form.querySelector("#productDescription").value =
-                    product.description || "";
-                form.querySelector("#productKeyFeatures").value = (
-                    Array.isArray(product.features) ? product.features : []
-                ).join("\n");
+                    product.brand_id || 57;
 
+                form.querySelector("#productName").value =
+                    productData.title || "";
+                form.querySelector("#productDescription").value =
+                    productData.description || "";
+                form.querySelector("#productImageUrl").value = [
+                    productData.images,
+                    ...(Array.isArray(productData.images)
+                        ? productData.images
+                        : []),
+                ]
+                    .filter(Boolean)
+                    .join("\n");
+                form.querySelector("#productKeyFeatures").value = Array.isArray(
+                    productData.features
+                )
+                    ? productData.features.filter(Boolean).join("\n")
+                    : typeof productData.features === "string"
+                    ? productData.features
+                    : "";
                 if (retailerPricesContainer) {
                     retailerPricesContainer.innerHTML = "";
 
@@ -1814,31 +1838,40 @@ function setupModalHandlers() {
                 );
                 if (specificationsContainer) {
                     specificationsContainer.innerHTML = "";
-                    const specs =
-                        typeof product.specifications === "object" &&
-                        product.specifications
-                            ? Object.entries(product.specifications)
-                            : [];
-                    specs.forEach(([name, value]) => {
+
+                    let specs = {};
+                    try {
+                        if (typeof product.specifications === "string") {
+                            specs = JSON.parse(product.specifications); // <- Fix here
+                        } else if (typeof product.specifications === "object") {
+                            specs = product.specifications;
+                        }
+                    } catch (e) {
+                        console.error(
+                            "Failed to parse specifications JSON:",
+                            e
+                        );
+                        specs = {};
+                    }
+
+                    Object.entries(specs).forEach(([name, value]) => {
                         const newRow = document.createElement("div");
                         newRow.className = "row mb-2 spec-row";
                         newRow.innerHTML = `
-                            <div class="col-5">
-                                <input type="text" class="form-control" placeholder="Name" name="specName[]" value="${name}">
-                            </div>
-                            <div class="col-6">
-                                <input type="text" class="form-control" placeholder="Value" name="specValue[]" value="${value}">
-                            </div>
-                            <div class="col-1">
-                                <button type="button" class="btn btn-outline-danger remove-spec"><i class="bi bi-trash"></i></button>
-                            </div>
-                        `;
+            <div class="col-5">
+                <input type="text" class="form-control" placeholder="Name" name="specName[]" value="${name}">
+            </div>
+            <div class="col-6">
+                <input type="text" class="form-control" placeholder="Value" name="specValue[]" value="${value}">
+            </div>
+            <div class="col-1">
+                <button type="button" class="btn btn-outline-danger remove-spec"><i class="bi bi-trash"></i></button>
+            </div>
+        `;
                         specificationsContainer.appendChild(newRow);
                         newRow
                             .querySelector(".remove-spec")
-                            .addEventListener("click", function () {
-                                newRow.remove();
-                            });
+                            .addEventListener("click", () => newRow.remove());
                     });
                 } else {
                     console.error("Specifications container not found");
