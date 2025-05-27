@@ -131,8 +131,35 @@ export function initLogin(hashSHA256) {
     }
 
     if (forgotPasswordBtn) {
+        const modal = document.getElementById('forgot-password-modal');
+        const emailInput = document.getElementById('forgot-password-email');
+        const emailSection = document.getElementById('email-input-section');
+        const confirmationSection = document.getElementById('confirmation-section');
+
         forgotPasswordBtn.addEventListener('click', function() {
-            alert('Forgot password functionality will be implemented by the JS team');
+            modal.style.display = 'flex';
+            emailSection.style.display = 'block';
+            confirmationSection.style.display = 'none';
+            emailInput.value = '';
+        });
+
+        document.getElementById('submit-forgot-password').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (emailInput.value.trim() === '') {
+                return;
+            }
+            emailSection.style.display = 'none';
+            confirmationSection.style.display = 'block';
+        });
+
+        document.getElementById('cancel-forgot-password').addEventListener('click', () => modal.style.display = 'none');
+        document.getElementById('close-forgot-password').addEventListener('click', () => modal.style.display = 'none');
+
+        // Close modal when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
         });
     }
 }
