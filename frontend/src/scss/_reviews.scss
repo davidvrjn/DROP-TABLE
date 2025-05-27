@@ -55,8 +55,7 @@
     font-size: 1.2rem;
 }
 
-.overall-rating .rating-count,
-.review-date {
+.overall-rating .rating-count{
     font-size: 0.9rem;
     color: rgba(0, 0, 0, 0.6);
 }
@@ -111,10 +110,6 @@
     color: rgba(0, 0, 0, 0.8);
 }
 
-.review-date {
-    font-size: 0.85rem;
-}
-
 .review-rating {
     display: flex;
     gap: 2px;
@@ -167,8 +162,7 @@
         color: rgba(255, 255, 255, 0.9);
     }
     
-    .overall-rating .rating-count,
-    .review-date {
+    .overall-rating .rating-count{
         color: rgba(255, 255, 255, 0.6);
     }
     

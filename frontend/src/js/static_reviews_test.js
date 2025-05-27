@@ -52,7 +52,6 @@ async function loadProductReviews(productId) {
                     id: r.r_Id,
                     userName: r.r_Username,
                     rating: r.r_Rating,
-                    date: r.r_Date,
                     text: r.r_Text,
                 })),
             };
@@ -158,19 +157,10 @@ function createReviewElement(review) {
     const reviewElement = document.createElement("div");
     reviewElement.className = "review-item";
 
-    // Format date
-    const reviewDate = new Date(review.date);
-    const formattedDate = reviewDate.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-    });
-
     // Create review HTML
     reviewElement.innerHTML = `
         <div class="review-header">
             <div class="reviewer-name">${review.userName}</div>
-            <div class="review-date">${formattedDate}</div>
         </div>
         <div class="review-rating">
             ${getStarRatingHTML(review.rating)}
