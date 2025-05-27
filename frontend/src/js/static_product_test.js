@@ -43,31 +43,31 @@ async function fetchProducts({
     }
 }
 
-window.handleImageError = function(img) {
+window.handleImageError = function (img) {
     // Hide the spinner
-    const spinner = img.parentNode.querySelector('.image-loading-spinner');
-    if (spinner) spinner.style.display = 'none';
-    
+    const spinner = img.parentNode.querySelector(".image-loading-spinner");
+    if (spinner) spinner.style.display = "none";
+
     // Show the alt text after 5 seconds if image fails to load
-    const altTextElement = img.parentNode.querySelector('.image-alt-text');
+    const altTextElement = img.parentNode.querySelector(".image-alt-text");
     if (altTextElement) {
         altTextElement.textContent = img.alt;
-        altTextElement.classList.add('visible');
+        altTextElement.classList.add("visible");
     }
-    
+
     // Hide the broken image
-    img.style.display = 'none';
+    img.style.display = "none";
 };
 
 // Add this to initialize a timeout for all product images
-document.addEventListener('DOMContentLoaded', function() {
-    const productImages = document.querySelectorAll('.product-thumbnail');
-    
-    productImages.forEach(img => {
+document.addEventListener("DOMContentLoaded", function () {
+    const productImages = document.querySelectorAll(".product-thumbnail");
+
+    productImages.forEach((img) => {
         // Set a timeout to check if image loaded after 5 seconds
         setTimeout(() => {
             // If image hasn't loaded yet (doesn't have 'loaded' class)
-            if (!img.classList.contains('loaded')) {
+            if (!img.classList.contains("loaded")) {
                 handleImageError(img);
             }
         }, 5000);
@@ -87,6 +87,7 @@ let activeFilters = {
 let currentPage = 1;
 const itemsPerPage = 9;
 let currentProducts = [];
+const isDealsPage = window.location.pathname.includes("/deals");
 
 function sanitizeProduct(product) {
     return {
@@ -700,7 +701,19 @@ function setupFilterButtons() {
 
 // Initialize everything when the DOM is ready
 document.addEventListener("DOMContentLoaded", async () => {
-    currentProducts = await fetchProducts();
+    let products = await fetchProducts();
+
+    if (isDealsPage) {
+        products = products.filter((product) => {
+            const initial = parseFloat(product.initial_price) || 0;
+            const final = parseFloat(product.final_price) || 0;
+            const discount =
+                initial > 0 ? ((initial - final) / initial) * 100 : 0;
+            return discount >= 25;
+        });
+    }
+
+    currentProducts = products;
     renderProductsWithPagination(currentProducts);
     setupLoadMoreButton();
     populateFilters();
