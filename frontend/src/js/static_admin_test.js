@@ -7,6 +7,7 @@
  * - Added brand search and minimum product count filter functionality
  * - Implemented event handlers for brand search, product count filter, and reset
  * - Updated brand table rendering to support dynamic filtering
+ * - Updated loadRetailers to use web_page_url and calculate productCount from products
  * - Fixed existing issues (as per previous fixes)
  * Fixes:
  * - TypeError: product.images is not iterable
@@ -19,7 +20,7 @@
  * - Fixed 400 Bad Request for Add/Category by sending 'name' instead of 'category_name'
  * - Fixed category counts by ensuring categories are loaded before products and mapping category_id correctly
  * - Fixed success message handling to accept 201 status code
- * Last updated: 01:44 AM SAST on Tuesday, May 27, 2025
+ * Last updated: 02:13 AM SAST on Tuesday, May 27, 2025
  */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -317,12 +318,16 @@ async function loadRetailers() {
         console.log("Retailers API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            retailers = result.data.map((retailer) => ({
-                id: retailer.retailer_id?.toString() || "",
-                name: retailer.retailer_name || "Unknown",
-                website: retailer.website || "#",
-                productCount: retailer.product_count || 0,
-            }));
+            retailers = result.data.map((retailer) => {
+                // Calculate productCount by counting products associated with this retailer
+                const productCount = products.filter(p => p.retailer_id === retailer.retailer_id?.toString()).length;
+                return {
+                    id: retailer.retailer_id?.toString() || "",
+                    name: retailer.retailer_name || "Unknown",
+                    website: retailer.web_page_url || "#", // Use web_page_url from DB if available
+                    productCount: productCount,
+                };
+            });
 
             tbody.innerHTML = "";
             if (retailers.length === 0) {
