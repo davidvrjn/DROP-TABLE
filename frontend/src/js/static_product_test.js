@@ -40,6 +40,37 @@ async function fetchProducts({
     }
 }
 
+window.handleImageError = function(img) {
+    // Hide the spinner
+    const spinner = img.parentNode.querySelector('.image-loading-spinner');
+    if (spinner) spinner.style.display = 'none';
+    
+    // Show the alt text after 5 seconds if image fails to load
+    const altTextElement = img.parentNode.querySelector('.image-alt-text');
+    if (altTextElement) {
+        altTextElement.textContent = img.alt;
+        altTextElement.classList.add('visible');
+    }
+    
+    // Hide the broken image
+    img.style.display = 'none';
+};
+
+// Add this to initialize a timeout for all product images
+document.addEventListener('DOMContentLoaded', function() {
+    const productImages = document.querySelectorAll('.product-thumbnail');
+    
+    productImages.forEach(img => {
+        // Set a timeout to check if image loaded after 5 seconds
+        setTimeout(() => {
+            // If image hasn't loaded yet (doesn't have 'loaded' class)
+            if (!img.classList.contains('loaded')) {
+                handleImageError(img);
+            }
+        }, 5000);
+    });
+});
+
 let activeFilters = {
     categories: [],
     brands: [],
