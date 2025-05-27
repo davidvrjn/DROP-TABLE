@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `DROP TABLE`
+-- Database: `DROP_TABLE`
 --
 
 -- --------------------------------------------------------
@@ -53,12 +53,12 @@ CREATE TABLE `Product` (
   `id` int(11) NOT NULL,
   `category_id` int(11) NOT NULL,
   `brand_id` int(11) NOT NULL,
-  `title` varchar(150) NOT NULL,
+  `title` varchar(500) NOT NULL,
   `description` varchar(10000) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `image_url` varchar(255) NOT NULL,
-  `images` varchar(500) NOT NULL,
+  `images` varchar(1500) NOT NULL,
   `specifications` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
   `features` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -73,8 +73,8 @@ CREATE TABLE `Product_Retailer` (
   `product_id` int(11) NOT NULL,
   `retailer_id` int(11) NOT NULL,
   `product_url` varchar(255) NOT NULL,
-  `inital_price` decimal(10,0) NOT NULL,
-  `final_price` decimal(10,0) NOT NULL
+  `initial_price` decimal(10,2) NOT NULL,
+  `final_price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -127,8 +127,8 @@ CREATE TABLE `Watchlist_Item` (
   `user_id` int(11) NOT NULL,
   `retailer_name` varchar(100) NOT NULL,
   `product_id` int(11) NOT NULL,
-  `initial_price` decimal(10,0) NOT NULL,
-  `final_price` decimal(10,0) NOT NULL
+  `initial_price` decimal(10,2) NOT NULL,
+  `final_price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

@@ -121,7 +121,7 @@ def create_product_retailer_sql(product_retailer_data):
     print("🔧 Creating SQL for product-retailer relationships")
     try:
         # Create SQL insert statement
-        output_lines = ["INSERT INTO `Product_Retailer` (`product_id`, `retailer_id`, `product_url`, `inital_price`, `final_price`) VALUES"]
+        output_lines = ["INSERT INTO `Product_Retailer` (`product_id`, `retailer_id`, `product_url`, `initial_price`, `final_price`) VALUES"]
         
         for product_id, retailer_id, product_url, initial_price, final_price in product_retailer_data:
             # Format the values for SQL insert

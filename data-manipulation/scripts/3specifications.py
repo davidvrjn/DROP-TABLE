@@ -113,9 +113,9 @@ def create_specifications():
         specifications = []
         for i in range(1, product_count + 1):
             spec = {
-                "brand": brands.get(i),
-                "category": categories.get(i),
-                "dimensions": dimensions.get(i)
+                "Brand": brands.get(i),
+                "Category": categories.get(i),
+                "Dimensions": dimensions.get(i)
             }
             specifications.append(spec)
         

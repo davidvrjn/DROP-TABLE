@@ -1,4 +1,4 @@
-INSERT INTO user (first_name, last_name, password, email, type) VALUES
+INSERT INTO User (first_name, last_name, password, email, type) VALUES
 ('Admin', 'User', '$2b$10$P/RX1b1wbzzoNw8eyZemg.HANqR6RdwCv2ag.SJkBSwiOgi3FOaCW', 'admin@admin.com', 'admin'),
 ('Liam', 'Smith', '$2b$10$CbMAmAkWbDYMNzg3vBVHo.Nq1vNl/EKmdELjyUvu2dw0DnvLegRPW', 'liam.smith@example.com', 'user'),
 ('Emma', 'Johnson', '$2b$10$0UqV.RAuALB7FPaTAggIg.epI216x8eBNmq.PHWlq0hmrk2HK5GnC', 'emma.johnson@example.com', 'user'),

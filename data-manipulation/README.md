@@ -25,5 +25,5 @@ After all scripts are executed, the `run.py` script performs these final operati
 
 1. `copyfiles()` - Copies all necessary SQL files to the 'Final Statements' directory
 2. `createSQL()` - Creates a complete database setup file
-   - Combines schema from `db-schema/DROP-TABLE.sql` with all data files
+   - Combines schema from `db-schema/DROP-TABLE.sql` with all data files in the 'Final Statements' directory
    - Outputs a single comprehensive SQL file: `DROP-TABLE-COMPLETE.sql`
