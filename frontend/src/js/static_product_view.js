@@ -197,13 +197,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (result.status === "success") {
                 wishlistBtn.classList.add("btn-success");
                 wishlistBtn.innerHTML = `<i class="bi bi-heart-fill"></i> Added to Watchlist`;
+                showCustomNotification("Successfully added to your Watchlist!", "success");
             } else {
                 console.error("Failed to add:", result.message);
-                alert("Already added to watchlist!.");
+                showCustomNotification(result.message || "Already in your Watchlist!", "error");
             }
         } catch (error) {
             console.error("Network error:", error);
-            alert("Could not connect to the server.");
+            showCustomNotification("Could not connect to the server. Please try again later.", "error");
         }
     });
 });
@@ -346,4 +347,114 @@ function showProductError(message) {
     document.getElementById("product-specs").innerHTML = "";
     document.querySelector(".carousel-inner").innerHTML = "";
     document.getElementById("carousel-indicators").innerHTML = "";
+}
+
+//
+function showCustomNotification(message, type = 'info') {
+    // Remove existing notification if present
+    const existingNotification = document.getElementById("customNotificationModal");
+    if (existingNotification) existingNotification.remove();
+
+    const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+
+    const overlay = document.createElement("div");
+    overlay.id = "customNotificationModal";
+    overlay.style.position = "fixed";
+    overlay.style.top = "0";
+    overlay.style.left = "0";
+    overlay.style.width = "100%";
+    overlay.style.height = "100%";
+    overlay.style.background = "rgba(0,0,0,0.4)"; // Slightly less dark overlay
+    overlay.style.display = "flex";
+    overlay.style.justifyContent = "center";
+    overlay.style.alignItems = "center";
+    overlay.style.zIndex = "1050"; // Ensure it's above other modals if any
+
+    const modal = document.createElement("div");
+    modal.style.padding = "25px 30px";
+    modal.style.borderRadius = "12px";
+    modal.style.maxWidth = "400px";
+    modal.style.width = "90%";
+    modal.style.textAlign = "center";
+    modal.style.boxShadow = "0 5px 15px rgba(0,0,0,0.2)";
+
+    if (isDarkMode) {
+        modal.style.backgroundColor = "#2c3034"; // Darker background for dark mode
+        modal.style.color = "#e9ecef";
+        modal.style.border = "1px solid rgba(206, 147, 216, 0.2)";
+    } else {
+        modal.style.backgroundColor = "#ffffff";
+        modal.style.color = "#212529";
+        modal.style.border = "1px solid rgba(106, 27, 154, 0.2)";
+    }
+
+    let titleColor = isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)';
+    let iconHtml = '';
+
+    // Optional: Add icons based on type
+    if (type === 'success') {
+        titleColor = isDarkMode ? '#28a745' : '#198754'; // Green for success
+        iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-check-circle-fill" viewBox="0 0 16 16" style="color:${titleColor}; margin-bottom:10px;"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg><br/>`;
+    } else if (type === 'error') {
+        titleColor = isDarkMode ? '#dc3545' : '#dc3545'; // Red for error
+        iconHtml = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16" style="color:${titleColor}; margin-bottom:10px;"><path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/></svg><br/>`;
+    }
+
+    modal.innerHTML = `
+        ${iconHtml}
+        <p style="font-size: 1.1rem; margin-bottom: 20px; line-height: 1.6;">${message}</p>
+        <button id="closeCustomNotification" style="padding: 10px 25px; border: none; background: ${titleColor}; color: ${isDarkMode && (type ==='success' || type ==='error') ? '#212529' : 'white'}; border-radius: 25px; cursor: pointer; font-weight: 500; transition: background-color 0.3s;">OK</button>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    const closeButton = document.getElementById("closeCustomNotification");
+    const defaultButtonBg = closeButton.style.backgroundColor;
+
+    closeButton.addEventListener('mouseover', () => {
+        // Basic hover: darken or lighten based on theme and type
+        // This can be made more sophisticated with tinycolor.js or similar if needed
+        closeButton.style.backgroundColor = isDarkMode ? (type === 'success' || type === 'error' ? lightenDarkenColor(defaultButtonBg, -10) : lightenDarkenColor(defaultButtonBg, 10)) : lightenDarkenColor(defaultButtonBg, -20) ;
+    });
+    closeButton.addEventListener('mouseout', () => {
+        closeButton.style.backgroundColor = defaultButtonBg;
+    });
+
+    closeButton.addEventListener("click", () => overlay.remove());
+    overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+            overlay.remove();
+        }
+    });
+}
+
+// Helper function for hover effect (optional, can be expanded)
+function lightenDarkenColor(col, amt) {
+    var usePound = false;
+    if (col[0] == "#") {
+        col = col.slice(1);
+        usePound = true;
+    }
+    else if (col.startsWith('rgb')) { // Handle rgb/rgba
+        let parts = col.match(/[\d\.]+/g);
+        if (!parts || parts.length < 3) return col; // Invalid rgb
+        let r = parseInt(parts[0]), g = parseInt(parts[1]), b = parseInt(parts[2]);
+        r = Math.max(0, Math.min(255, r + amt));
+        g = Math.max(0, Math.min(255, g + amt));
+        b = Math.max(0, Math.min(255, b + amt));
+        return `rgb(${r}, ${g}, ${b}${parts.length === 4 ? `, ${parts[3]}` : ''})`;
+    }
+
+    var num = parseInt(col,16);
+    var r = (num >> 16) + amt;
+    if (r > 255) r = 255;
+    else if  (r < 0) r = 0;
+    var b = ((num >> 8) & 0x00FF) + amt;
+    if (b > 255) b = 255;
+    else if  (b < 0) b = 0;
+    var g = (num & 0x0000FF) + amt;
+    if (g > 255) g = 255;
+    else if (g < 0) g = 0;
+    return (usePound?"#":"") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
 }
