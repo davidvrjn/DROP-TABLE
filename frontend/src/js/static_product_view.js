@@ -160,7 +160,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const userId = JSON.parse(user || "{}").id;
 
         if (!userId) {
-            alert("Please log in to add items to your watchlist.");
+            // Replace alert with modal notification
+            if (window.showLoginNotification) {
+                window.showLoginNotification();
+            } else {
+                // Fallback if the function isn't available
+                alert("Please log in to add items to your watchlist.");
+            }
             return;
         }
 
@@ -226,6 +232,9 @@ function showRetailerPricesModal(retailers) {
     const existing = document.getElementById("retailerPricesModal");
     if (existing) existing.remove();
 
+    // Get current theme
+    const isDarkMode = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+
     // Create overlay
     const overlay = document.createElement("div");
     overlay.id = "retailerPricesModal";
@@ -242,7 +251,7 @@ function showRetailerPricesModal(retailers) {
 
     // Create modal container
     const modal = document.createElement("div");
-    modal.style.background = "grey";
+    modal.className = isDarkMode ? "modal-dark" : "modal-light";
     modal.style.padding = "20px";
     modal.style.borderRadius = "10px";
     modal.style.maxWidth = "500px";
@@ -250,46 +259,75 @@ function showRetailerPricesModal(retailers) {
     modal.style.maxHeight = "80vh";
     modal.style.overflowY = "auto";
     modal.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+    
+    // Set theme-specific styles
+    if (isDarkMode) {
+        modal.style.backgroundColor = "#212529";
+        modal.style.color = "#fff";
+        modal.style.border = "1px solid rgba(206, 147, 216, 0.15)";
+    } else {
+        modal.style.backgroundColor = "#fff";
+        modal.style.color = "#212529";
+        modal.style.border = "1px solid rgba(106, 27, 154, 0.15)";
+    }
 
     // Modal content
     modal.innerHTML = `
-        <h4 class="mb-3">All Retailer Prices</h4>
+        <h4 class="mb-3" style="color: ${isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)'};">All Retailer Prices</h4>
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
-                <tr>
-                    <th style="text-align: left;">Retailer</th>
-                    <th style="text-align: left;">Price</th>
-                    <th style="text-align: left;">Discount</th>
+                <tr style="border-bottom: 1px solid ${isDarkMode ? 'rgba(206, 147, 216, 0.15)' : 'rgba(106, 27, 154, 0.15)'}; padding-bottom: 8px;">
+                    <th style="text-align: left; padding: 8px; color: ${isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'};">Retailer</th>
+                    <th style="text-align: left; padding: 8px; color: ${isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'};">Price</th>
+                    <th style="text-align: left; padding: 8px; color: ${isDarkMode ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'};">Discount</th>
                 </tr>
             </thead>
             <tbody>
                 ${retailers
                     .map(
                         (r) => `
-                    <tr>
-                        <td>${r.retailer_name}</td>
-                        <td>R${parseFloat(r.final_price).toFixed(2)}</td>
-                        <td>${parseFloat(
+                    <tr style="border-bottom: 1px solid ${isDarkMode ? 'rgba(206, 147, 216, 0.05)' : 'rgba(106, 27, 154, 0.05)'}; transition: background-color 0.2s;">
+                        <td style="padding: 12px 8px;">${r.retailer_name}</td>
+                        <td style="padding: 12px 8px;">R${parseFloat(r.final_price).toFixed(2)}</td>
+                        <td style="padding: 12px 8px;"><span style="background-color: ${parseFloat(((r.initial_price - r.final_price) / r.initial_price) * 100) > 0 ? (isDarkMode ? 'rgba(206, 147, 216, 0.1)' : 'rgba(106, 27, 154, 0.1)') : 'transparent'}; padding: 2px 6px; border-radius: 4px;">${parseFloat(
                             ((r.initial_price - r.final_price) /
                                 r.initial_price) *
                                 100
-                        ).toFixed(0)}%</td>
+                        ).toFixed(0)}%</span></td>
                     </tr>`
                     )
                     .join("")}
             </tbody>
         </table>
         <div style="text-align: right; margin-top: 15px;">
-            <button id="closeRetailerModal" style="padding: 6px 12px; border: none; background: #333; color: white; border-radius: 4px; cursor: pointer;">Close</button>
+            <button id="closeRetailerModal" style="padding: 8px 16px; border: 1px solid ${isDarkMode ? 'rgba(206, 147, 216, 0.5)' : 'rgba(106, 27, 154, 0.5)'}; background: ${isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)'}; color: ${isDarkMode ? '#212529' : 'white'}; border-radius: 20px; cursor: pointer; transition: all 0.3s;">Close</button>
         </div>
     `;
 
     overlay.appendChild(modal);
     document.body.appendChild(overlay);
 
-    document
-        .getElementById("closeRetailerModal")
-        .addEventListener("click", () => overlay.remove());
+    // Add hover effect to rows
+    const rows = modal.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        row.addEventListener('mouseover', () => {
+            row.style.backgroundColor = isDarkMode ? 'rgba(206, 147, 216, 0.05)' : 'rgba(106, 27, 154, 0.05)';
+        });
+        row.addEventListener('mouseout', () => {
+            row.style.backgroundColor = 'transparent';
+        });
+    });
+
+    // Add hover effect to close button
+    const closeButton = document.getElementById("closeRetailerModal");
+    closeButton.addEventListener('mouseover', () => {
+        closeButton.style.backgroundColor = isDarkMode ? 'rgba(206, 147, 216, 1)' : 'rgba(106, 27, 154, 1)';
+    });
+    closeButton.addEventListener('mouseout', () => {
+        closeButton.style.backgroundColor = isDarkMode ? 'rgba(206, 147, 216, 0.9)' : 'rgba(106, 27, 154, 0.9)';
+    });
+
+    closeButton.addEventListener("click", () => overlay.remove());
 }
 
 function showProductError(message) {
