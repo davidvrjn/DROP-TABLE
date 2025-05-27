@@ -11,25 +11,26 @@ node --env-file=.env API.js
 
 # API Documentation
 endpoint: http://localhost:3000/
+A key surrounded in [] means its optional
 
 ## Get/Products
 Request example
 ```
 {
-    userid: 2,
-    filters: {
-        brands: ["Logitech"],
-        departments: ["Appliances"],
-        retailers: ["Amazon","Takealot"],
-        prices: [1000, 2000],
-        rating: 3,
-        search: "Keyboard"
+    [userid]: 2,
+    [filters]: {
+        [brands]: ["Logitech"],
+        [departments]: ["Appliances"],
+        [retailers]: ["Amazon","Takealot"],
+        [prices]: [1000, 2000],
+        [rating]: 3,
+        [search]: "Keyboard"
     }
-    ordering:{
-        field: "final_price",
-        order: "ASC"
+    [ordering]:{
+        [field]: "final_price",
+        [order]: "ASC"
     }
-    limit: 30
+    [limit]: 30
 }
 ```
 Response example
@@ -64,7 +65,7 @@ example url host/Get/Product/1/1 (means product id 1 and retailer id 1)
 Request Example
 ```
 {
-    userid:
+    [userid]:
 }
 ```
 Response Example
@@ -85,6 +86,7 @@ Response Example
         features:,
         initial_price:,
         discount:,
+        images:,
         watchlist: true or false
         reviews: [
             {
@@ -175,7 +177,7 @@ Possible response codes:
 Example request
 ```
 {
-    search: "Appliances"
+    [search]: "Appliances"
 }
 ```
 Example response
@@ -184,7 +186,8 @@ Example response
     data: [
         {
             retailer_name: "Amazon",
-            retailer_id: 3
+            retailer_id: 3,
+            count: 10
         }
     ]
 }
@@ -230,12 +233,14 @@ Example response
 ```
 {
     status: "success"
-    data: [{
-        retailer_name: "Amazon",
-        initial_price: 1000,
-        final_price: 500,
-        discount: 50,
-    }]
+    data: [
+        {
+            retailer_name: "Amazon",
+            initial_price: 1000,
+            final_price: 500,
+            discount: 50,
+        }
+    ]
 }
 ```
 Possible response codes:
@@ -291,8 +296,6 @@ Example request
     title: "Redragon DRAGONBORN Mechanical 60% RGB Gaming Keyboard",
     description: "The Redragon K630 DRAGONBORN 60% RGB Mechanical Gaming Keyboard is perfect for the PC gamer
                   who wants to have the most efficient and compact keyboard setup.",
-    created_at: current_time
-    updated_at: current_time
     specifications: ,
     features:,
     images: [],
@@ -335,7 +338,7 @@ Possible response codes:
 + 201
 
 ## Update/Product
-//Used to remove a retailer from the list
+//Used to remove or add a retailer from the list as well
 Example request
 ```
 {
@@ -458,6 +461,62 @@ Example response
 {
     status: "success",
     message: "Product removed from Watchlist deleted successfully"
+}
+```
+Possible response codes:
++ 200
+
+## Update/User/Email
+Example request
+```
+{
+    email:,
+    password:,
+    new_email:,
+}
+```
+Example response
+```
+{
+    status: "success",
+    message: "Email successfully updated"
+}
+```
+Possible response codes:
++ 200
+
+## Update/User/Password
+Example request
+```
+{
+    userid:,
+    password:,
+    new_password:,
+}
+```
+Example response
+```
+{
+    status: "success",
+    message: "Password successfully updated"
+}
+```
+Possible response codes:
++ 200
+
+## Remove/User
+Example request
+```
+{
+    userid:,
+    password:,
+}
+```
+Example response
+```
+{
+    status: "success",
+    message: "Account deleted"
 }
 ```
 Possible response codes:

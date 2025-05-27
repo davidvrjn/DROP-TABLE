@@ -1181,7 +1181,7 @@ app.post('/Add/Product', express.json(), async (req, res) => {
     try {
         const { userid, category_id, brand_id, title, description, specifications, features, image_url, images, retail_details } = req.body;
 
-        if (!userid || !category_id || !brand_id || !title || !description || !specifications || !features || !image_url || !images) {
+        if (!userid || !category_id || !brand_id || !title || !description || !specifications || !features || !image_url || !images || !retail_details) {
             res.status(400).send({ status: 'error', message: 'Required parameters missing' });
             return;
         }
@@ -1578,6 +1578,7 @@ app.post('/Remove/Product', express.json(), async (req, res) => {
         await conn.beginTransaction();
         await conn.query("DELETE FROM Watchlist_Item WHERE product_id = ?", [product_id]);
         await conn.query("DELETE FROM Product_Retailer WHERE product_id = ?", [product_id]);
+        await conn.query("DELETE FROM Review WHERE product_id = ?", [product_id]);
         const updated = await conn.query('DELETE FROM Product WHERE id = ?', [product_id]);
         await conn.commit();
 
