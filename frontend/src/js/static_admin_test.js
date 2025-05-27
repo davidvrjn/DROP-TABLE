@@ -227,6 +227,7 @@ async function loadProducts() {
 /**
  * Renders categories table with API data
  * Also populates category dropdowns in the product form
+ * Updated to ensure accurate product counts using API-provided count field
  */
 async function loadCategories() {
     const categoriesTable = document.getElementById("categoriesTable");
@@ -249,11 +250,15 @@ async function loadCategories() {
         console.log("Categories API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            categories = result.data.map((category) => ({
-                id: category.id?.toString() || "",
-                name: category.cat_name || "Unknown",
-                productCount: parseInt(category.count, 10) || 0,
-            }));
+            categories = result.data.map((category) => {
+                const productCount = parseInt(category.count, 10) || 0;
+                console.log(`Category ${category.cat_name} product count: ${productCount}`);
+                return {
+                    id: category.id?.toString() || "",
+                    name: category.cat_name || "Unknown",
+                    productCount: productCount,
+                };
+            });
 
             tbody.innerHTML = "";
             if (categories.length === 0) {
@@ -294,6 +299,7 @@ async function loadCategories() {
 /**
  * Renders retailers table with API data
  * Also populates retailer dropdowns in the product form
+ * Updated to ensure accurate product counts using API-provided count field
  */
 async function loadRetailers() {
     const retailersTable = document.getElementById("retailersTable");
@@ -316,12 +322,16 @@ async function loadRetailers() {
         console.log("Retailers API response:", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            retailers = result.data.map((retailer) => ({
-                id: retailer.retailer_id?.toString() || "",
-                name: retailer.retailer_name || "Unknown",
-                website: retailer.web_page_url || "#",
-                productCount: parseInt(retailer.count, 10) || 0,
-            }));
+            retailers = result.data.map((retailer) => {
+                const productCount = parseInt(retailer.count, 10) || 0;
+                console.log(`Retailer ${retailer.retailer_name} product count: ${productCount}`);
+                return {
+                    id: retailer.retailer_id?.toString() || "",
+                    name: retailer.retailer_name || "Unknown",
+                    website: retailer.web_page_url || "#",
+                    productCount: productCount,
+                };
+            });
 
             tbody.innerHTML = "";
             if (retailers.length === 0) {
