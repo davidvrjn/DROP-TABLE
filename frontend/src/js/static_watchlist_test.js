@@ -168,7 +168,7 @@ function setupPriceHistoryButtons(data) {
                                 ? "more expensive"
                                 : "(no change)"
                         }</td>
-                            <td>${(-pct).toFixed(2)}%</td>
+                            <td>${pct.toFixed(0)}%</td>
                         </tr>`;
                     }
 
