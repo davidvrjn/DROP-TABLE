@@ -398,13 +398,14 @@ app.post('/Get/Retailers', express.json(), async (req, res) => {
 
         if (!search) {
             //get all retailers here, no search provided
-            const rows = await conn.query('SELECT * FROM Retailer');  //<==============no search provided, just a select unique  
+            const rows = await conn.query('SELECT name, R.id AS id, COUNT(*) AS retailerCount FROM Retailer AS R INNER JOIN Product_Retailer AS PR ON PR.retailer_id = R.id GROUP BY R.id');  //<==============no search provided, just a select unique  
             let retailerJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let temp = {
                     retailer_name: rows[i].name,
-                    retailer_id: rows[i].id
+                    retailer_id: rows[i].id,
+                    count: BigInt(rows[i].retailerCount).toString()
                 }
 
                 retailerJSON.push(temp);
@@ -415,13 +416,14 @@ app.post('/Get/Retailers', express.json(), async (req, res) => {
             return;
         } else {
             //the user did provide a search, use search
-            const rows = await conn.query('SELECT * FROM Retailer WHERE name LIKE ?', [`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
+            const rows = await conn.query('SELECT name, R.id AS id, COUNT(*) AS retailerCount FROM Retailer AS R INNER JOIN Product_Retailer AS PR ON PR.retailer_id = R.id WHERE name LIKE ? GROUP BY R.id', [`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
             let retailerJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let temp = {
                     retailer_name: rows[i].name,
-                    retailer_id: rows[i].id
+                    retailer_id: rows[i].id,
+                    count: BigInt(rows[i].retailerCount).toString()
                 }
 
                 retailerJSON.push(temp)
@@ -476,13 +478,14 @@ app.post('/Get/Brands', express.json(), async (req, res) => {
             return;
         } else {
             //the user did provide a search, use search
-            const rows = await conn.query('SELECT * FROM Brand WHERE name LIKE ?', [`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
+            const rows = await conn.query('SELECT name, B.id AS id, COUNT(Product.brand_id) AS brandCount FROM Brand AS B INNER JOIN Product ON Product.brand_id = B.id WHERE name LIKE ? GROUP BY B.id, B.name', [`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
             let brandJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let temp = {
                     brand_name: rows[i].name,
-                    brand_id: rows[i].id
+                    brand_id: rows[i].id,
+                    count: BigInt(rows[i].brandCount).toString()
                 }
 
                 brandJSON.push(temp)
@@ -519,13 +522,14 @@ app.post('/Get/Categories', express.json(), async (req, res) => {
         if (!search) {
             //get all categories here, no search provided
 
-            const rows = await conn.query('SELECT * FROM Category');  //<==============no search provided, just a select unique  
+            const rows = await conn.query('SELECT cat_name, C.id AS id, COUNT(Product.category_id) AS catCount FROM Category AS C INNER JOIN Product ON C.id = Product.category_id GROUP BY C.id, C.cat_name');  //<==============no search provided, just a select unique  
             let categoryJSON = [];
 
             for (let i = 0; i < rows.length; i++) {
                 let temp = {
                     cat_name: rows[i].cat_name,
-                    id: rows[i].id
+                    id: rows[i].id,
+                    count: BigInt(rows[i].catCount).toString()
                 }
 
                 categoryJSON.push(temp);
@@ -536,14 +540,14 @@ app.post('/Get/Categories', express.json(), async (req, res) => {
             return;
         } else {
             //the user did provide a search, use search
-            const rows= await conn.query('SELECT * FROM Category WHERE cat_name LIKE ?',[`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
+            const rows= await conn.query('SELECT cat_name, C.id AS id, COUNT(Product.category_id) AS catCount FROM Category AS C INNER JOIN Product ON C.id = Product.category_id WHERE cat_name LIKE ? GROUP BY C.id, C.cat_name',[`%${req.body['search']}%`]); //<===============search provided, use it as a fuzzy search
             let categoryJSON=[];
 
             for(let i=0;i<rows.length;i++){
                 let temp={
                     cat_name: rows[i].cat_name,
-                    id: rows[i].id
-
+                    id: rows[i].id,
+                    count: BigInt(rows[i].catCount).toString()
                 }
 
                 categoryJSON.push(temp)
