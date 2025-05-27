@@ -76,6 +76,10 @@ let brands = [];
  * Renders products table with API data
  * Also updates filter dropdowns with available options
  */
+/**
+ * Renders products table with API data
+ * Also updates filter dropdowns with available options
+ */
 async function loadProducts() {
     const productsTable = document.getElementById("productsTable");
     if (!productsTable) {
@@ -131,19 +135,17 @@ async function loadProducts() {
         console.log("Products API response (no category filter):", result);
 
         if (result.status === "success" && Array.isArray(result.data)) {
-            // Add uncategorized products, excluding those already fetched
             const existingIds = new Set(allProducts.map(p => p.id));
             const uncategorizedProducts = result.data
                 .filter(product => !existingIds.has(product.id))
                 .map(product => {
-                    // Try to match the product to a category based on category_id if provided by the API
                     const productCategoryId = product.category_id?.toString();
                     const category = productCategoryId
                         ? categories.find(cat => cat.id === productCategoryId)
                         : null;
                     return {
                         ...product,
-                        category_id: category ? category.id : "" // Use category_id if matched, else mark as uncategorized
+                        category_id: category ? category.id : ""
                     };
                 });
             allProducts.push(...uncategorizedProducts);
@@ -154,8 +156,8 @@ async function loadProducts() {
             new Map(allProducts.map(p => [p.id, p])).values()
         );
 
-        products = allProducts.map((product) => {
-            console.log("Mapping product:", product);
+        // Fetch retailer prices for each product and map brand_id
+        products = await Promise.all(allProducts.map(async (product) => {
             const categoryId = product.category_id?.toString() || "";
             const category = categories.find(cat => cat.id === categoryId);
             const categoryName = category ? category.name : "Uncategorized";
@@ -164,19 +166,36 @@ async function loadProducts() {
                 console.warn(`No category matched for product ID ${product.id}, title: ${product.title}, category_id: ${categoryId}`);
             }
 
+            // Infer brand_id from the brands array based on the brand name
+            const brandName = product.brand || "Unknown";
+            const brand = brands.find(b => b.name === brandName);
+            const brandId = brand ? brand.id : "";
+
+            // Fetch all retailers for this product
+            const priceResponse = await fetch("http://localhost:3000/Get/RetailPrices", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    product_id: product.id
+                }),
+            });
+            const priceResult = await priceResponse.json();
+
+            const allRetailers = priceResult.status === "success" && Array.isArray(priceResult.data)
+                ? priceResult.data.map(item => item.retailer_name)
+                : [product.retailer_name || "Unknown"];
+
             return {
                 id: product.id?.toString() || "",
                 name: product.title || "Unknown",
                 image: product.image_url || "",
                 category: categoryName,
                 category_id: categoryId,
-                brand: product.brand || "Unknown",
-                brand_id: product.brand_id?.toString() || "",
+                brand: brandName,
+                brand_id: brandId, // Inferred brand_id
                 minPrice: parseFloat(product.final_price) || 0,
                 maxPrice: parseFloat(product.initial_price) || 0,
-                retailers: Array.isArray(product.retailer_name)
-                    ? product.retailer_name
-                    : [product.retailer_name || "Unknown"],
+                retailers: allRetailers,
                 retailer_id: product.retailer_id?.toString() || "",
                 description: product.description || "",
                 features: Array.isArray(product.features) ? product.features : [],
@@ -186,7 +205,7 @@ async function loadProducts() {
                 images: Array.isArray(product.images) ? product.images : [],
                 retail_details: Array.isArray(product.retail_details) ? product.retail_details : [],
             };
-        });
+        }));
 
         console.log("Mapped products:", products);
 
