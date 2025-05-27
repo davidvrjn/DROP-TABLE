@@ -304,10 +304,46 @@ $text-light: rgba(255, 255, 255, 0.8);
     }
 }
 
+/* Product actions */
 .product-actions {
     display: flex;
     gap: 15px;
     margin-bottom: 30px;
+
+    .wishlist-btn {
+        color: $dark-purple;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 500;
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+        border: 2px solid $dark-purple;
+        background-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        i {
+            font-size: 1.2em;
+        }
+
+        &:hover {
+            background-color: $dark-purple;
+            color: #fff;
+            border-color: $dark-purple;
+        }
+
+        // Active state (Added to Watchlist)
+        &.btn-success {
+            background-color: $dark-purple; // Use theme's dark purple for active state
+            color: #fff; // White text/icon for active state
+            border-color: $dark-purple;
+
+            &:hover {
+                background-color: lighten($dark-purple, 10%); // Slightly lighter purple on hover for active state
+                border-color: lighten($dark-purple, 10%);
+            }
+        }
+    }
 }
 
 .product-features {
@@ -370,6 +406,9 @@ $text-light: rgba(255, 255, 255, 0.8);
 
 /* Dark mode styles */
 [data-bs-theme="dark"] {
+    .wishlist-btn{
+        color: #fff;
+    }
     .carousel-indicators {
         [data-bs-target] {
             background-color: rgba(206, 147, 216, 0.7);

@@ -92,6 +92,13 @@ function renderProductData(product) {
     document.getElementById("product-description").textContent =
         product.description;
 
+    // Check if product is in watchlist and update button
+    const wishlistBtn = document.querySelector(".wishlist-btn");
+    if (product.watchlist === 1 && wishlistBtn) {
+        wishlistBtn.classList.add("btn-success");
+        wishlistBtn.innerHTML = `<i class="bi bi-heart-fill"></i> Added to Watchlist`;
+    }
+
     const ratingElement = document.getElementById("product-rating");
     if (product.rating) {
         ratingElement.querySelector(".rating-value").textContent =
