@@ -1776,9 +1776,9 @@ app.post('/Remove/User', express.json(), async(req, res) => {
             return;
         } else{
             await conn.beginTransaction();
-            await conn.query('DELETE Watchlist_Item WHERE user_id = ?', [userid]);
-            await conn.query('DELETE Review WHERE user_id = ?', [userid]);
-            await conn.query('DELETE User WHERE user_id = ?', [userid]);
+            await conn.query('DELETE FROM Watchlist_Item WHERE user_id = ?', [userid]);
+            await conn.query('DELETE FROM Review WHERE user_id = ?', [userid]);
+            await conn.query('DELETE FROM User WHERE user_id = ?', [userid]);
             await conn.commit();
             res.status(200).send({status: "success", message: "Account deleted"});
         }
