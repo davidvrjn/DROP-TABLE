@@ -16,43 +16,41 @@ endpoint: http://localhost:3000/
 Request example
 ```
 {
-    userid:
+    userid: 2,
     filters: {
-        brands: [],
-        departments: [],
-        retailers: [],
-        prices: [min, max],
-        rating:,
-        search:
+        brands: ["Logitech"],
+        departments: ["Appliances"],
+        retailers: ["Amazon","Takealot"],
+        prices: [1000, 2000],
+        rating: 3,
+        search: "Keyboard"
     }
     ordering:{
-        field:,
-        order:
+        field: "final_price",
+        order: "ASC"
     }
-    limit:
+    limit: 30
 }
 ```
 Response example
 ```
 {
-    status: "success/error",
-    //If error
-    message:
-    //if success
+    status: "success",
     data: [
         {
-            id:,
-            image_url:,
-            title:,
-            final_price:,
-            retailer_name:,
-            rating:,
-            initial_price:,
-            discount:,
-            watchlist: false or true
+            id: 2,
+            image_url: "https://m.media-amazon.com/images/I/51Sc2182SPL._AC_SL1000_.jpg",
+            title: "Astrum KB350 USB Mini Slim Wired Keyboard",
+            final_price: 700,
+            retailer_name: "Amazon",
+            retailer_id: 3,
+            rating: 3,
+            initial_price: 1000,
+            discount: 30,
+            watchlist: true
         }
     ]
-    total: 
+    total: 1
 }
 ```
 Possible response codes:
@@ -114,28 +112,21 @@ Possible Response Codes:
 Request Example
 ```
 {
-    email:,
-    password:
+    email: "a.senna@admin.compareit.co.za",
+    password: "Password#19"
 }
 ```
 Response Example
 ```
 {
-    status: success or error
-    //if error
-    message:
-    //if success
+    status: "success",
     data: {
         user: {
-            id:,
-            email:,
-            first_name:,
-            username:,
-            last_name:,
-            role:,
-            watchlist_id:,
-            preferences:,
-            DOB?:, (Possibly removed)
+            id: 3,
+            email: "a.senna@admin.compareit.co.za",
+            first_name: "Ayrton",
+            last_name: "Senna",
+            type: "admin",
         }
     }
 }
@@ -152,32 +143,22 @@ Possible response codes:
 Example request
 ```
 {
-    email:,
-    first_name:,
-    last_name:,
-    username:,
-    password:,
-    role:,
+    email: "l.hamilton@gmail.com",
+    first_name: "Lewis",
+    last_name: "Hamilton",
+    password: "Red>Silver2025"
 }
 ```
 Example response
 ```
 {
-    status: success or error
-    //if error
-    message:
-    //if success
+    status: "success",
     data: {
         user:{
-            id:,
-            email:,
-            first_name:,
-            username:,
-            last_name:,
-            role:,
-            watchlist_id:,
-            preferences:,
-            DOB?:, (Possibly removed)
+            id: 44,
+            email: "l.hamilton@gmail.com",
+            first_name: "Lewis",
+            last_name: "Hamilton"
         }
     }
 }
@@ -194,7 +175,7 @@ Possible response codes:
 Example request
 ```
 {
-    search:,
+    search: "Appliances"
 }
 ```
 Example response
@@ -202,123 +183,125 @@ Example response
 {
     data: [
         {
-            retailer_name:
-            retailer_id:
+            retailer_name: "Amazon",
+            retailer_id: 3
         }
     ]
 }
 ```
 Possible response codes:
-unknown
++ 200
 
 ## Get/Watchlist
 Example request
 ```
 {
-    watchlist_id:, //could be userid not fully convinced on watchlist_id
+    userid: 3
 }
 ```
 Example response
 ```
 {
+    status: "success",
     data: [
         {
-            id:,
-            image_url:,
-            title:,
-            final_price:,
-            retailer_name:,
-            rating:,
-            initial_price:,
+            id: 3,
+            image_url: "https://m.media-amazon.com/images/I/61uk5YYRa+L._AC_SL1500_.jpg",
+            title: "Disney Stitch Soft Touch Light with Bluetooth Speaker",
+            final_price: 300,
+            retailer_name: "Amazon",
+            rating: 4,
+            initial_price: 750
         }
     ]
 }
 ```
 Possible response codes:
-unknown
++ 200
 
-## Get/allRetailPrices
+## Get/RetailPrices
 Example request
 ```
 {
-    product_id:
+    product_id: 13
 }
 ```
 Example response
 ```
 {
-    status:
-    [message]:
-    [data]: {
-        retailer_name:,
-        initial_price:,
-        final_price:,
-        discount:,
-    }
+    status: "success"
+    data: [{
+        retailer_name: "Amazon",
+        initial_price: 1000,
+        final_price: 500,
+        discount: 50,
+    }]
 }
 ```
 Possible response codes:
 unknown
 
-## Add/ToWishlist
+## Add/Watchlist
 Example request
 ```
 {
-    product_id:
-    retailer_id: //used to get name and prices
-    watchlist/userid:
+    product_id: 3,
+    retailer_id: 2,
+    userid: 3
 }
 ```
 Example response
 ```
 {
-    status:
-    message: Error or something along the lines of inserted watchlist successfully
+    status: "success",
+    message: "New Item added to Watchlist"
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 ## Add/Review
 Example request
 ```
 {
-    product_id:
-    userid:
-    score:
-    message:
+    product_id: 3,
+    userid: 6,
+    score: 4,
+    message: "Product performs as expected."
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted watchlist successfully
+    status: "success",
+    message: "New Item added to Review"
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 
 ## Add/Product
 Example request
 ```
 {
-    userid: //validation
-    category_id:,
-    brand_id:,
-    title:,
-    description:,
+    userid: 3
+    category_id: 3,
+    brand_id: 2,
+    title: "Redragon DRAGONBORN Mechanical 60% RGB Gaming Keyboard",
+    description: "The Redragon K630 DRAGONBORN 60% RGB Mechanical Gaming Keyboard is perfect for the PC gamer
+                  who wants to have the most efficient and compact keyboard setup.",
     created_at: current_time
     updated_at: current_time
-    specifications:,
+    specifications: ,
     features:,
-    image_url:,
+    images: [],
+    image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
     retail_details:[
         {
-            retailer_id:,
-            initial_price:,
-            final_price:,
+            retailer_id: 3,
+            initial_price: 843.74,
+            final_price: 649.23
         }
     ]
 }
@@ -326,51 +309,51 @@ Example request
 Example response
 ```
 {
-    status: 
-    message: 
+    status: "success", 
+    message: "Product inserted successfully"
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 ## Add/Category OR Retailer OR Brand
 Example request
 ```
 {
-    x_name:
-    userid: //validation
+    name: "Appliances",
+    userid: 2
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "New Item added to Category"
 }
 ```
 Possible response codes:
-unknown
++ 201
 
 ## Update/Product
 //Used to remove a retailer from the list
 Example request
 ```
 {
-    userid: //validation
-    productid:
-    category_id:,
-    brand_id:,
-    title:,
-    description:,
-    updated_at: current_time //do not modify creation_time
-    specifications:,
-    features:,
-    image_url:
+    userid: 5,
+    productid: 12,
+    category_id: 3,
+    brand_id: 2,
+    title: "REDDRAGON 60% keyboard",
+    description: ["60% mechanical keyboard with light and ergonomic design. Perfect for gamers with limited desk space."],
+    specifications: ,
+    features: ["Wrist support","Mechanical Tactical (RED) switches"],
+    image_url: "https://redragon.co.za/Redragon%20DRAGONBORN%20Mechanical%2060%25%20RGB%20Gaming%20Keyboard&imgurl=https%3A%2F%2Fredragon.co.za",
+    images: ["https://shopnow.com/Red-dragon-keyboard-x91","https://gadgethub.io/Red-dragon-keyboard-deal","https://buyit.tech/Red-dragon-keyboard-pro"],
     retail_details:[
         {
-            retailer_id:,
-            initial_price:,
-            final_price:,
+            retailer_id: 3,
+            initial_price: 2000,
+            final_price: 1400
         }
     ]
 }
@@ -378,107 +361,104 @@ Example request
 Example response
 ```
 {
-    status: 
-    message: 
+    status: "success",
+    message: "Product updated successfully"
 }
 ```
+Possible response codes:
++ 200
 
 ## Update/Category OR Retailer OR Brand
 Example request
 ```
 {
-    x_name:
-    id:
-    userid: //validation
+    name: "Appliances",
+    id: 3,
+    userid: 4
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Categories successfully updated"
 }
 ```
+Possible response codes:
++ 200
 
 ## Update/Watchlist
 Example request
 ```
 {
-    watchlist/userid:,
-    product_id:,
-    initial_price:,
-    final_price:,
-    retailer_name:,
+    userid: 3,    
+    product_id: 12,
+    initial_price: 2000,
+    final_price: 1500,
+    retailer_name: "Amazon"
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Watchlist updated successfully"
 }
 ```
-## Update/Preferences
-Example request
-```
-{
-    userid:
-    preferences:
-}
-```
-Example response
-```
-{
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
-}
-```
+Possible response codes:
++ 200
 
 ## Remove/Product
 //Remove retailer from update
 Example request
 ```
 {
-    id:
-    userid: //validation
+    product_id: 4,
+    userid: 3
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Product deleted successfully"
 }
 ```
+Possible response codes:
++ 200
 
 ## Remove/Category OR Retailer OR Brand
 Example request
 ```
 {
-    id:
-    userid: //validation
+    id: 3,
+    userid: 2
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Category removed"
 }
 ```
+Possible response codes:
++ 200
 
 ## Remove/Watchlist
 Example request
 ```
 {
-    watchlist_id/userid:
-    product_id:
+    userid: 5,
+    product_id: 7
 }
 ```
 Example response
 ```
 {
-    status: //if success add the review to the page
-    message: Error or something along the lines of inserted successfully
+    status: "success",
+    message: "Product removed from Watchlist deleted successfully"
 }
 ```
+Possible response codes:
++ 200
